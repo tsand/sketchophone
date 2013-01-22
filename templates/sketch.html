@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <canvas id="simple_sketch" width="800" height="300"></canvas>
+{% endblock content %}
+
+{% block js_include %}
+    <script src="{{ url_for('static', filename="js/sketch.min.js") }}"></script>
+    <script type="text/javascript">
+        $(function() {
+            $('#simple_sketch').sketch();
+        });
+    </script>
+{% endblock js_include %}

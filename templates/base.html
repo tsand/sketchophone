@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Sketchophone</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="{{ url_for('static', filename="css/bootstrap.min.css") }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename="css/font-awesome.min.css") }}" rel="stylesheet">
+    <style>
+        body { padding-top: 60px; }
+    </style>
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href="{{ url_for('home')}}">Sketchophone</a>
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li class=""><a href="{{ url_for('home')}}"><i class='icon-home icon-large'></i> Home</a></li>
+                    <li class=""><a href="{{ url_for('sketch')}}">Sketch</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="span12">
+            <div id="content">{% block content %}{% endblock %}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Le javascript
+    ================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="{{ url_for('static', filename="js/jquery-1.9.0.min.js") }}"></script>
+<script src="{{ url_for('static', filename="js/bootstrap.min.js") }}"></script>
+{% block js_include %}{% endblock %}
+
+<script type="text/javascript">
+    $('a[href*=sketch]').tab('show');
+</script>
+
+</body>
+</html>
