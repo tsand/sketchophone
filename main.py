@@ -14,7 +14,7 @@ def base():
 @app.route('/')
 def home():
     return render_template('home.html')
-
+# Testing
 @app.route('/sketch')
 def sketch():
     return render_template('sketch.html')
