@@ -1,5 +1,5 @@
-from lib.flask_wtf import Form, TextField, PasswordField, BooleanField, SubmitField
-from lib.flask_wtf import Required, Email, EqualTo, Length, ValidationError
+from resources.flask_wtf import Form, TextField, PasswordField, BooleanField, SubmitField
+from resources.flask_wtf import Required, Email, EqualTo, Length, ValidationError
 
 from auth import actions as auth_actions
 
