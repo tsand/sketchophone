@@ -1,11 +1,12 @@
 from auth import models as auth_models
 from lib.flask_login import LoginManager
-from models import User
+from models import User, Anonymous
 
 login_manager = LoginManager()
 
 def initialize(app):
     login_manager.init_app(app)
+    login_manager.anonymous_user = Anonymous
 
 @login_manager.user_loader
 def load_user(id):
