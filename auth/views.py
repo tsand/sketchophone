@@ -4,7 +4,7 @@ from flask.views import View, MethodView
 from flask.templating import render_template
 from flask import redirect, url_for, flash
 
-from lib.flask_login import login_user, current_user, logout_user
+from resources.flask_login import login_user, current_user, logout_user
 
 from auth import models as auth_models
 from auth import forms as auth_forms
