@@ -1,13 +1,13 @@
-#Quick Python Lesson
-#This is where we declare methods or classes that can be called from the module name.
-#for example
-#If this file contained this:
-import logging
-def hello_world():
-    logging.info('hello world')
-# Then we could call this method by saying using this any where in the app
-# import auth
-# auth.hello_world()
-# and the string hello world would be logged in the google app engine logger.
+from auth import models as auth_models
+from lib.flask_login import LoginManager
+from models import User, Anonymous
 
-# i'm not sure what kind of methods or classes we should put in here
+login_manager = LoginManager()
+
+def initialize(app):
+    login_manager.init_app(app)
+    login_manager.anonymous_user = Anonymous
+
+@login_manager.user_loader
+def load_user(id):
+    return auth_models.User.get_by_id(int(id))
