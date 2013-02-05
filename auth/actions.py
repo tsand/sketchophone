@@ -10,3 +10,15 @@ def create_user(name):
 def find_user_by_username(name):
     user = auth_models.User.all().filter('username =', name).get()
     return user
+
+def get_user_by_id(id):
+    user = auth_models.User.all().filter('id=', id).get()
+    return user
+
+def check_username_exists(username):
+    user = auth_models.User.all().filter('username =', username).fetch(1)
+
+    if len(user):
+        return True
+
+    return False
