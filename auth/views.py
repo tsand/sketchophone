@@ -2,13 +2,28 @@
 
 from flask.views import View, MethodView
 from flask.templating import render_template
-from flask import redirect, url_for, flash
+from flask import request, redirect, url_for, flash
 
 from resources.flask_login import login_user, current_user, logout_user
+from resources.flask_oauth import OAuth
 
 from auth import models as auth_models
 from auth import forms as auth_forms
 from auth import utils as auth_utils
+
+import settings
+
+oauth = OAuth()
+
+facebook = oauth.remote_app('facebook',
+    base_url='https://graph.facebook.com/',
+    request_token_url=None,
+    access_token_url='/oauth/access_token',
+    authorize_url='https://www.facebook.com/dialog/oauth',
+    consumer_key=settings.FACEBOOK_APP_ID,
+    consumer_secret=settings.FACEBOOK_APP_SECRET,
+    request_token_params={'scope': 'email'}
+)
 
 
 class Register(MethodView):
@@ -46,8 +61,8 @@ class Register(MethodView):
                 for error in form.errors[field]:
                     flash(error, 'error')
 
-        # Stay on registration page
-        return redirect(url_for('register'))
+            # Stay on registration page
+            return redirect(url_for('register'))
 
 
 class Login(MethodView):
@@ -82,8 +97,13 @@ class Login(MethodView):
                 for error in form.errors[field]:
                     flash(error, 'error')
 
-        # Stay on login page
-        return redirect(url_for('login'))
+            # Stay on login page
+            return redirect(url_for('login'))
+
+
+class FacebookLogin(MethodView):
+    def get(self):
+        return facebook.authorize(callback=url_for('facebook_authorized', next=request.args.get('next') or request.referrer or None, _external=True))
 
 
 class Logout(View):

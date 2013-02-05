@@ -16,3 +16,9 @@ handlers:
 - url: .*
   script: main.py
   secure: always
+
+inbound_services:
+- warmup
+
+builtins:
+- deferred: on
