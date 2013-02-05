@@ -1,25 +1,40 @@
 from lib.flask_wtf import Form, TextField, PasswordField, BooleanField, SubmitField
-from lib.flask_wtf import Required, Email, EqualTo, ValidationError
+from lib.flask_wtf import Required, Email, EqualTo, Length, ValidationError
 
 from auth import actions as auth_actions
 
-class RegisterForm(Form):
+import settings
 
-    username = TextField('Username', [Required()])
-    email = TextField('Email', [Required(), Email()])
-    password = PasswordField('Password', [Required()])
-    password_confirm = PasswordField('Confirm Password', [Required()])
+class RegisterForm(Form):
+    # Error messages
+    required = '%s required'
+    password_length = 'Password must be %s characters' % settings.PASSWORD_LENGTH
+    password_match = 'Passwords must match'
+
+    # Fields
+    username = TextField('Username', [Required(message=required % 'Username')])
+    email = TextField('Email', [Required(message=required % 'Email'), Email()])
+    password = PasswordField('Password', [Required(message=required % 'Password'),
+                                          Length(settings.PASSWORD_LENGTH, message=password_length)])
+    confirm = PasswordField('Confirm Password', [EqualTo('password', message=password_match)])
     remember = BooleanField('Remember')
     submit = SubmitField('Sign In')
 
-#    def validate_username(self, field):
-#        if auth_actions.check_username_exists(field):
-#            raise ValidationError, "Username not available"
+    def validate_username(self, field):
+        if auth_actions.check_username(field.data):
+            raise ValidationError, "Username not available"
 
+    def validate_email(self, field):
+        if auth_actions.check_email(field.data):
+            raise ValidationError, "User already exists"
 
 class LoginForm(Form):
+    # Error messages
+    required = '%s required'
 
-    email = TextField('Email', [Required(message='Email')])
-    password = PasswordField('Password', [Required(message='Pass')])
+    # Fields
+    email = TextField('Email', [Required(message=required % 'Email')])
+    password = PasswordField('Password', [Required(message=required % 'Password')])
     remember = BooleanField('Remember')
     submit = SubmitField('Sign In')
+
