@@ -1,5 +1,5 @@
 from auth import models as auth_models
-from lib.flask_login import LoginManager
+from resources.flask_login import LoginManager
 from models import User, Anonymous
 
 login_manager = LoginManager()
