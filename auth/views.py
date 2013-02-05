@@ -36,7 +36,7 @@ class Register(MethodView):
             login_user(new_user, remember=form.remember.data)
 
             # Redirect to User page
-            flash('Login Successful', 'success')
+            flash('Registration Successful', 'success')
             return redirect(url_for('user'))
 
         else:
@@ -62,10 +62,10 @@ class Login(MethodView):
         if form.validate_on_submit():
 
             # Authenticate user
-            if auth_utils.authenticate(form.email.data, form.password.data):
+            if auth_utils.authenticate(form.username.data, form.password.data):
 
                 # Login as user
-                user = auth_models.User.all().filter('email =', form.email.data).fetch(1)[0]
+                user = auth_models.User.all().filter('username =', form.username.data).fetch(1)[0]
                 login_user(user, remember=form.remember.data)
 
                 # Redirect to user page

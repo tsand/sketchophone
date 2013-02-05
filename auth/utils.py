@@ -14,8 +14,8 @@ def salt_password(password, salt=None):
     return hashlib.sha512(password + salt).hexdigest(), salt
 
 
-def authenticate(email, password):
-    user = auth_models.User.all().filter('email =', email).fetch(1)
+def authenticate(username, password):
+    user = auth_models.User.all().filter('username =', username).fetch(1)
 
     if len(user):
         user = user[0]
