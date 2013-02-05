@@ -46,8 +46,8 @@ class Register(MethodView):
                 for error in form.errors[field]:
                     flash(error, 'error')
 
-            # Stay on registration page
-            return redirect(url_for('register'))
+        # Stay on registration page
+        return redirect(url_for('register'))
 
 
 class Login(MethodView):
@@ -82,8 +82,8 @@ class Login(MethodView):
                 for error in form.errors[field]:
                     flash(error, 'error')
 
-            # Stay on login page
-            return redirect(url_for('login'))
+        # Stay on login page
+        return redirect(url_for('login'))
 
 
 class Logout(View):
