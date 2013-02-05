@@ -1,23 +1,19 @@
 import os
-from flask import Flask, render_template
+from flask import Flask
 
 app = Flask(__name__)
 
 ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
+app.secret_key = 'this-is-just-our-dev-key-oh-so-secret'
 
-# Templates (testing purposes)
-@app.route('/base')
-def base():
-    return render_template('base.html')
+from auth import urls as auth_urls
+from base import urls as base_urls
+from sketch import urls as sketch_urls
 
-# Pages
-@app.route('/')
-def home():
-    return render_template('home.html')
+auth_urls.apply_urls(app)
+base_urls.apply_urls(app)
+sketch_urls.apply_urls(app)
 
-@app.route('/sketch')
-def sketch():
-    return render_template('sketch.html')
 
 
 if __name__ == '__main__':
