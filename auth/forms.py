@@ -33,7 +33,7 @@ class LoginForm(Form):
     required = '%s required'
 
     # Fields
-    email = TextField('Email', [Required(message=required % 'Email')])
+    username = TextField('Username', [Required(message=required % 'Username')])
     password = PasswordField('Password', [Required(message=required % 'Password')])
     remember = BooleanField('Remember')
     submit = SubmitField('Sign In')
