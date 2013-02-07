@@ -2,7 +2,7 @@
 
 from flask.views import View, MethodView
 from flask.templating import render_template
-from flask import request, redirect, url_for, flash
+from flask import request, redirect, url_for, flash, session
 
 from resources.flask_login import login_user, current_user, logout_user
 from resources.flask_oauth import OAuth
@@ -10,6 +10,7 @@ from resources.flask_oauth import OAuth
 from auth import models as auth_models
 from auth import forms as auth_forms
 from auth import utils as auth_utils
+from auth import actions as auth_actions
 
 import settings
 
@@ -27,6 +28,7 @@ facebook = oauth.remote_app('facebook',
 
 
 class Register(MethodView):
+
     def get(self):
         form = auth_forms.RegisterForm()
         return render_template("auth/register.html", form=form)
@@ -61,11 +63,12 @@ class Register(MethodView):
                 for error in form.errors[field]:
                     flash(error, 'error')
 
-            # Stay on registration page
-            return redirect(url_for('register'))
+        # Stay on registration page
+        return redirect(url_for('register'))
 
 
 class Login(MethodView):
+
     def get(self):
         form = auth_forms.LoginForm()
         return render_template("auth/login.html", form=form)
@@ -77,7 +80,7 @@ class Login(MethodView):
         if form.validate_on_submit():
 
             # Authenticate user
-            if auth_utils.authenticate(form.username.data, form.password.data):
+            if auth_actions.authenticate(form.username.data, form.password.data):
 
                 # Login as user
                 user = auth_models.User.all().filter('username =', form.username.data).fetch(1)[0]
@@ -97,16 +100,12 @@ class Login(MethodView):
                 for error in form.errors[field]:
                     flash(error, 'error')
 
-            # Stay on login page
-            return redirect(url_for('login'))
-
-
-class FacebookLogin(MethodView):
-    def get(self):
-        return facebook.authorize(callback=url_for('facebook_authorized', next=request.args.get('next') or request.referrer or None, _external=True))
+        # Stay on login page
+        return redirect(url_for('login'))
 
 
 class Logout(View):
+
     def dispatch_request(self):
         logout_user()
         flash('You are logged out', 'info')
@@ -114,5 +113,55 @@ class Logout(View):
 
 
 class User(View):
+
     def dispatch_request(self):
         return render_template('auth/user.html',  user=current_user)
+
+
+class FacebookLogin(View):
+
+    def dispatch_request(self):
+        return facebook.authorize(callback=url_for('facebook_authorized',
+            next=request.args.get('next') or request.referrer or None,
+            _external=True))
+
+
+class FacebookAuthorized(View):
+
+    @facebook.authorized_handler
+    def dispatch_request(self, other):
+
+        # Setting the oauth token in the session
+        session['oauth_token'] = str(self.get('access_token', ''))
+
+        # Receiving the user info from Facebook
+        me = facebook.get('/me')
+
+        # Connect facebook account to current user
+        if current_user.is_authenticated():
+            current_user.name = me.data['name']
+            current_user.facebook_id = me.data['id']
+            current_user.put()
+
+        else:
+            # Checking for the user associated with the user's facebook ID
+            user = auth_actions.get_user_by_facebook_id(me.data['id'])
+
+            # Log in with facebook user
+            if user:
+                login_user(user, True)
+
+            # New Account
+            else:
+                user = auth_models.User(name=me.data['name'],
+                    facebook_id=me.data['id'],
+                    email=me.data['email'],
+                    username=me.data['username'])
+                user.put()
+
+        return redirect(url_for('user'))
+
+
+@facebook.tokengetter
+def get_facebook_oauth_token():
+    return session.get('oauth_token'), settings.FACEBOOK_APP_SECRET

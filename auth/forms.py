@@ -18,7 +18,7 @@ class RegisterForm(Form):
                                           Length(settings.PASSWORD_LENGTH, message=password_length)])
     confirm = PasswordField('Confirm Password', [EqualTo('password', message=password_match)])
     remember = BooleanField('Remember')
-    submit = SubmitField('Sign In')
+    submit = SubmitField('Register')
 
     def validate_username(self, field):
         if auth_actions.check_username(field.data):

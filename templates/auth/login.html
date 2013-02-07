@@ -24,7 +24,9 @@
                         {{ form.remember }}Remember me
                     </label>
                     {{ form.submit(class="btn btn-primary") }}
-                    <a class="btn btn-primary btn-block" href="{{ url_for('facebook_login') }}">Login with Facebook</a>
+                    <a class="btn btn-primary" href="{{ url_for('facebook_login') }}">
+                        <i class="icon-facebook-sign icon-large"></i> Login with Facebook
+                    </a>
                 </div>
             </div>
 
