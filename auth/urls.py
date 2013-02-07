@@ -12,4 +12,5 @@ def apply_urls(app):
 
     # Facebook login
     app.add_url_rule('/auth/facebook_login', view_func=auth_views.FacebookLogin.as_view('facebook_login'))
-    app.add_url_rule('/auth/facebook_authorized', view_func=auth_views.FacebookAuthorized.as_view('facebook_authorized'))
+    app.add_url_rule('/auth/facebook_auth', view_func=auth_views.FacebookAuthorize.as_view('facebook_auth'))
+    app.add_url_rule('/auth/facebook_deauth', view_func=auth_views.FacebookDeauthorize.as_view('facebook_deauth'))

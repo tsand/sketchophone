@@ -121,12 +121,12 @@ class User(View):
 class FacebookLogin(View):
 
     def dispatch_request(self):
-        return facebook.authorize(callback=url_for('facebook_authorized',
+        return facebook.authorize(callback=url_for('facebook_auth',
             next=request.args.get('next') or request.referrer or None,
             _external=True))
 
 
-class FacebookAuthorized(View):
+class FacebookAuthorize(View):
 
     @facebook.authorized_handler
     def dispatch_request(self, other):
@@ -155,12 +155,20 @@ class FacebookAuthorized(View):
             else:
                 user = auth_models.User(name=me.data['name'],
                     facebook_id=me.data['id'],
-                    email=me.data['email'],
-                    username=me.data['username'])
+                    email=me.data['email'])
                 user.put()
 
         return redirect(url_for('user'))
 
+
+class FacebookDeauthorize(View):
+
+    def dispatch_request(self):
+        current_user.facebook_id = None
+        current_user.name = None
+        current_user.put()
+
+        return redirect(url_for('user'))
 
 @facebook.tokengetter
 def get_facebook_oauth_token():

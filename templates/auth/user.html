@@ -21,7 +21,9 @@
                     {% if user.facebook_id %}
                         <tr>
                             <td>Facebook</td>
-                            <td><a href="https://www.facebook.com/{{ user.facebook_id }}"><img src="https://graph.facebook.com/{{ user.facebook_id }}/picture"/></a></td>
+                            <td><a href="https://www.facebook.com/{{ user.facebook_id }}">
+                                    <img src="https://graph.facebook.com/{{ user.facebook_id }}/picture"/>
+                            </a></td>
                         </tr>
                     {% endif %}
                 </tbody>
@@ -32,7 +34,7 @@
                     Change Password
                 </a>
                 {% if user.facebook_id %}
-                    <a class="btn btn-primary" href="{{ url_for('facebook_login') }}">
+                    <a class="btn btn-primary" href="{{ url_for('facebook_deauth') }}">
                         <i class="icon-facebook-sign icon-large"></i> Disconnect
                     </a>
                 {% else %}
