@@ -1,14 +1,33 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <canvas id="simple_sketch" width="800" height="300"></canvas>
-{% endblock content %}
+<div class="hero-unit">
+<div class="sketch" id="sketch_page">
+	<p>
+	<a href="#colors_sketch" data-tool="marker" class="btn btn-primary btn-large">Marker</a>
+	<a href="#colors_sketch" data-tool="eraser" class="btn btn-primary btn-large">Eraser</a>
+	<a href="#colors_sketch" data-download="png" class="btn btn-primary btn-large">Download</a>
+	</p>
+	<div class="tools">
+		
+	</div>
+</div>
+		<canvas id="colors_sketch" width="1000" height="500" style="background: #fff"></canvas>
+		{% endblock content %}
 
-{% block js_include %}
-    <script src="{{ url_for('static', filename="js/sketch.min.js") }}"></script>
-    <script type="text/javascript">
-        $(function() {
-            $('#simple_sketch').sketch();
-        });
-    </script>
+	{% block js_include %}
+		<script src="{{ url_for('static', filename="js/sketch.min.js") }}"></script>
+		<script type="text/javascript">
+			$(function() {
+				$('#colors_sketch').sketch({defaultColor: "#000"});
+				$.each(['#f00', '#ff0', '#0f0', '#0ff', '#00f', '#f0f', '#000', '#fff'], function() {
+				  $('#sketch_page .tools').append("<a href='#colors_sketch' data-color='" + this + "' style='width: 10px; background: " + this + ";'></a> ");
+				});
+				$.each([3, 5, 10, 15], function() {
+				  $('#sketch_page .tools').append("<a href='#colors_sketch' data-size='" + this + "' style='background: #ccc'>" + this + "</a> ");
+				});
+				$('#colors_sketch').sketch();
+			});
+		</script>
+</div>
 {% endblock js_include %}
