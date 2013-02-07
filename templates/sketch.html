@@ -4,15 +4,25 @@
 <div class="hero-unit">
 <div class="sketch" id="sketch_page">
 	<p>
-	<a href="#colors_sketch" data-tool="marker" class="btn btn-primary btn-large">Marker</a>
-	<a href="#colors_sketch" data-tool="eraser" class="btn btn-primary btn-large">Eraser</a>
-	<a href="#colors_sketch" data-download="png" class="btn btn-primary btn-large">Download</a>
+		<a href="#colors_sketch" data-tool="marker" class="btn btn-primary icon-pencil icon-large"></a>
+		<a href="#colors_sketch" data-tool="eraser" class="btn btn-primary icon-trash icon-large"></a>
 	</p>
 	<div class="tools">
 		
 	</div>
 </div>
 		<canvas id="colors_sketch" width="1000" height="500" style="background: #fff"></canvas>
+		<div class="btn-group">
+			<a class="btn btn-primary" href="#"><i class="icon-reorder"></i> Image Options</a>
+			<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="icon-caret-down"></span></a>
+			<ul class="dropdown-menu">
+				<li><a href="#colors_sketch" data-download="png"><i class="icon-pencil"></i> Download</a></li>
+				<li><a href="#"><i class="icon-flag"></i> Flag Image</a></li>
+			</ul>
+		</div>
+		<a href="#" class="btn btn-primary icon-ok-sign"> Submit</a>
+
+		
 		{% endblock content %}
 
 	{% block js_include %}
