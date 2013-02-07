@@ -26,3 +26,7 @@ def check_email(email):
     if len(user):
         return True
     return False
+
+def guess_users_by_username(name):
+    users = auth_models.User.all().filter('username >=', name).filter('username <', name + u'\ufffd')
+    return users
