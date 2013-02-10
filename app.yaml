@@ -17,6 +17,10 @@ handlers:
   script: main.py
   secure: always
 
+- url: /cron/.*
+  script: main.py
+  login: admin
+
 inbound_services:
 - warmup
 

@@ -1,0 +1,4 @@
+cron:
+- description: Clean out expired users
+  url: /cron/clean_users
+  schedule: every day 00:00
