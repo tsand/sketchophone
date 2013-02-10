@@ -9,6 +9,7 @@ def apply_urls(app):
     app.add_url_rule('/auth/register/', view_func=auth_views.Register.as_view('register'))
     app.add_url_rule('/auth/login/', view_func=auth_views.Login.as_view('login'))
     app.add_url_rule('/auth/logout/', view_func=auth_views.Logout.as_view('logout'))
+    app.add_url_rule('/auth/user/query/', view_func=auth_views.HandleUserQuery.as_view('user_query'))
     app.add_url_rule('/auth/password/', view_func=auth_views.ChangePassword.as_view('password'))
 
     # Facebook login

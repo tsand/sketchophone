@@ -33,6 +33,9 @@ def get_user_by_registration_id(id):
     user = auth_models.User.all().filter('registration_id =', id).get()
     return user
 
+def guess_users_by_username(name):
+    users = auth_models.User.all().filter('username >=', name).filter('username <', name + u'\ufffd')
+    return users
 
 # User Attribute Verification
 def check_username(username):
@@ -66,4 +69,3 @@ def delete_expired_users():
     for user in users:
         if user.created < expiry_time:
             user.delete()
-

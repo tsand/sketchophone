@@ -10,9 +10,12 @@
     <!-- Le styles -->
     <link href="{{ url_for('static', filename="css/bootstrap.min.css") }}" rel="stylesheet">
     <link href="{{ url_for('static', filename="css/font-awesome.min.css") }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename="css/bootstrap-tagmanager.css") }}" rel="stylesheet">
     <style>
         body { padding-top: 60px; }
     </style>
+    {% block style %}{% endblock %}
+    
 </head>
 
 <body>
@@ -30,6 +33,7 @@
                 <ul class="nav">
                     <li class=""><a href="{{ url_for('home')}}"><i class='icon-home icon-large'></i> Home</a></li>
                     <li class=""><a href="{{ url_for('sketch')}}"><i class='icon-pencil icon-large'></i> Sketch</a></li>
+					<li class=""><a href="{{ url_for('about')}}"><i class='icon-group icon-large'></i> About</a></li>
                 </ul>
                 <ul class="nav pull-right">
                     <li class="divider-vertical"></li>
@@ -78,6 +82,7 @@
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="{{ url_for('static', filename="js/jquery-1.9.0.min.js") }}"></script>
 <script src="{{ url_for('static', filename="js/bootstrap.min.js") }}"></script>
+<script src="{{ url_for('static', filename="js/bootstrap-tagmanager.js") }}"></script>
 {% block js_include %}{% endblock %}
 
 <script type="text/javascript">
