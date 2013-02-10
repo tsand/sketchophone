@@ -2,14 +2,16 @@
 
 from flask.views import View, MethodView
 from flask.templating import render_template
-from flask import redirect, url_for, flash
+from flask import redirect, url_for, flash,request
 
 from resources.flask_login import login_user, current_user, logout_user
 
 from auth import models as auth_models
 from auth import forms as auth_forms
 from auth import utils as auth_utils
+from auth import actions as auth_actions
 
+import json
 
 class Register(MethodView):
     def get(self):
@@ -96,3 +98,10 @@ class Logout(View):
 class User(View):
     def dispatch_request(self):
         return render_template('auth/user.html',  user=current_user)
+
+class HandleUserQuery(MethodView):
+    def get(self):
+        query = request.args.get('query','')
+        users = auth_actions.guess_users_by_username(query)
+
+        return json.dumps({"found_tags":[user.username for user in users]})
