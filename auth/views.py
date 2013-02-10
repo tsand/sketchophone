@@ -13,6 +13,7 @@ from auth import utils as auth_utils
 from auth import actions as auth_actions
 
 from base import mail, cron
+import json
 
 import settings
 
@@ -228,6 +229,13 @@ class User(View):
     @login_required
     def dispatch_request(self):
         return render_template('auth/user.html',  user=current_user)
+
+class HandleUserQuery(MethodView):
+    def get(self):
+        query = request.args.get('query','')
+        users = auth_actions.guess_users_by_username(query)
+
+        return json.dumps({"found_tags":[user.username for user in users]})
 
 
 class FacebookLogin(View):
