@@ -18,7 +18,11 @@
                         <td>Created</td>
                         <td>{{ user.created }}</td>
                     </tr>
-                    {% if user.facebook_id %}
+                    <tr>
+                        <td>Last Updated</td>
+                        <td>{{ user.updated }}</td>
+                    </tr>
+                    {% if user.is_facebook_user() %}
                         <tr>
                             <td>Facebook</td>
                             <td><a href="https://www.facebook.com/{{ user.facebook_id }}">
@@ -29,20 +33,27 @@
                 </tbody>
             </table>
 
-            {% if user.is_authenticated() %}
-                <a class="btn btn-primary" href="{{ url_for('facebook_login') }}">
+            {% if user.is_base_user() %}
+
+                <a class="btn btn-primary" href="{{ url_for('password') }}">
                     Change Password
                 </a>
-                {% if user.facebook_id %}
+
+                {% if user.is_facebook_user() %}
+
                     <a class="btn btn-primary" href="{{ url_for('facebook_deauth') }}">
                         <i class="icon-facebook-sign icon-large"></i> Disconnect
                     </a>
+
                 {% else %}
+
                     <a class="btn btn-primary" href="{{ url_for('facebook_login') }}">
                         <i class="icon-facebook-sign icon-large"></i> Connect
                     </a>
+
                 {% endif %}
             {% endif %}
+
         </div>
     </div>
 
