@@ -5,26 +5,32 @@
 <link href="{{ url_for('static', filename="css/colorpicker.css") }}" rel="stylesheet">
 </head>
 <div class="hero-unit">
-<div class="sketch" id="sketch_page">
-	<p>
-		<a href="#colors_sketch" data-tool="marker" data-color="" class="btn btn-primary icon-pencil icon-large" id="marker"></a>
-		<a href="#colors_sketch" data-tool="eraser" class="btn btn-primary icon-trash icon-large"></a>
-		<a href="#" class="btn" id="cp4" data-color-format="hex" data-color="rgb(255, 255, 255)">Marker Color</a>
-	</p>
-	<div class="tools">
-		
-	</div>
-</div>
-		<canvas id="colors_sketch" width="1000" height="500" style="background: #fff"></canvas>
+<div class="sketch well" id="sketch_page">
+		<a href="#colors_sketch" data-tool="marker" data-color="" class="btn icon-pencil icon-large" id="marker"></a>
+		<a href="#colors_sketch" data-tool="eraser" class="btn icon-trash icon-large"></a>
+		<a href="#" class="btn" id="colorpicker" data-color-format="hex" data-color="rgb(255, 255, 255)">Marker Color <span class="caret"></span></a>
 		<div class="btn-group">
-			<a class="btn btn-primary" href="#"><i class="icon-reorder"></i> Image Options</a>
-			<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="icon-caret-down"></span></a>
-			<ul class="dropdown-menu">
-				<li><a href="#colors_sketch" data-download="png"><i class="icon-pencil"></i> Download</a></li>
-				<li><a href="#"><i class="icon-flag"></i> Flag Image</a></li>
-			</ul>
+				<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">Marker Size <span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li><a href="#colors_sketch" data-size="3">Tiny</a></li>
+					<li><a href="#colors_sketch" data-size="5">Small</a></li>
+					<li><a href="#colors_sketch" data-size="10">Medium</a></li>
+					<li><a href="#colors_sketch" data-size="15">Large</a></li>
+					<li><a href="#colors_sketch" data-size="25">Huge</a></li>
+				</ul>
 		</div>
-		<a href="#" class="btn btn-primary icon-ok-sign"> Submit</a>
+</div>
+		<canvas id="colors_sketch" width="1050" height="350" style="background: #fff"></canvas>
+		<p>
+			<div class="btn-group dropup">
+				<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">Image Options <span class="icon-caret-up"></span></a>
+				<ul class="dropdown-menu">
+					<li><a href="#colors_sketch" data-download="png"><i class="icon-pencil"></i> Download</a></li>
+					<li><a href="#"><i class="icon-flag"></i> Flag Image</a></li>
+				</ul>
+			</div>
+			<a href="#" class="btn"> Submit</a>
+		</p>
 
 		
 		{% endblock content %}
@@ -34,10 +40,11 @@
 		<script src="{{ url_for('static', filename="js/bootstrap-colorpicker.js") }}"></script>
 		<script type="text/javascript">
 			$(function() {
-				$('#colors_sketch').sketch({defaultColor: "#000"});
+				$('#colors_sketch').sketch();
 				var marker = document.getElementById("marker");
-				$('#cp4').colorpicker().on('changeColor', function(ev){
-				$('#marker').attr('data-color',ev.color.toHex());
+				$('#colorpicker').colorpicker().on('changeColor', function(ev){
+				document.getElementById("marker").setAttribute("data-color", ev.color.toHex());
+				$("#marker").trigger('click');
 			});
 			});
 		</script>
