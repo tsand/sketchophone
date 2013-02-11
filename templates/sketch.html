@@ -1,11 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
+<head>
+<link href="{{ url_for('static', filename="css/colorpicker.css") }}" rel="stylesheet">
+</head>
 <div class="hero-unit">
 <div class="sketch" id="sketch_page">
 	<p>
-		<a href="#colors_sketch" data-tool="marker" class="btn btn-primary icon-pencil icon-large"></a>
+		<a href="#colors_sketch" data-tool="marker" data-color="" class="btn btn-primary icon-pencil icon-large" id="marker"></a>
 		<a href="#colors_sketch" data-tool="eraser" class="btn btn-primary icon-trash icon-large"></a>
+		<a href="#" class="btn" id="cp4" data-color-format="hex" data-color="rgb(255, 255, 255)">Marker Color</a>
 	</p>
 	<div class="tools">
 		
@@ -27,16 +31,14 @@
 
 	{% block js_include %}
 		<script src="{{ url_for('static', filename="js/sketch.min.js") }}"></script>
+		<script src="{{ url_for('static', filename="js/bootstrap-colorpicker.js") }}"></script>
 		<script type="text/javascript">
 			$(function() {
 				$('#colors_sketch').sketch({defaultColor: "#000"});
-				$.each(['#f00', '#ff0', '#0f0', '#0ff', '#00f', '#f0f', '#000', '#fff'], function() {
-				  $('#sketch_page .tools').append("<a href='#colors_sketch' data-color='" + this + "' style='width: 10px; background: " + this + ";'></a> ");
-				});
-				$.each([3, 5, 10, 15], function() {
-				  $('#sketch_page .tools').append("<a href='#colors_sketch' data-size='" + this + "' style='background: #ccc'>" + this + "</a> ");
-				});
-				$('#colors_sketch').sketch();
+				var marker = document.getElementById("marker");
+				$('#cp4').colorpicker().on('changeColor', function(ev){
+				$('#marker').attr('data-color',ev.color.toHex());
+			});
 			});
 		</script>
 </div>
