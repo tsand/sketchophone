@@ -2,15 +2,15 @@
 
 {% block content %}
 <head>
-<link href="{{ url_for('static', filename="css/colorpicker.css") }}" rel="stylesheet">
+	<link href="{{ url_for('static', filename="css/colorpicker.css") }}" rel="stylesheet">
 </head>
 <div class="hero-unit">
 <div class="sketch well" id="sketch_page">
 		<a href="#colors_sketch" data-tool="marker" data-color="" class="btn icon-pencil icon-large" id="marker"></a>
 		<a href="#colors_sketch" data-tool="eraser" class="btn icon-trash icon-large"></a>
 		<a href="#" class="btn" id="colorpicker" data-color-format="hex" data-color="rgb(255, 255, 255)">Marker Color <span class="caret"></span></a>
-		<div class="btn-group">
-				<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">Marker Size <span class="caret"></span></a>
+		<div class="btn-group" id="size_dropdown">
+				<a class="btn dropdown-toggle" data-toggle="dropdown" id="size" href="#">Marker Size <span class="caret"></span></a>
 				<ul class="dropdown-menu">
 					<li><a href="#colors_sketch" data-size="3">Tiny</a></li>
 					<li><a href="#colors_sketch" data-size="5">Small</a></li>
@@ -22,11 +22,11 @@
 </div>
 		<canvas id="colors_sketch" width="1050" height="350" style="background: #fff"></canvas>
 		<p>
-			<div class="btn-group dropup">
-				<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">Image Options <span class="icon-caret-up"></span></a>
+			<div class="btn-group dropup" id="image_size">
+				<a class="btn dropdown-toggle" data-toggle="dropdown" href="#" id="options">Image Options <span class="icon-caret-up"></span></a>
 				<ul class="dropdown-menu">
 					<li><a href="#colors_sketch" data-download="png"><i class="icon-pencil"></i> Download</a></li>
-					<li><a href="#"><i class="icon-flag"></i> Flag Image</a></li>
+					<li><a href=""><i class="icon-flag"></i> Flag Image</a></li>
 				</ul>
 			</div>
 			<a href="#" class="btn"> Submit</a>
@@ -39,6 +39,7 @@
 		<script src="{{ url_for('static', filename="js/sketch.min.js") }}"></script>
 		<script src="{{ url_for('static', filename="js/bootstrap-colorpicker.js") }}"></script>
 		<script type="text/javascript">
+			
 			$(function() {
 				$('#colors_sketch').sketch();
 				var marker = document.getElementById("marker");
@@ -47,6 +48,13 @@
 				$("#marker").trigger('click');
 			});
 			});
+					
+			$('#size_dropdown li').click( function () {
+				$('#size').dropdown('toggle');
+			})
+			$('#image_options li').click( function () {
+				$('#options').dropdown('toggle');
+			})
 		</script>
 </div>
 {% endblock js_include %}
