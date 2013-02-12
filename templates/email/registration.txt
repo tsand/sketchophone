@@ -1,0 +1,13 @@
+{% extends "themes/email.txt" %}
+
+{% block content %}
+
+    Hello,
+
+    We have created you an account on sketchophone.appspot.com
+
+    Please follow this link to verify your account: {{ registration_url }}
+
+    Thanks!
+
+{% endblock %}
