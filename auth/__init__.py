@@ -1,10 +1,24 @@
 from auth import models as auth_models
 
+from flask import session
 from resources.flask_login import LoginManager
+from resources.flask_oauth import OAuth
 
 from models import User, Anonymous
 
+import settings
+
 login_manager = LoginManager()
+
+facebook = OAuth().remote_app('facebook',
+    base_url='https://graph.facebook.com/',
+    request_token_url=None,
+    access_token_url='/oauth/access_token',
+    authorize_url='https://www.facebook.com/dialog/oauth',
+    consumer_key=settings.FACEBOOK_APP_ID,
+    consumer_secret=settings.FACEBOOK_APP_SECRET,
+    request_token_params={'scope': 'email'}
+)
 
 def initialize(app):
     login_manager.init_app(app)
@@ -14,3 +28,7 @@ def initialize(app):
 @login_manager.user_loader
 def load_user(id):
     return auth_models.User.get_by_id(int(id))
+
+@facebook.tokengetter
+def get_facebook_oauth_token():
+    return session.get('oauth_token'), settings.FACEBOOK_APP_SECRET

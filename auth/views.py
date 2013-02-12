@@ -1,12 +1,10 @@
-# This is where we generate the html data and or json
-
+from flask import request, redirect, url_for, flash, session
 from flask.views import View, MethodView
 from flask.templating import render_template
-from flask import request, redirect, url_for, flash, session
 
 from resources.flask_login import login_user, current_user, logout_user, login_required
-from resources.flask_oauth import OAuth
 
+from auth import facebook
 from auth import models as auth_models
 from auth import forms as auth_forms
 from auth import utils as auth_utils
@@ -15,22 +13,9 @@ from auth import actions as auth_actions
 from base import mail, cron
 import json
 
-import settings
-
-oauth = OAuth()
-
-facebook = oauth.remote_app('facebook',
-    base_url='https://graph.facebook.com/',
-    request_token_url=None,
-    access_token_url='/oauth/access_token',
-    authorize_url='https://www.facebook.com/dialog/oauth',
-    consumer_key=settings.FACEBOOK_APP_ID,
-    consumer_secret=settings.FACEBOOK_APP_SECRET,
-    request_token_params={'scope': 'email'}
-)
-
 
 class Register(MethodView):
+
     def get(self):
         verification = False
         form = auth_forms.RegisterForm()
@@ -52,6 +37,7 @@ class Register(MethodView):
                     form = auth_forms.RegisterVerificationForm()
                     verification = True
 
+            # Ignore registration id
             else:
                 return redirect(url_for('register'))
 
@@ -105,17 +91,7 @@ class Register(MethodView):
                 registration_url = url_for('register', _external=True, id=registration_id)
 
                 # Send registration email
-                mail.send_email(form.email.data, 'Sketchophone Account Verification',
-                    """
-                    Hello,
-
-                    We have created you an account on sketchophone.appspot.com
-
-                    Please follow this link to verify your account: %s
-
-                    Thanks!
-                    """ % registration_url
-                )
+                mail.send_registration_email(form.email.data, registration_url)
 
                 # For local debugging, since you can't send mail
                 import logging
@@ -140,10 +116,57 @@ class Register(MethodView):
                     flash(error, 'error')
 
         # Stay on registration page
-        return redirect(url_for('register'))
+        return redirect(url_for('register', id=registration_hash))
+
+
+class Login(MethodView):
+
+    def get(self):
+        form = auth_forms.LoginForm()
+        return render_template("auth/login.html", form=form)
+
+    def post(self):
+        form = auth_forms.LoginForm()
+
+        # Validate Form
+        if form.validate_on_submit():
+
+            # Authenticate user
+            if auth_actions.authenticate(form.email.data, form.password.data):
+
+                # Login as user
+                user = auth_models.User.all().filter('email =', form.email.data).fetch(1)[0]
+                login_user(user, remember=form.remember.data)
+
+                # Redirect to user page
+                flash('Logged In', 'success')
+                return redirect(url_for('user'))
+
+            else:
+                flash('Invalid Credentials', 'error')
+
+        else:
+
+            # Show error messages
+            for field in form.errors:
+                for error in form.errors[field]:
+                    flash(error, 'error')
+
+        # Stay on login page
+        return redirect(url_for('login'))
+
+
+class Logout(View):
+
+    @login_required
+    def dispatch_request(self):
+        logout_user()
+        flash('You are logged out', 'info')
+        return redirect(url_for('home'))
 
 
 class ChangePassword(MethodView):
+
     @login_required
     def get(self):
         form = auth_forms.ChangePasswordForm()
@@ -181,51 +204,8 @@ class ChangePassword(MethodView):
         return redirect(url_for('password'))
 
 
-class Login(MethodView):
-    def get(self):
-        form = auth_forms.LoginForm()
-        return render_template("auth/login.html", form=form)
-
-    def post(self):
-        form = auth_forms.LoginForm()
-
-        # Validate Form
-        if form.validate_on_submit():
-
-            # Authenticate user
-            if auth_actions.authenticate(form.email.data, form.password.data):
-
-                # Login as user
-                user = auth_models.User.all().filter('email =', form.email.data).fetch(1)[0]
-                login_user(user, remember=form.remember.data)
-
-                # Redirect to user page
-                flash('Logged In', 'success')
-                return redirect(url_for('user'))
-
-            else:
-                flash('Invalid Credentials', 'error')
-
-        else:
-
-            # Show error messages
-            for field in form.errors:
-                for error in form.errors[field]:
-                    flash(error, 'error')
-
-        # Stay on login page
-        return redirect(url_for('login'))
-
-
-class Logout(View):
-    @login_required
-    def dispatch_request(self):
-        logout_user()
-        flash('You are logged out', 'info')
-        return redirect(url_for('home'))
-
-
 class User(View):
+
     @login_required
     def dispatch_request(self):
         return render_template('auth/user.html',  user=current_user)
@@ -239,13 +219,14 @@ class HandleUserQuery(MethodView):
 
 
 class FacebookLogin(View):
+
     def dispatch_request(self):
         return facebook.authorize(callback=url_for('facebook_auth',
-            next=request.args.get('next') or request.referrer or None,
-            _external=True))
+            next=request.args.get('next') or request.referrer or None, _external=True))
 
 
 class FacebookAuthorize(View):
+
     @facebook.authorized_handler
     def dispatch_request(self, other):
 
@@ -257,29 +238,38 @@ class FacebookAuthorize(View):
 
         # Connect facebook account to current user
         if current_user.is_authenticated():
-            current_user.name = me.data['name']
-            current_user.facebook_id = me.data['id']
-            current_user.put()
+
+            user = auth_actions.get_user_by_facebook_id(me.data['id'])
+
+            # Check if facebook user has already registered
+            if user:
+                flash('Facebook user already has account')
+
+            else:
+                current_user.name = me.data['name']
+                current_user.facebook_id = me.data['id']
+                current_user.put()
+                
 
         else:
             # Checking for the user associated with the user's facebook ID
             user = auth_actions.get_user_by_facebook_id(me.data['id'])
 
-            # Log in with facebook user
-            if user:
+            # New Account
+            if not user:
 
                 # Check if there is already a user with that email
                 if auth_actions.check_email(me.data['email']):
                     flash('There is already a user with that email')
                     return redirect(url_for('register'))
 
-            # New Account
-            else:
-                user = auth_models.User(name=me.data['name'],
-                    facebook_id=me.data['id'],
-                    email=me.data['email'],
-                    registered=True)
-                user.put()
+                # Create new user
+                else:
+                    user = auth_models.User(name=me.data['name'],
+                        facebook_id=me.data['id'],
+                        email=me.data['email'],
+                        registered=True)
+                    user.put()
 
             login_user(user, True)
 
@@ -287,16 +277,10 @@ class FacebookAuthorize(View):
 
 
 class FacebookDeauthorize(View):
+
     @login_required
     def dispatch_request(self):
         current_user.facebook_id = None
         current_user.name = None
         current_user.put()
         return redirect(url_for('user'))
-
-
-@facebook.tokengetter
-def get_facebook_oauth_token():
-    return session.get('oauth_token'), settings.FACEBOOK_APP_SECRET
-
-
