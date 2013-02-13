@@ -41,7 +41,7 @@
 		{% endblock content %}
 
 	{% block js_include %}
-		<script src="{{ url_for('static', filename="js/sketch.min.js") }}"></script>
+		<script src="{{ url_for('static', filename="js/sketch.js") }}"></script>
 		<script src="{{ url_for('static', filename="js/bootstrap-colorpicker.js") }}"></script>
 		<script type="text/javascript">
 			
@@ -55,13 +55,10 @@
 			});
 			function clear_canvas_width ()
 			{
-			    var canvas = document.getElementById("colors_sketch");
-			    var ctx = canvas.getContext('2d');
-			    ctx.save();
-				ctx.setTransform(1, 0, 0, 1, 0, 0);
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				ctx.restore();
-
+			    
+			    $('#colors_sketch').sketch('actions',[]);
+			    $('#colors_sketch').getContext('2d').clearRect(0,0,width,height);
+				
 			}
 					
 			$('#size_dropdown li').click( function () {
