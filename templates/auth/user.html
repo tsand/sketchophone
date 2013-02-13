@@ -1,11 +1,59 @@
-{% extends "base.html" %}
+{% extends "themes/base.html" %}
 
 {% block content %}
+    <h2>{{ user.display_name }}</h2>
     <div class="row" style="margin-top:80px;">
         <div class="span4 offset4">
-            <div class="well">
-                hello {{ user.username }} <!-- this is the object we are wanting to template-->
-            </div>
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <td>Name</td>
+                        <td>{{ user.display_name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td>{{ user.email }}</td>
+                    </tr>
+                    <tr>
+                        <td>Created</td>
+                        <td>{{ user.created }}</td>
+                    </tr>
+                    <tr>
+                        <td>Last Updated</td>
+                        <td>{{ user.updated }}</td>
+                    </tr>
+                    {% if user.is_facebook_user() %}
+                        <tr>
+                            <td>Facebook</td>
+                            <td><a href="https://www.facebook.com/{{ user.facebook_id }}">
+                                    <img src="https://graph.facebook.com/{{ user.facebook_id }}/picture"/>
+                            </a></td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+
+            {% if user.is_base_user() %}
+
+                <a class="btn btn-primary" href="{{ url_for('password') }}">
+                    Change Password
+                </a>
+
+                {% if user.is_facebook_user() %}
+
+                    <a class="btn btn-primary" href="{{ url_for('facebook_deauth') }}">
+                        <i class="icon-facebook-sign icon-large"></i> Disconnect
+                    </a>
+
+                {% else %}
+
+                    <a class="btn btn-primary" href="{{ url_for('facebook_login') }}">
+                        <i class="icon-facebook-sign icon-large"></i> Connect
+                    </a>
+
+                {% endif %}
+            {% endif %}
+
         </div>
     </div>
 
