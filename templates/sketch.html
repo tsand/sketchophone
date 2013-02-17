@@ -22,10 +22,10 @@
 					<li><a href="#colors_sketch" data-size="25">Huge</a></li>
 				</ul>
 		</div>
-		<input type='submit' value='Clear' class="btn" onclick='clear_canvas_width ()'>
+		<a type='submit' class="btn btn-danger" onclick='clear_canvas ()'>Clear Sketch</a>
 
 </div>
-		<canvas id="colors_sketch" width="1050" height="350" style="background: #fff"></canvas>
+		<canvas id="colors_sketch" width="1050" height="350" style="cursor: crosshair; background:#fff"></canvas>
 		<p>
 			<div class="btn-group dropup" id="image_size">
 				<a class="btn dropdown-toggle" data-toggle="dropdown" href="#" id="options">Image Options <span class="icon-caret-up"></span></a>
@@ -34,7 +34,7 @@
 					<li><a href=""><i class="icon-flag"></i> Flag Image</a></li>
 				</ul>
 			</div>
-			<a href="#" class="btn"> Submit</a>
+			<a href="#" class="btn btn-success"> Submit</a>
 		</p>
 
 		
@@ -53,7 +53,7 @@
 				$("#marker").trigger('click');
 			});
 			});
-			function clear_canvas_width ()
+			function clear_canvas ()
 			{
 			    
 			    $('#colors_sketch').sketch('actions',[]);
@@ -62,7 +62,6 @@
 			    var ctx = canvas.getContext('2d');
 			    ctx.save();
 
-// Use the identity matrix while clearing the canvas
 				ctx.setTransform(1, 0, 0, 1, 0, 0);
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				
