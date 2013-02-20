@@ -33,6 +33,7 @@
       typeaheadAjaxPolling: false,
       typeaheadSource: null,
       AjaxPush: null,
+      tagRemovedAction: null,
       delimeters: [44, 188, 13],
       backspace: [8],
       maxTags: 0,
@@ -191,9 +192,14 @@
 
       if (-1 != p) {
         jQuery("#" + objName + "_" + tagId).remove();
-        tlis.splice(p, 1);
+
+        var to_remove = tlis.splice(p, 1);
         tlid.splice(p, 1);
         refreshHiddenTagList();
+
+        if(tagManagerOptions.tagRemovedAction !== undefined) {
+          tagManagerOptions.tagRemovedAction(to_remove)
+        }
         // console.log(tlis);
       }
 
