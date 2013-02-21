@@ -11,6 +11,7 @@
 <div class="sketch well" id="sketch_page">
 		<a href="#colors_sketch" data-tool="marker" data-color="" class="btn" id="marker"><i class='icon-pencil'></i> Marker</a>
 		<a href="#colors_sketch" data-tool="eraser" class="btn"><i class='icon-circle-blank'></i> Eraser</a>
+		<a href="#colors_sketch" class="btn" data-undo="true"><i class="icon-undo"></i> Undo</a>
 		<a href="#" class="btn" id="colorpicker" data-color-format="hex" data-color="rgb(255, 255, 255)">Marker Color <span class="caret"></span></a>
 		<div class="btn-group" id="size_dropdown">
 				<a class="btn dropdown-toggle" data-toggle="dropdown" id="size" href="#">Marker Size <span class="caret"></span></a>
@@ -79,6 +80,10 @@
 
 				ctx.setTransform(1, 0, 0, 1, 0, 0);
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				
+			}
+			function undo_canvas ()
+			{
 				
 			}
 					
