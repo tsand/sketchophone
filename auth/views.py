@@ -215,7 +215,9 @@ class HandleUserQuery(MethodView):
         query = request.args.get('query','')
         users = auth_actions.guess_users_by_username(query)
 
-        return json.dumps({"found_tags":[user.username for user in users]})
+        key_dict = {user.username:str(user.key()) for user in users}
+        usernames = [user.username for user in users]
+        return json.dumps({"key_by_username":key_dict, "usernames":usernames})
 
 
 class FacebookLogin(View):
