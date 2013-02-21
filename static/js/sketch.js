@@ -61,6 +61,9 @@ var __slice = Array.prototype.slice;
           if ($(this).attr('data-download')) {
             sketch.download($(this).attr('data-download'));
           }
+          if ($(this).attr('data-undo')) {
+            sketch.undo($(this).attr('data-undo'));
+          }
           return false;
         });
       }
@@ -73,6 +76,28 @@ var __slice = Array.prototype.slice;
       }
       mime = "image/" + format;
       return window.open(this.el.toDataURL(mime));
+    };
+    Sketch.prototype.undo = function(format) {
+
+      if(format === "true"){
+        console.log("data-undo is true");
+        if(this.actions.length === 0){
+        console.log("length is 0");
+        }
+        if(this.actions.length < 0){
+        console.log("length below 0");
+        }
+        if(this.actions.length > 0)
+
+        {
+          console.log("length > 0");
+          this.actions.pop();
+          this.redraw();
+
+        }
+      }
+     
+
     };
     Sketch.prototype.set = function(key, value) {
       this[key] = value;
