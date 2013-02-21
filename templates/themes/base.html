@@ -10,12 +10,15 @@
     <!-- Le styles -->
     <link href="{{ url_for('static', filename="css/bootstrap.min.css") }}" rel="stylesheet">
     <link href="{{ url_for('static', filename="css/font-awesome.min.css") }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename="css/bootstrap-tagmanager.css") }}" rel="stylesheet">
     <style>
         body { padding-top: 60px; }
 		.tools a {
         border: 1px solid black; height: 30px; line-height: 30px; padding: 0 10px; vertical-align: middle; display: inline-block; color: black;
       }
     </style>
+    {% block style %}{% endblock %}
+    
 </head>
 
 <body>
@@ -39,7 +42,7 @@
                     <li class="divider-vertical"></li>
                     <li class="dropdown">
                         <a class="dropdown-toggle"href="#" data-toggle="dropdown">
-                            {{ current_user.username }}<strong class="caret"></strong></a>
+                            {{ current_user.display_name }}<strong class="caret"></strong></a>
                         <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dropdownMenu">
                             {% if current_user.is_authenticated() %}
                                 <li><a href={{ url_for('user') }}>My Account</a></li>
@@ -82,6 +85,7 @@
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="{{ url_for('static', filename="js/jquery-1.9.0.min.js") }}"></script>
 <script src="{{ url_for('static', filename="js/bootstrap.min.js") }}"></script>
+<script src="{{ url_for('static', filename="js/bootstrap-tagmanager.js") }}"></script>
 {% block js_include %}{% endblock %}
 
 <script type="text/javascript">
