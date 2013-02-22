@@ -3,73 +3,50 @@
 {% block content %}
 <head>
 	<link href="{{ url_for('static', filename="css/colorpicker.css") }}" rel="stylesheet">
+	<script src="{{ url_for('static', filename="js/raphael.sketchpad.js") }}"></script>
+	<script src="{{ url_for('static', filename="js/raphael.js") }}"></script>
+	<script src="{{ url_for('static', filename="js/jquery-1.9.0.min.js") }}"></script>
+	<script src="{{ url_for('static', filename="js/bootstrap-colorpicker.js") }}"></script>
+	<script src="{{ url_for('static', filename="js/json2.js") }}"></script>
+	<script src="{{ url_for('static', filename="js/sketch.js") }}"></script>
 </head>
+
 <div class="hero-unit">
-<div class="well">
-<h3><center>Description Text Here!</center></h3>
+<div id="editor" class="widget" style="height:260px;"></div>
+<input type="hidden" id="data2" name="data2" />
+
+<div class="clear widget_actions span-2">
+	<div class="_title">Color</div>
+	<div id="editor_black" class="selected">Black</div>
+	<div id="editor_red">Red</div>
 </div>
-<div class="sketch well" id="sketch_page">
-		<a href="#colors_sketch" data-tool="marker" data-color="" class="btn" id="marker"><i class='icon-pencil'></i> Marker</a>
-		<a href="#colors_sketch" data-tool="eraser" class="btn"><i class='icon-circle-blank'></i> Eraser</a>
-		<a href="#colors_sketch" class="btn" data-undo="true"><i class="icon-undo"></i> Undo</a>
-		<a href="#" class="btn" id="colorpicker" data-color-format="hex" data-color="rgb(255, 255, 255)">Marker Color <span class="caret"></span></a>
-		<div class="btn-group" id="size_dropdown">
-				<a class="btn dropdown-toggle" data-toggle="dropdown" id="size" href="#">Marker Size <span class="caret"></span></a>
-				<ul class="dropdown-menu">
-					<li><a href="#colors_sketch" data-size="3">Tiny</a></li>
-					<li><a href="#colors_sketch" data-size="5">Small</a></li>
-					<li><a href="#colors_sketch" data-size="10">Medium</a></li>
-					<li><a href="#colors_sketch" data-size="15">Large</a></li>
-					<li><a href="#colors_sketch" data-size="25">Huge</a></li>
-				</ul>
-		</div>
-		<a href='#confirmClear' class="btn btn-danger" data-toggle="modal"><i class='icon-trash'></i> Clear Sketch</a>
-
-		<div id="confirmClear" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="clearSketch" aria-hidden="true">
-		  <div class="modal-header">
-		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-		    <h3 id="clearSketch">Clear Sketch</h3>
-		  </div>
-		  <div class="modal-body">
-		    <h4 class="well">Are you sure you want to clear your sketch?</h4>
-		    <p>Remember, you can always save a sketch before clearing by clicking Download under Image Options</p>
-		  </div>
-		  <div class="modal-footer">
-		    <a class="btn" data-dismiss="modal" aria-hidden="true"><i class='icon-ban-circle'></i> No</a>
-		    <a class="btn btn-danger " data-dismiss="modal" onclick='clear_canvas ()'><i class='icon-ok'></i> Yes</a>
-		  </div>
-		</div>
-
+<div class="widget_actions span-2">
+	<div class="_title">Width</div>
+	<div id="editor_thin" class="selected">Thin</div>
+	<div id="editor_thick">Thick</div>
 </div>
-		<!--<canvas id="colors_sketch" width="1050" height="350" style="cursor: crosshair; background:#fff"></canvas>-->
-		<div id="editor"></div>
-		
-		<p>
-			<div class="btn-group dropup" id="image_size">
-				<a class="btn dropdown-toggle" data-toggle="dropdown" href="#" id="options"><i class='icon-reorder'></i> Image Options <span class="icon-caret-up"></span></a>
-				<ul class="dropdown-menu">
-					<li><a href="#colors_sketch" data-download="png"><i class="icon-external-link"></i> Download</a></li>
-					<li><a href=""><i class="icon-flag"></i> Flag Image</a></li>
-				</ul>
-			</div>
-			<a href="#" class="btn btn-success"><i class='icon-ok-sign'></i> Submit</a>
-		</p>
+<div class="widget_actions span-2">
+	<div class="_title">Opacity</div>
+	<div id="editor_solid" class="selected">Solid</div>
+	<div id="editor_fuzzy">Fuzzy</div>
+</div>
+<div class="widget_actions span-2 last">
+	<div id="editor_undo" class="disabled">Undo</div>
+	<div id="editor_redo" class="disabled">Redo</div>
+	<div id="editor_clear" class="disabled">Clear</div>
+</div>
+<div class="clear"></div>
+<div class="widget_actions span-4">
+	<div id="editor_draw_erase">Draw</div>
+</div>
+<div class="widget_actions span-4 last">
+	<div id="editor_animate">Animate!</div>
+</div>
+{% endblock content %}
 
-		
-		{% endblock content %}
-
-	{% block js_include %}
-		
-<script src="{{ url_for('static', filename="js/jquery-1.9.0.min.js") }}"></script>
-<script src="{{ url_for('static', filename="js/bootstrap-colorpicker.js") }}"></script>
-<script src="{{ url_for('static', filename="js/json2.js") }}"></script>
-<script src="{{ url_for('static', filename="js/raphael.sketchpad.js") }}"></script>
-<script src="{{ url_for('static', filename="js/raphael.js") }}"></script>
-<script src="{{ url_for('static', filename="js/sketch.js") }}"></script>
-
+{% block js_include %}
 <script type="text/javascript">
 	$(document).ready(function() {
-		console.log("Entered Javascript");
 		var sketchpad = Raphael.sketchpad("editor", {
 			height: 500,
 			width: 500,
@@ -77,7 +54,9 @@
 		});
 
 		// When the sketchpad changes, update the input field.
-
+		sketchpad.change(function() {
+			$("#data2").val(sketchpad.json());
+		});
 		// sketchpad.strokes([{
 		// 	"type":"path",
 		// 	"path":[["M",10,10],["L",90,90]],
@@ -101,6 +80,7 @@
 			$(element1).addClass("selected");
 			$(element2).removeClass("selected");
 		}
+
 
 		$("#editor_undo").click(function() {
 			sketchpad.undo();
