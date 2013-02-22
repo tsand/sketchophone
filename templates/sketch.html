@@ -41,7 +41,9 @@
 		</div>
 
 </div>
-		<canvas id="colors_sketch" width="1050" height="350" style="cursor: crosshair; background:#fff"></canvas>
+		<!--<canvas id="colors_sketch" width="1050" height="350" style="cursor: crosshair; background:#fff"></canvas>-->
+		<div id="editor"></div>
+		
 		<p>
 			<div class="btn-group dropup" id="image_size">
 				<a class="btn dropdown-toggle" data-toggle="dropdown" href="#" id="options"><i class='icon-reorder'></i> Image Options <span class="icon-caret-up"></span></a>
@@ -57,42 +59,106 @@
 		{% endblock content %}
 
 	{% block js_include %}
-		<script src="{{ url_for('static', filename="js/sketch.js") }}"></script>
-		<script src="{{ url_for('static', filename="js/bootstrap-colorpicker.js") }}"></script>
-		<script type="text/javascript">
-			
-			$(function() {
-				$('#colors_sketch').sketch();
-				var marker = document.getElementById("marker");
-				$('#colorpicker').colorpicker().on('changeColor', function(ev){
-				document.getElementById("marker").setAttribute("data-color", ev.color.toHex());
-				$("#marker").trigger('click');
-			});
-			});
-			function clear_canvas ()
-			{
-			    
-			    $('#colors_sketch').sketch('actions',[]);
+		
+<script src="{{ url_for('static', filename="js/jquery-1.9.0.min.js") }}"></script>
+<script src="{{ url_for('static', filename="js/bootstrap-colorpicker.js") }}"></script>
+<script src="{{ url_for('static', filename="js/json2.js") }}"></script>
+<script src="{{ url_for('static', filename="js/raphael.sketchpad.js") }}"></script>
+<script src="{{ url_for('static', filename="js/raphael.js") }}"></script>
+<script src="{{ url_for('static', filename="js/sketch.js") }}"></script>
 
-			    var canvas = document.getElementById('colors_sketch');
-			    var ctx = canvas.getContext('2d');
-			    ctx.save();
+<script type="text/javascript">
+	$(document).ready(function() {
+		console.log("Entered Javascript");
+		var sketchpad = Raphael.sketchpad("editor", {
+			height: 500,
+			width: 500,
+			editing: true	// true is default
+		});
 
-				ctx.setTransform(1, 0, 0, 1, 0, 0);
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				
+		// When the sketchpad changes, update the input field.
+
+		// sketchpad.strokes([{
+		// 	"type":"path",
+		// 	"path":[["M",10,10],["L",90,90]],
+		// 	"fill":"none",
+		// 	"stroke":"#000000",
+		// 	"stroke-opacity":1,
+		// 	"stroke-width":5,
+		// 	"stroke-linecap":"round",
+		// 	"stroke-linejoin":"round"
+		// }]);
+
+		function enable(element, enable) {
+			if (enable) {
+				$(element).removeClass("disabled");
+			} else {
+				$(element).addClass("disabled");
 			}
-			function undo_canvas ()
-			{
-				
-			}
-					
-			$('#size_dropdown li').click( function () {
-				$('#size').dropdown('toggle');
-			})
-			$('#image_options li').click( function () {
-				$('#options').dropdown('toggle');
-			})
-		</script>
-</div>
+		};
+
+		function select(element1, element2) {
+			$(element1).addClass("selected");
+			$(element2).removeClass("selected");
+		}
+
+		$("#editor_undo").click(function() {
+			sketchpad.undo();
+		});
+		$("#editor_redo").click(function() {
+			sketchpad.redo();
+		});
+		$("#editor_clear").click(function() {
+			sketchpad.clear();
+		});
+		$("#editor_animate").click(function() {
+			sketchpad.animate();
+		});
+
+		$("#editor_thin").click(function() {
+			select("#editor_thin", "#editor_thick");
+			sketchpad.pen().width(5);
+		});
+		$("#editor_thick").click(function() {
+			select("#editor_thick", "#editor_thin");
+			sketchpad.pen().width(15);
+		});
+		$("#editor_solid").click(function() {
+			select("#editor_solid", "#editor_fuzzy");
+			sketchpad.pen().opacity(1);
+		});
+		$("#editor_fuzzy").click(function() {
+			select("#editor_fuzzy", "#editor_solid");
+			sketchpad.pen().opacity(0.3);
+		});
+		$("#editor_black").click(function() {
+			select("#editor_black", "#editor_red");
+			sketchpad.pen().color("#000");
+		});
+		$("#editor_red").click(function() {
+			select("#editor_red", "#editor_black");
+			sketchpad.pen().color("#f00");
+		});
+		$("#editor_draw_erase").toggle(function() {
+			$(this).text("Erase");
+			sketchpad.editing("erase");
+		}, function() {
+			$(this).text("Draw");
+			sketchpad.editing(true);
+		});
+
+		function update_actions() {
+			enable("#editor_undo", sketchpad.undoable());
+			enable("#editor_redo", sketchpad.redoable());
+			enable("#editor_clear", sketchpad.strokes().length > 0);
+		}
+
+		sketchpad.change(update_actions);
+
+		update_actions();
+	});
+</script>
+
 {% endblock js_include %}
+
+</div>
