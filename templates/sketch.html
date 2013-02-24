@@ -1,14 +1,98 @@
 {% extends "themes/base.html" %}
 
 {% block content %}
-    <canvas id="simple_sketch" width="800" height="300"></canvas>
-{% endblock content %}
+<head>
+	<link href="{{ url_for('static', filename="css/colorpicker.css") }}" rel="stylesheet">
+</head>
+<div class="hero-unit">
+<div class="well">
+<h3><center>Description Text Here!</center></h3>
+</div>
+<div class="sketch well" id="sketch_page">
+		<a href="#colors_sketch" data-tool="marker" data-color="" class="btn" id="marker"><i class='icon-pencil'></i> Marker</a>
+		<a href="#colors_sketch" data-tool="eraser" class="btn"><i class='icon-circle-blank'></i> Eraser</a>
+		<a href="#colors_sketch" class="btn" data-undo="true"><i class="icon-undo"></i> Undo</a>
+		<a href="#" class="btn" id="colorpicker" data-color-format="hex" data-color="rgb(255, 255, 255)">Marker Color <span class="caret"></span></a>
+		<div class="btn-group" id="size_dropdown">
+				<a class="btn dropdown-toggle" data-toggle="dropdown" id="size" href="#">Marker Size <span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li><a href="#colors_sketch" data-size="3">Tiny</a></li>
+					<li><a href="#colors_sketch" data-size="5">Small</a></li>
+					<li><a href="#colors_sketch" data-size="10">Medium</a></li>
+					<li><a href="#colors_sketch" data-size="15">Large</a></li>
+					<li><a href="#colors_sketch" data-size="25">Huge</a></li>
+				</ul>
+		</div>
+		<a href='#confirmClear' class="btn btn-danger" data-toggle="modal"><i class='icon-trash'></i> Clear Sketch</a>
 
-{% block js_include %}
-    <script src="{{ url_for('static', filename="js/sketch.min.js") }}"></script>
-    <script type="text/javascript">
-        $(function() {
-            $('#simple_sketch').sketch();
-        });
-    </script>
+		<div id="confirmClear" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="clearSketch" aria-hidden="true">
+		  <div class="modal-header">
+		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		    <h3 id="clearSketch">Clear Sketch</h3>
+		  </div>
+		  <div class="modal-body">
+		    <h4 class="well">Are you sure you want to clear your sketch?</h4>
+		    <p>Remember, you can always save a sketch before clearing by clicking Download under Image Options</p>
+		  </div>
+		  <div class="modal-footer">
+		    <a class="btn" data-dismiss="modal" aria-hidden="true"><i class='icon-ban-circle'></i> No</a>
+		    <a class="btn btn-danger " data-dismiss="modal" onclick='clear_canvas ()'><i class='icon-ok'></i> Yes</a>
+		  </div>
+		</div>
+
+</div>
+		<canvas id="colors_sketch" width="1050" height="350" style="cursor: crosshair; background:#fff"></canvas>
+		<p>
+			<div class="btn-group dropup" id="image_size">
+				<a class="btn dropdown-toggle" data-toggle="dropdown" href="#" id="options"><i class='icon-reorder'></i> Image Options <span class="icon-caret-up"></span></a>
+				<ul class="dropdown-menu">
+					<li><a href="#colors_sketch" data-download="png"><i class="icon-external-link"></i> Download</a></li>
+					<li><a href=""><i class="icon-flag"></i> Flag Image</a></li>
+				</ul>
+			</div>
+			<a href="#" class="btn btn-success"><i class='icon-ok-sign'></i> Submit</a>
+		</p>
+
+		
+		{% endblock content %}
+
+	{% block js_include %}
+		<script src="{{ url_for('static', filename="js/sketch.js") }}"></script>
+		<script src="{{ url_for('static', filename="js/bootstrap-colorpicker.js") }}"></script>
+		<script type="text/javascript">
+			
+			$(function() {
+				$('#colors_sketch').sketch();
+				var marker = document.getElementById("marker");
+				$('#colorpicker').colorpicker().on('changeColor', function(ev){
+				document.getElementById("marker").setAttribute("data-color", ev.color.toHex());
+				$("#marker").trigger('click');
+			});
+			});
+			function clear_canvas ()
+			{
+			    
+			    $('#colors_sketch').sketch('actions',[]);
+
+			    var canvas = document.getElementById('colors_sketch');
+			    var ctx = canvas.getContext('2d');
+			    ctx.save();
+
+				ctx.setTransform(1, 0, 0, 1, 0, 0);
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				
+			}
+			function undo_canvas ()
+			{
+				
+			}
+					
+			$('#size_dropdown li').click( function () {
+				$('#size').dropdown('toggle');
+			})
+			$('#image_options li').click( function () {
+				$('#options').dropdown('toggle');
+			})
+		</script>
+</div>
 {% endblock js_include %}
