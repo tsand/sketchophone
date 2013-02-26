@@ -1,0 +1,64 @@
+{% extends "themes/base.html" %}
+
+{% block content %}
+    <div class="hero-unit">
+        <table class="table table-bordered table-striped table-hover" id="search_table" >
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for game in games %}
+                <tr>
+                    <td>{{ game.title }}</td>
+                    <td>{{ game.created }}</td>
+                    <td> 
+                        <div class="btn-group">
+                            <a href="" class="btn" style="display:inline;margin-top:5px;" role="button" data-toggle="modal">Join</a>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock content %}
+
+{% block js_include %}
+<script>
+	$(document).ready(function() {
+    $('#search_table').dataTable( {
+        "sDom": "<'datatable-head'f>t<<l><'datatable-pagination'pi>>",
+            "bPaginate": true,
+            "bLengthChange": true,
+            "bFilter": true,
+            "bSort": true,
+            "bInfo": false,
+            "bAutoWidth": false,
+        });
+
+    // server side example
+    //
+    // $('#search_table').dataTable( {
+    //     "sDom": "<'datatable-head'f>t<<l><'datatable-pagination'pi>>",
+    //         "bPaginate": true,
+    //         "bLengthChange": true,
+    //         "bFilter": true,
+    //         "bSort": true,
+    //         "bInfo": false,
+    //         "bAutoWidth": false,
+    //         "bServerSide": true,
+    //         "sAjaxSource": '/sketch/filter/',
+    //         "sServerMethod":'GET',
+    //         "aoColumns": [
+    //             { "bSearchable": true},
+    //             { "bSearchable": true},
+    //             { "bSearchable": true},]
+    //     });
+	});
+</script>
+{% endblock js_include %}

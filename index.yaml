@@ -10,6 +10,12 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
+- kind: Game
+  properties:
+  - name: perms
+  - name: created
+    direction: desc
+
 - kind: Round
   ancestor: yes
   properties:
