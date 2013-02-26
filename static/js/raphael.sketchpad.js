@@ -345,17 +345,13 @@
 		function _disable_user_select() {
 			$("*").css("-webkit-user-select", "none");
 			$("*").css("-moz-user-select", "none");
-			if (jQuery.browser.msie) {
-				$("body").attr("onselectstart", "return false;");
-			}
+			
 		}
 		
 		function _enable_user_select() {
 			$("*").css("-webkit-user-select", "text");
 			$("*").css("-moz-user-select", "text");
-			if (jQuery.browser.msie) {
-				$("body").removeAttr("onselectstart");
-			}
+			
 		}
 		
 		// Event handlers
