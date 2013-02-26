@@ -15,7 +15,7 @@
 		<a class="btn" id="editor_redo"><i class="icon-repeat"></i> Redo</a>
 		<a class="btn" id="colorpicker" data-color-format="hex" data-color="rgb(255, 255, 255)">Marker Color <span class="caret"></span></a>
 		<div class="btn-group" id="size_dropdown">
-				<a class="btn dropdown-toggle" data-toggle="dropdown" id="size" href="#">Marker Size <span class="caret"></span></a>
+				<a class="btn dropdown-toggle" data-toggle="dropdown" id="size">Marker Size <span class="caret"></span></a>
 				<ul class="dropdown-menu">
 					<li><a id="editor_tiny">Tiny</a></li>
 					<li><a id="editor_small">Small</a></li>
@@ -25,7 +25,7 @@
 				</ul>
 		</div>
 		<div class="btn-group" id="opacity_dropdown">
-			<a class="btn dropdown-toggle" data-toggle="dropdown" id="size" href="#">Opacity <span class="caret"></span></a>
+			<a class="btn dropdown-toggle" data-toggle="dropdown" id="opacity">Opacity <span class="caret"></span></a>
 				<ul class="dropdown-menu">
 					<li><a id="editor_solid">Solid</a></li>
 					<li><a id="editor_fuzzy">Fuzzy</a></li>
@@ -34,7 +34,6 @@
 		<a class="btn btn-danger" id="editor_clear"><i class='icon-trash'></i> Clear Sketch</a>
 
 </div>
-		<!--<canvas id="colors_sketch" width="1050" height="350" style="cursor: crosshair; background:#fff"></canvas>-->
 		<div id="editor" style="cursor: crosshair; background:#fff"></div>
 		<input type="hidden" id="data2" name="data2" />
 
@@ -42,7 +41,7 @@
 			<div class="btn-group dropup" id="image_size">
 				<a class="btn dropdown-toggle" data-toggle="dropdown" href="#" id="options"><i class='icon-reorder'></i> Image Options <span class="icon-caret-up"></span></a>
 				<ul class="dropdown-menu">
-					<li><a href="#colors_sketch" data-download="png"><i class="icon-external-link"></i> Download</a></li>
+					<li><a data-download="png"><i class="icon-external-link"></i> Download</a></li>
 					<li><a id="editor_animate"><i class="icon-refresh icon-spin"></i> Animate Image!</a></li>
 				</ul>
 			</div>
@@ -103,7 +102,7 @@
 			});
 
 			$("#editor_tiny").click(function() {
-				sketchpad.pen().width(5);
+				sketchpad.pen().width(2);
 			});
 			$("#editor_small").click(function() {
 				sketchpad.pen().width(10);
