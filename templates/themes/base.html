@@ -13,6 +13,11 @@
     <link href="{{ url_for('static', filename="css/bootstrap-tagmanager.css") }}" rel="stylesheet">
     <style>
         body { padding-top: 60px; }
+         @media (max-width: 979px) {
+            body {
+              padding-top: 0;
+            }
+          }
     </style>
     {% block style %}{% endblock %}
     
