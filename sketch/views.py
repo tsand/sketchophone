@@ -38,4 +38,22 @@ class CreationWizard(MethodView):
 		
 
 
+class SearchGamesView(MethodView):
+    def get(self):
+    	games = sketch_actions.get_latest_public_games()
+        return render_template('search_game.html', games = games)
+
+
+# class FilterGamesView(MethodView):
+# 	def get(self):
+# 		query = request.args.get("sSearch", "")
+# 		if query:
+# 			games = sketch_actions.guess_games_by_title(query)
+# 		else:
+# 			games = sketch_actions.get_latest_games(100)
+
+# 		aaData = [[game.title, game.title, game.title ] for game in games ]
+
+# 		return json.dumps({'aaData':aaData})
+
 
