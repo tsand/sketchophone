@@ -2,7 +2,7 @@
 
 {% block content %}
     <h2>{{ user.display_name }}</h2>
-    <div class="row" style="margin-top:80px;">
+    <div class="row" style="margin-top:80px; margin-bottom: 50px">
         <div class="span4 offset4">
             <table class="table">
                 <tbody>
@@ -53,8 +53,52 @@
 
                 {% endif %}
             {% endif %}
-
         </div>
     </div>
+    <hr>
+    {% if user.notification_count %}
+        <div class="row" style="margin-top: 50px">
+            <div class="span12">
+                <h3>Notifications</h3>
+                <table class="table table-hover table-bordered" id="notifications-table">
+                    <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Sent</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for notification in user.get_notifications(pretty_dates=True) %}
+                        <tr href="{{ notification.link }}"
+                                {% if not notification.read %}
+                                    class="info"
+                                {% endif %}
+                            style="cursor: pointer">
+                            <td>{{ notification.title }}</td>
+                            <td>{{ notification.description | safe}}</td>
+                            <td>{{ notification.pretty_date }}</td>
+                        </tr>
+                    {% endfor %}
+                    <div class="hide">{{ user.read_notifications() }}</div>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+
 
 {% endblock content %}
+
+{% block js_include %}
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('#notifications-table tr').click(function(){
+                window.location = $(this).attr('href');
+                return false;
+            });
+        });
+    </script>
+
+{% endblock %}

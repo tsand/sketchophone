@@ -30,7 +30,7 @@ class CreationWizard(MethodView):
         guest_keys = [guest.key() for guest in guests]
 
         if j_form is not None:
-            sketch_actions.create_game(
+            game, round = sketch_actions.create_game(
                 first_round_text=str(j_form.get('start_text', '')),
                 title=title,
                 perms=str(j_form.get('perms', 'public')),
@@ -38,19 +38,29 @@ class CreationWizard(MethodView):
                 num_of_rounds=int(j_form.get('num_of_rounds', 3))
             )
 
-            game_link = "(TODO)"
+            internal_game_link = url_for('game', game_key=game.key())
+            external_game_link = url_for('game', game_key=game.key(),
+                                         _external=True)
             for guest in guests:
                 # Send email
                 mail.send_created_game_email(guest.email,
                                              title,
-                                             game_link,
+                                             external_game_link,
                                              created_by)
 
                 # Send notification
 
-                base_actions.notify_user(guest,'New Game', """
-                You have been invited to play int the game %s
-                """ % title, game_link)
+                base_actions.notify_user(
+                    guest,
+                    'New Game Request',
+                    """
+                    <strong>%s</strong> has invited you to play in the game <em>%s</em>
+                    """ % (created_by, title),
+                    internal_game_link)
+
+            # For local debugging, since you can't send mail
+            import logging
+            logging.log(logging.INFO, 'GAME LINK: %s' % external_game_link)
 
             return json.dumps({'success':True})
 
@@ -68,7 +78,7 @@ class SearchGamesView(MethodView):
                                )
 
 
-class JoinGame(MethodView):
+class Game(MethodView):
     def get(self, game_key):
         game = sketch_actions.get_game_by_key(game_key)
 
@@ -79,24 +89,9 @@ class JoinGame(MethodView):
 
         round = sketch_actions.get_latest_round(game.key())
         if round.round_type == round.SKETCH:
-            return json.dumps('Story Page')
+            return json.dumps('Story page will go here')
         else:
-            return redirect(url_for('sketch'))
-
-
-
-
-
-# class FilterGamesView(MethodView):
-# 	def get(self):
-# 		query = request.args.get("sSearch", "")
-# 		if query:
-# 			games = sketch_actions.guess_games_by_title(query)
-# 		else:
-# 			games = sketch_actions.get_latest_games(100)
-
-# 		aaData = [[game.title, game.title, game.title ] for game in games ]
-
-# 		return json.dumps({'aaData':aaData})
-
+            return render_template('sketch.html',
+                                   game=game.title,
+                                   story=round.data)
 

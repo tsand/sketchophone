@@ -1,5 +1,6 @@
 from base import models as base_models
 
+
 def notify_user(user, title, description, link):
     # Build notification
     notification = base_models.Notification(title=title,

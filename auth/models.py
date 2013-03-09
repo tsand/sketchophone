@@ -3,6 +3,7 @@
 from base.models import Notification
 from google.appengine.ext import db
 from resources.flask_login import AnonymousUser
+from resources import pretty
 
 
 class User(db.Model):
@@ -68,16 +69,35 @@ class User(db.Model):
         return bool(self.username)
 
     # Notification Handling
+    def get_notifications(self, pretty_dates=False):
+        notifications = [db.get(note) for note in self.notifications]
+        notifications = sorted(notifications,
+                               key=lambda notification: notification.sent,
+                               reverse=True)
+
+        if pretty_dates:
+            for notification in notifications:
+                pretty_date = pretty.date(notification.sent)
+                notification.pretty_date = pretty_date
+
+        return notifications
+
     @property
     def notification_count(self):
         return len(self.notifications)
 
-    def notify(self, notification):
-        self.notifications = self.notifications + notification.key()
-        self.put()
+    @property
+    def unread_notification_count(self):
+        count = 0
+        for notification in self.get_notifications():
+            if not notification.read:
+                count += 1
+        return count
 
     def read_notifications(self):
-        self.notifications = 0
+        for notification in self.get_notifications():
+            notification.read = True
+            notification.put()
 
 
 class Anonymous(AnonymousUser):
