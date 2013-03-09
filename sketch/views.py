@@ -7,6 +7,7 @@ from google.appengine.ext import db
 from resources.flask_login import current_user
 from sketch import actions as sketch_actions
 from base import mail
+from base import actions as base_actions
 
 
 class SketchView(MethodView):
@@ -39,10 +40,17 @@ class CreationWizard(MethodView):
 
             game_link = "(TODO)"
             for guest in guests:
+                # Send email
                 mail.send_created_game_email(guest.email,
                                              title,
                                              game_link,
                                              created_by)
+
+                # Send notification
+
+                base_actions.notify_user(guest,'New Game', """
+                You have been invited to play int the game %s
+                """ % title, game_link)
 
             return json.dumps({'success':True})
 

@@ -1,5 +1,6 @@
 # This is where we create data models to be stored in the data store.
 # These are usually called from actions
+from base.models import Notification
 from google.appengine.ext import db
 from resources.flask_login import AnonymousUser
 
@@ -24,7 +25,7 @@ class User(db.Model):
     registered = db.BooleanProperty(default=False)
 
     # Game Stuff
-    notifications = db.IntegerProperty(default=0)
+    notifications = db.ListProperty(db.Key)
     invites = db.StringListProperty()
 
 
@@ -66,6 +67,18 @@ class User(db.Model):
             return bool(self.username) and not self.is_facebook_user()
         return bool(self.username)
 
+    # Notification Handling
+    @property
+    def notification_count(self):
+        return len(self.notifications)
+
+    def notify(self, notification):
+        self.notifications = self.notifications + notification.key()
+        self.put()
+
+    def read_notifications(self):
+        self.notifications = 0
+
 
 class Anonymous(AnonymousUser):
     username = "Anonymous"
@@ -73,3 +86,4 @@ class Anonymous(AnonymousUser):
     @property
     def display_name(self):
         return self.username
+
