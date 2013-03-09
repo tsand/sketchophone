@@ -3,6 +3,7 @@
 from google.appengine.ext import db
 from resources.flask_login import AnonymousUser
 
+
 class User(db.Model):
     # https://developers.google.com/appengine/docs/python/datastore/typesandpropertyclasses
 
@@ -21,6 +22,11 @@ class User(db.Model):
     # Registration Details
     registration_id = db.StringProperty()
     registered = db.BooleanProperty(default=False)
+
+    # Game Stuff
+    notifications = db.IntegerProperty(default=0)
+    invites = db.StringListProperty()
+
 
 
     @property
