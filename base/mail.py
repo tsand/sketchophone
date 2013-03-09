@@ -24,4 +24,20 @@ def send_registration_email(recipient, registration_url):
 
     message.send_deferred()
 
+def send_created_game_email(recipient, game_title, game_link, created_by):
+    message = BaseEmail()
+    message.subject = "New Sketchophone Game: %s" % game_title
+    message.to = recipient
+
+    message.body = render_template('email/registration.txt',
+                                   game_title=game_title,
+                                   game_link=game_link,
+                                   created_by=created_by)
+    message.html = render_template('email/registration.html',
+                                   game_title=game_title,
+                                   game_link=game_link,
+                                   created_by=created_by)
+
+    message.send_deferred()
+
 
