@@ -6,6 +6,7 @@ from flask.templating import render_template
 from google.appengine.ext import db
 from resources.flask_login import current_user
 from sketch import actions as sketch_actions
+from base import mail
 
 
 class SketchView(MethodView):
@@ -21,16 +22,27 @@ class CreationWizard(MethodView):
 
         j_form = json.loads(request.data).get('form', None)
 
-        guests = [db.get(key).key() for key in j_form.get('guests', None)]
+        title = str(j_form.get('name', 'foo'))
+        created_by = str(j_form.get('created_by', 'Anonymous'))
+
+        guests = [db.get(key) for key in j_form.get('guests', None)]
+        guest_keys = [guest.key() for guest in guests]
 
         if j_form is not None:
             sketch_actions.create_game(
                 first_round_text=str(j_form.get('start_text', '')),
-                title=str(j_form.get('name', 'foo')),
+                title=title,
                 perms=str(j_form.get('perms', 'public')),
-                guests=guests,
+                guests=guest_keys,
                 num_of_rounds=int(j_form.get('num_of_rounds', 3))
             )
+
+            game_link = "(TODO)"
+            for guest in guests:
+                mail.send_created_game_email(guest.email,
+                                             title,
+                                             game_link,
+                                             created_by)
 
             return json.dumps({'success':True})
 
