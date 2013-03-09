@@ -45,7 +45,7 @@
                                     <i class="icon-lock">
                                 </td>
                                 <td style="border-left: none;">
-                                    Feel like sticking close to your buds? Creating a private game will keep things personal. A private game will require all users (including yourself) to login and have appropriate permission in order to participate in a game. What happens in sketchapohne stays in sketchaphone! 
+                                    Feel like sticking close to your buds? Creating a private game will keep things personal. A private game will require all users (including yourself) to login and have appropriate permission in order to participate in a game. What happens in sketchophone stays in sketchophone!
                                 </td>
                             </tr>
 
@@ -66,7 +66,7 @@
                         <div class="control-group">
                             <label class="control-label">Number of Rounds</label>
                             <div class="controls">
-                                <input class="span2" type="number" name="num_of_rounds" min = "2" value="2"/>
+                                <input class="span2" type="number" name="num_of_rounds" min = "3" value="3"/>
                                 
                             </div>
                         </div>
@@ -185,7 +185,7 @@
                 validator: validate,
                 tagRemovedAction: removed,
                 hiddenTagListName: 'friends',
-                tagsContainer: $("#tagsContainer"),
+                tagsContainer: $("#tagsContainer")
             });
         //************
 
@@ -241,10 +241,14 @@
                         waiting_server_reply = true;
                         var submition = $wizard_from.serializeObject();
 
-                        // overide friends with keys to return
-                        submition['friends'] = [];
+                        // overide friends with keys to return (w/ current_user)
+                        {% if current_user.is_authenticated() %}
+                            submition['guests'] = ["{{ current_user.key() }}"]
+                        {% else %}
+                            submition['guests'] = []
+                        {% endif %}
                         $.each(keys_to_return, function(key, value) { 
-                            submition['friends'].push(value);
+                            submition['guests'].push(value);
                         });
 
                         $.ajax({

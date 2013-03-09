@@ -4,4 +4,5 @@ def apply_urls(app):
     app.add_url_rule('/sketch/', view_func=sketch_views.SketchView.as_view('sketch'))
     app.add_url_rule('/sketch/create/', view_func=sketch_views.CreationWizard.as_view('wizard'))
     app.add_url_rule('/sketch/search/', view_func=sketch_views.SearchGamesView.as_view('search'))
+    app.add_url_rule('/join/<game_key>', view_func=sketch_views.JoinGame.as_view('join'))
     # app.add_url_rule('/sketch/filter/', view_func=sketch_views.FilterGamesView.as_view('filter_games'))
