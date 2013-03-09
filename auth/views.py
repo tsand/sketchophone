@@ -10,7 +10,7 @@ from auth import forms as auth_forms
 from auth import utils as auth_utils
 from auth import actions as auth_actions
 
-from base import mail, cron
+from base import mail
 import json
 
 
@@ -95,7 +95,7 @@ class Register(MethodView):
 
                 # For local debugging, since you can't send mail
                 import logging
-                logging.log(logging.INFO, registration_url)
+                logging.log(logging.INFO, 'REGISTRATION URL: %s' % registration_url)
 
                 # Delete unregistered user
                 user = auth_actions.get_user_by_email(form.email.data)

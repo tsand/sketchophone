@@ -14,9 +14,11 @@
     <link href="{{ url_for('static', filename="css/bootstrap.dataTables.css") }}" rel="stylesheet">
     <style>
         body { padding-top: 60px; }
+        body { padding-bottom: 40px; }
          @media (max-width: 979px) {
             body {
               padding-top: 0;
+              padding-bottom: 0;
             }
           }
     </style>
@@ -38,14 +40,13 @@
             <div class="nav-collapse">
                 <ul class="nav">
                     <li class=""><a href="{{ url_for('home')}}"><i class='icon-home icon-large'></i> Home</a></li>
-                    <li class=""><a href="{{ url_for('sketch')}}"><i class='icon-pencil icon-large'></i> Sketch</a></li>
 					<li class=""><a href="{{ url_for('about')}}"><i class='icon-group icon-large'></i> About</a></li>
                 </ul>
                 <ul class="nav pull-right">
                     <li class="divider-vertical"></li>
                     <li class="dropdown">
                         <a class="dropdown-toggle"href="#" data-toggle="dropdown">
-                            <span class="badge badge-important">{{ current_user.notification_count }}</span>
+                            <span class="badge badge-info">{{ current_user.unread_notification_count }}</span>
                             {{ current_user.display_name }}
                             <strong class="caret"></strong></a>
                         <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dropdownMenu">
@@ -83,6 +84,10 @@
             <div id="content">{% block content %}{% endblock %}</div>
         </div>
     </div>
+    <hr>
+    <footer>
+        <p>&copy; Sketchophone 2013</p>
+    </footer>
 </div>
 
 <!-- Le javascript
