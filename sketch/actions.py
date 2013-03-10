@@ -64,9 +64,11 @@ def get_random_game():
     If not num, return all games
     """
     game_count = sketch_models.Game.all(keys_only=True).filter('perms =', 'public').count()
-    rand_num = random.randint(0, game_count - 1)
-    game = sketch_models.Game.all().filter('perms =', 'public').fetch(1, offset=rand_num)[0]
-    return game
+    if game_count:
+        rand_num = random.randint(0, game_count - 1)
+        game = sketch_models.Game.all().filter('perms =', 'public').fetch(1, offset=rand_num)[0]
+        return game
+    return None
 
 
 def add_round_by_game_key(game_key, new_data, participant):

@@ -20,7 +20,7 @@ class Game(MethodView):
             game = sketch_actions.get_random_game()
             if not game:
                 flash('No games avaliable')
-                redirect('home')
+                return redirect('/')
 
         # Check if private
         if game.perms == game.PRIVATE:
