@@ -22,7 +22,13 @@
     <div class="tabbable tabs-left">
         <ul class="nav nav-tabs">
             <li class="active"><a href="#account" data-toggle="tab">Account</a></li>
-            <li class=""><a href="#notifications" data-toggle="tab">Notifications</a></li>
+            <li class="">
+                <a href="#notifications" data-toggle="tab">Notifications
+                    {% if current_user.unread_notification_count %}
+                        <span class="badge badge-info">{{ current_user.unread_notification_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
             <li class=""><a href="#games" data-toggle="tab">Games</a></li>
         </ul>
         <div class="tab-content">
