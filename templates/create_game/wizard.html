@@ -1,10 +1,10 @@
 {% extends "themes/base.html" %}
 
 {% block content %}
-	<div class="span10 offset1" id="wizard_page">
+    <div id="wizard_page">
 
         <div class="page-header" style='border-bottom: none;' >
-            <h1>Create A Game</h1>
+            <h2>Create A Game</h2>
         </div>
 
         <div style="margin-bottom: 20px;">
@@ -57,30 +57,30 @@
                         <h3 align='center'>Game Settings</h3>
 
                         <div >
-                        <div class="control-group" >
-                            <label class="control-label">Game Title</label>
-                            <div class="controls">
-                                <input type="text" name="name" />
+                            <div class="control-group" >
+                                <label class="control-label">Game Title</label>
+                                <div class="controls">
+                                    <input type="text" name="name" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="control-group">
-                            <label class="control-label">Number of Rounds</label>
-                            <div class="controls">
-                                <input class="span2" type="number" name="num_of_rounds" min = "3" value="3"/>
-                                
+                            <div class="control-group">
+                                <label class="control-label">Number of Rounds</label>
+                                <div class="controls">
+                                    <input class="span2" type="number" name="num_of_rounds" min = "3" value="3"/>
+
+                                </div>
                             </div>
-                        </div>
-                        <div class="control-group">
-                            <label class="control-label">Friends to Invite</label>
-                            <div class="controls">
-                                <input type="text" name="tags" placeholder="Type username here" class="tagManager"/>
+                            <div class="control-group">
+                                <label class="control-label">Friends to Invite</label>
+                                <div class="controls">
+                                    <input type="text" name="tags" placeholder="Type username here" class="tagManager"/>
+                                </div>
                             </div>
-                        </div>
-                        <div class="control-group">
-                            <label class="control-label">Friend List</label>
-                            <div class="controls" id='tagsContainer'>
+                            <div class="control-group">
+                                <label class="control-label">Friend List</label>
+                                <div class="controls" id='tagsContainer'>
+                                </div>
                             </div>
-                        </div>
                         </div>
                     </div>
 
@@ -95,9 +95,8 @@
                 </div>
             </div>
         </form>
-
-	</div>
-{% endblock content %}  
+    </div>
+{% endblock content %}
 
 
 
@@ -106,42 +105,42 @@
         //************
         // init code 
         //************
-            'use strict';
+        'use strict';
 
-            // Store DOM elments that are used more than once
-            // This way we don't have to waste resources "reselecting".
-            var $wizard_from = $("#wizard_form");
-            var $wizard_carousel = $('#wizard_carousel');
-            var $prev_button = $("#prev");
-            var $next_button = $("#next");
+        // Store DOM elments that are used more than once
+        // This way we don't have to waste resources "reselecting".
+        var $wizard_from = $("#wizard_form");
+        var $wizard_carousel = $('#wizard_carousel');
+        var $prev_button = $("#prev");
+        var $next_button = $("#next");
 
-            // ennsure that when a table is clicked
-            // we update the radio button inside it
-            $wizard_from.find("tr").click(function(){
-                $("input", this).prop('checked', true);
+        // ennsure that when a table is clicked
+        // we update the radio button inside it
+        $wizard_from.find("tr").click(function(){
+            $("input", this).prop('checked', true);
+        });
+
+
+        // This function was found and documented here.
+        // This function appends to jquery giving us the
+        // ability to serialize froms into json!
+        // http://css-tricks.com/snippets/jquery/serialize-form-to-json/
+        $.fn.serializeObject = function()
+        {
+            var o = {};
+            var a = this.serializeArray();
+            $.each(a, function() {
+                if (o[this.name]) {
+                    if (!o[this.name].push) {
+                        o[this.name] = [o[this.name]];
+                    }
+                    o[this.name].push(this.value || '');
+                } else {
+                    o[this.name] = this.value || '';
+                }
             });
-
-
-            // This function was found and documented here.
-            // This function appends to jquery giving us the 
-            // ability to serialize froms into json!
-            // http://css-tricks.com/snippets/jquery/serialize-form-to-json/
-            $.fn.serializeObject = function()
-            {
-               var o = {};
-               var a = this.serializeArray();
-               $.each(a, function() {
-                   if (o[this.name]) {
-                       if (!o[this.name].push) {
-                           o[this.name] = [o[this.name]];
-                       }
-                       o[this.name].push(this.value || '');
-                   } else {
-                       o[this.name] = this.value || '';
-                   }
-               });
-               return o;
-            };
+            return o;
+        };
 
         //************
 
@@ -150,79 +149,79 @@
         //************
         // Tag Management (for adding friends)
         //************
-            var found_usernames = [];
-            var keys_to_return = {};
-            var key_by_username = {};
-            var ajaxUserQuery = function(query, call_back){ 
-                if (query.length <= 3)
-                {
-                    $.getJSON('{{ url_for('user_query') }}',{'query':query},function(response){
+        var found_usernames = [];
+        var keys_to_return = {};
+        var key_by_username = {};
+        var ajaxUserQuery = function(query, call_back){
+            if (query.length <= 3)
+            {
+                $.getJSON('{{ url_for('user_query') }}',{'query':query},function(response){
 
-                        key_by_username = response.key_by_username;
-                        found_usernames = response.usernames;
+                    key_by_username = response.key_by_username;
+                    found_usernames = response.usernames;
 
-                        call_back(found_usernames);
-                    });
-                }
-                return found_usernames;
+                    call_back(found_usernames);
+                });
             }
+            return found_usernames;
+        }
 
-            var validate = function(to_validate){
-                if (found_usernames.indexOf(to_validate) >= 0)
-                {
-                    keys_to_return[to_validate] = key_by_username[to_validate];
-                    return true;
-                }
-                return false;
+        var validate = function(to_validate){
+            if (found_usernames.indexOf(to_validate) >= 0)
+            {
+                keys_to_return[to_validate] = key_by_username[to_validate];
+                return true;
             }
-            var removed = function(to_remove){
-                delete keys_to_return[to_remove];
-            }
+            return false;
+        }
+        var removed = function(to_remove){
+            delete keys_to_return[to_remove];
+        }
 
-            $(".tagManager").tagsManager({
-                typeahead: true,
-                typeaheadSource: ajaxUserQuery,
-                validator: validate,
-                tagRemovedAction: removed,
-                hiddenTagListName: 'friends',
-                tagsContainer: $("#tagsContainer")
-            });
+        $(".tagManager").tagsManager({
+            typeahead: true,
+            typeaheadSource: ajaxUserQuery,
+            validator: validate,
+            tagRemovedAction: removed,
+            hiddenTagListName: 'friends',
+            tagsContainer: $("#tagsContainer")
+        });
         //************
 
-        
+
 
         //************
         // Carousel Management
         //************
-            var step = 0;
-            // disable carousel from moving automatically 
-            $wizard_carousel.each(function(){
-                $(this).carousel({
-                    interval: false
-                });
-            });        
-
-            $wizard_carousel.bind('slide', function() {
-                if(step == 0)
-                {
-                    $prev_button.addClass('disabled');
-                }
-                else
-                {
-                    $prev_button.removeClass('disabled');
-                }
-
-                if(step == 2)
-                {
-                    $next_button.html('Finish! <i class="icon-arrow-right">');
-                    $next_button.addClass('btn-success');
-                }
-                else
-                {
-                    $next_button.html('Next <i class="icon-arrow-right">');
-                    $next_button.removeClass('btn-success');
-                }
+        var step = 0;
+        // disable carousel from moving automatically
+        $wizard_carousel.each(function(){
+            $(this).carousel({
+                interval: false
             });
+        });
+
+        $wizard_carousel.bind('slide', function() {
+            if(step == 0)
+            {
+                $prev_button.addClass('disabled');
+            }
+            else
+            {
+                $prev_button.removeClass('disabled');
+            }
+
+            if(step == 2)
+            {
+                $next_button.html('Finish! <i class="icon-arrow-right">');
+                $next_button.addClass('btn-success');
+            }
+            else
+            {
+                $next_button.html('Next <i class="icon-arrow-right">');
+                $next_button.removeClass('btn-success');
+            }
+        });
         //************
 
 
@@ -231,58 +230,58 @@
         // Buttons 
         //************
 
-            var waiting_server_reply = false;
-            $next_button.click(function() {
+        var waiting_server_reply = false;
+        $next_button.click(function() {
 
-                if (step == 2)
+            if (step == 2)
+            {
+                if (!waiting_server_reply)
                 {
-                    if (!waiting_server_reply)
-                    {
-                        waiting_server_reply = true;
-                        var submition = $wizard_from.serializeObject();
+                    waiting_server_reply = true;
+                    var submition = $wizard_from.serializeObject();
 
-                        // overide friends with keys to return (w/ current_user)
-                        {% if current_user.is_authenticated() %}
-                            submition['created_by'] = "{{ current_user.key() }}"
-                        {% endif %}
+                    // overide friends with keys to return (w/ current_user)
+                    {% if current_user.is_authenticated() %}
+                        submition['created_by'] = "{{ current_user.key() }}"
+                    {% endif %}
 
-                        submition['guests'] = []
-                        $.each(keys_to_return, function(key, value) { 
-                            submition['guests'].push(value);
-                        });
+                    submition['guests'] = []
+                    $.each(keys_to_return, function(key, value) {
+                        submition['guests'].push(value);
+                    });
 
-                        $.ajax({
-                                url: '{{ url_for('wizard') }}',
-                                type: 'POST',
-                                contentType: 'application/json',
-                                data: JSON.stringify({'form':submition}),
-                                dataType: 'json'
-                        }).done(function(data){
+                    $.ajax({
+                        url: '{{ url_for('wizard') }}',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({'form':submition}),
+                        dataType: 'json'
+                    }).done(function(data){
 
-                            if (data.success)
-                            {
-                                window.location.replace("{{url_for('home')}}");
-                            }
-                            else
-                            {
-                                // we need to manage this error better
-                                window.alert('We have a problem...');
-                            }
-                            waiting_server_reply = false;
-                        });
-                    }
+                                if (data.success)
+                                {
+                                    window.location.replace("{{url_for('home')}}");
+                                }
+                                else
+                                {
+                                    // we need to manage this error better
+                                    window.alert('We have a problem...');
+                                }
+                                waiting_server_reply = false;
+                            });
                 }
-                else
-                {
-                    step ++;
-                    $wizard_carousel.carousel(step);
-                }
-            });
-
-            $prev_button.click(function() {
-                step = step > 0 ? step-1:step;
+            }
+            else
+            {
+                step ++;
                 $wizard_carousel.carousel(step);
-            });
+            }
+        });
+
+        $prev_button.click(function() {
+            step = step > 0 ? step-1:step;
+            $wizard_carousel.carousel(step);
+        });
         //************
     </script>
 {% endblock %}  
