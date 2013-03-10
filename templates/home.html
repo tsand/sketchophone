@@ -1,9 +1,40 @@
 {% extends "themes/base.html" %}
 
+{% block style %}
+
+    <style type="text/css">
+        .jumbotron {
+            margin: 60px 0;
+            text-align: center;
+        }
+        .jumbotron h1 {
+            font-size: 72px;
+            line-height: 1;
+        }
+        .jumbotron .btn {
+            font-size: 21px;
+            padding: 14px 24px;
+        }
+    </style>
+
+{% endblock %}
+
 {% block content %}
-    <div class="hero-unit">
+
+    <div class="jumbotron">
         <h1>Sketchophone</h1>
+        <p class="lead">The Online Game of Telephone Pictionary</p>
+        <div class="btn-group">
+            <a href="{{ url_for('random_game') }}" class="btn btn-primary">Play Now!</a>
+            <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+            <ul class="dropdown-menu" style="text-align: left">
+                <li><a href="{{ url_for('random_game') }}">Join a Random Game</a></li>
+                <li><a href="{{ url_for('wizard') }}">Create A Game</a></li>
+                <li><a href="{{ url_for('search') }}">Search For A Game</a></li>
+            </ul>
+        </div>
     </div>
 
     {% include 'join_game.html' with context %}
+
 {% endblock content %}

@@ -19,7 +19,7 @@ class Game(MethodView):
             # Return random game (oldest)
             game = sketch_actions.get_random_game()
             if not game:
-                flash('No games avaliable')
+                flash('No games avaliable', 'error')
                 return redirect('/')
 
         # Check if private
@@ -96,6 +96,8 @@ class CreationWizard(MethodView):
             # For local debugging, since you can't send mail
             import logging
             logging.log(logging.INFO, 'GAME LINK: %s' % external_game_link)
+
+            flash('Game Created', 'success')
 
             return json.dumps({'success': True})
         return json.dumps({'success': False})
