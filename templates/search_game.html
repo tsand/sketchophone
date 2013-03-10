@@ -2,32 +2,6 @@
 
 {% block content %}
     <div class="hero-unit">
-        <h3>Private Games</h3>
-        <table class="table table-bordered table-striped table-hover">
-            <thead>
-            <tr>
-                <th>Name</th>
-                <th>Created</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-
-            <tbody>
-            {% for game in private_games %}
-                <tr>
-                    <td>{{ game.title }}</td>
-                    <td>{{ game.created }}</td>
-                    <td>
-                        <div class="btn-group">
-                            <a href="/game/{{ game.key() }}" class="btn" style="display:inline;margin-top:5px;" role="button" data-toggle="modal">Join</a>
-                        </div>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-
-        <h3>Public Games</h3>
         <table class="table table-bordered table-striped table-hover" id="search_table" >
             <thead>
                 <tr>

@@ -1,23 +1,28 @@
 from google.appengine.ext import db
-from auth import models as auth_models
+from auth.models import User
 
 
 class Game(db.Model):
-	title = db.StringProperty()
-	created = db.DateTimeProperty(auto_now_add=True)
-	PUBLIC = 'public'
-	PRIVATE = 'private'
-	PERMISSION_CHOICES = [PUBLIC,PRIVATE]
-	perms = db.StringProperty(choices=PERMISSION_CHOICES)
-	number_of_rounds = db.IntegerProperty()
-	guests = db.ListProperty(db.Key) 
+    title = db.StringProperty()
+
+    created = db.DateTimeProperty(auto_now_add=True)
+    created_by = db.ReferenceProperty(User)
+
+    PUBLIC = 'public'
+    PRIVATE = 'private'
+    perms = db.StringProperty(choices=[PUBLIC, PRIVATE])
+
+    number_of_rounds = db.IntegerProperty()
+
 
 
 class Round(db.Model):
-	created = db.DateTimeProperty(auto_now_add=True)
-	SKETCH = 'sketch'
-	TEXT = 'text'
-	ROUND_TYPES = [SKETCH,TEXT]
-	round_type = db.StringProperty(choices=ROUND_TYPES)
-	data = db.BlobProperty(default=None)
-	user = db.ReferenceProperty(auth_models.User)
+    created = db.DateTimeProperty(auto_now_add=True)
+
+    user = db.ReferenceProperty(User)
+
+    SKETCH = 'sketch'
+    TEXT = 'text'
+    round_type = db.StringProperty(choices=[SKETCH, TEXT])
+
+    data = db.BlobProperty(default=None)
