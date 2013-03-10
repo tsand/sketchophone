@@ -55,12 +55,14 @@
             {% endif %}
         </div>
     </div>
-    <hr>
-    {% if user.notification_count %}
+
+    {% if notifications %}
+
+        <hr>
         <div class="row" style="margin-top: 50px">
             <div class="span12">
                 <h3>Notifications</h3>
-                <table class="table table-hover table-bordered" id="notifications-table">
+                <table class="table table-hover table-striped table-bordered" id="notifications-table">
                     <thead>
                     <tr>
                         <th>Title</th>
@@ -69,7 +71,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for notification in user.get_notifications(pretty_dates=True) %}
+                    {% for notification in notifications %}
                         <tr href="{{ notification.link }}"
                                 {% if not notification.read %}
                                     class="info"
@@ -85,6 +87,40 @@
                 </table>
             </div>
         </div>
+    {% endif %}
+
+    {% if games %}
+
+        <hr>
+        <div class="row" style="margin-top: 50px">
+            <div class="span12">
+                <h3>My Games</h3>
+                <table class="table table-bordered table-striped table-hover">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for game in games %}
+                        <tr>
+                            <td>{{ game.title }}</td>
+                            <td>{{ game.created }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="/game/{{ game.key() }}" class="btn" style="display:inline;margin-top:5px;" role="button" data-toggle="modal">Join</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     {% endif %}
 
 

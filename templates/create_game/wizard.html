@@ -243,11 +243,10 @@
 
                         // overide friends with keys to return (w/ current_user)
                         {% if current_user.is_authenticated() %}
-                            submition['created_by'] = "{{ current_user.display_name }}"
-                            submition['guests'] = ["{{ current_user.key() }}"]
-                        {% else %}
-                            submition['guests'] = []
+                            submition['created_by'] = "{{ current_user.key() }}"
                         {% endif %}
+
+                        submition['guests'] = []
                         $.each(keys_to_return, function(key, value) { 
                             submition['guests'].push(value);
                         });

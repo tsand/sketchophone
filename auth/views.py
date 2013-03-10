@@ -208,16 +208,26 @@ class User(View):
 
     @login_required
     def dispatch_request(self):
-        return render_template('auth/user.html',  user=current_user)
+        games = sorted(current_user.get_games(),
+                       key=lambda game: game.created,
+                       reverse=True)
+        return render_template(
+            'auth/user.html',
+            user=current_user,
+            games=games,
+            notifications=current_user.get_notifications(pretty_dates=True)
+        )
+
 
 class HandleUserQuery(MethodView):
+
     def get(self):
         query = request.args.get('query','')
         users = auth_actions.guess_users_by_username(query)
 
-        key_dict = {user.username:str(user.key()) for user in users}
+        key_dict = {user.username: str(user.key()) for user in users}
         usernames = [user.username for user in users]
-        return json.dumps({"key_by_username":key_dict, "usernames":usernames})
+        return json.dumps({"key_by_username": key_dict, "usernames": usernames})
 
 
 class FacebookLogin(View):
