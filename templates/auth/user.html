@@ -1,11 +1,41 @@
 {% extends "themes/base.html" %}
 
+{% block style %}
+    <style>
+
+        .tabbable {
+            margin-top: 40px;
+        }
+
+        .tab-pane {
+            padding-left: 40px;
+        }
+
+    </style>
+{% endblock %}
+
 {% block content %}
-    <h2>{{ user.display_name }}</h2>
-    <div class="row" style="margin-top:80px;">
-        <div class="span4 offset4">
-            <table class="table">
-                <tbody>
+
+    <h3>{{ user.display_name }}</h3>
+    <hr>
+
+    <div class="tabbable tabs-left">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#account" data-toggle="tab">Account</a></li>
+            <li class="">
+                <a href="#notifications" data-toggle="tab">Notifications
+                    {% if current_user.unread_notification_count %}
+                        <span class="badge badge-info">{{ current_user.unread_notification_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li class=""><a href="#games" data-toggle="tab">Games</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade in active" id="account">
+
+                <table class="table table-bordered table-hover table-striped">
+                    <tbody>
                     <tr>
                         <td>Name</td>
                         <td>{{ user.display_name }}</td>
@@ -26,18 +56,20 @@
                         <tr>
                             <td>Facebook</td>
                             <td><a href="https://www.facebook.com/{{ user.facebook_id }}">
-                                    <img src="https://graph.facebook.com/{{ user.facebook_id }}/picture"/>
+                                <img src="https://graph.facebook.com/{{ user.facebook_id }}/picture"/>
                             </a></td>
                         </tr>
                     {% endif %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
 
-            {% if user.is_base_user() %}
+                {% if user.is_base_user() %}
 
-                <a class="btn btn-primary" href="{{ url_for('password') }}">
-                    Change Password
-                </a>
+                    <a class="btn btn-primary" href="{{ url_for('password') }}">
+                        Change Password
+                    </a>
+
+                {% endif %}
 
                 {% if user.is_facebook_user() %}
 
@@ -52,9 +84,88 @@
                     </a>
 
                 {% endif %}
-            {% endif %}
 
+            </div>
+
+            <div class="tab-pane fade" id="notifications">
+
+                <table class="table table-hover table-striped table-bordered" id="notifications-table">
+                    <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Sent</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% if notifications %}
+                        {% for notification in notifications %}
+                            <tr href="{{ notification.link }}" {% if not notification.read %} class="info" {% endif %} style="cursor: pointer">
+                                <td>{{ notification.title }}</td>
+                                <td>{{ notification.description | safe}}</td>
+                                <td>{{ notification.pretty_date }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="3" style="text-align: center;"><strong>No Notifications!</strong></td>
+                        </tr>
+                    {% endif %}
+                    <div class="hide">{{ user.read_notifications() }}</div>
+                    </tbody>
+                </table>
+
+            </div>
+
+            <div class="tab-pane fade" id="games">
+
+                <table class="table table-bordered table-striped table-hover">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {% if games %}
+                        {% for game in games %}
+                            <tr>
+                                <td>{{ game.title }}</td>
+                                <td>{{ game.created }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="/game/{{ game.key() }}" class="btn" style="display:inline;margin-top:5px;" role="button" data-toggle="modal">Play</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="3" style="text-align: center;">
+                                <strong><a href="{{ url_for('wizard') }}">Create</a> or <a href="{{ url_for('search') }}">Join</a> a Game!</strong>
+                            </td>
+                        </tr>
+                    {% endif %}
+                    </tbody>
+                </table>
+
+            </div>
         </div>
     </div>
 
 {% endblock content %}
+
+{% block js_include %}
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('#notifications-table tr').click(function(){
+                window.location = $(this).attr('href');
+                return false;
+            });
+        });
+    </script>
+
+{% endblock %}

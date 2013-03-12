@@ -1,11 +1,11 @@
-# This is where we create data models to be stored in the data store.
-# These are usually called from actions
 from google.appengine.ext import db
 from resources.flask_login import AnonymousUser
+from resources import pretty
+
+# https://developers.google.com/appengine/docs/python/datastore/typesandpropertyclasses
+
 
 class User(db.Model):
-    # https://developers.google.com/appengine/docs/python/datastore/typesandpropertyclasses
-
     username = db.StringProperty()
     password = db.StringProperty()
     salt = db.StringProperty()
@@ -21,6 +21,11 @@ class User(db.Model):
     # Registration Details
     registration_id = db.StringProperty()
     registered = db.BooleanProperty(default=False)
+
+    # Game Stuff
+    games = db.ListProperty(db.Key)
+    notifications = db.ListProperty(db.Key)
+    invites = db.StringListProperty()
 
 
     @property
@@ -60,6 +65,45 @@ class User(db.Model):
             return bool(self.username) and not self.is_facebook_user()
         return bool(self.username)
 
+    # Games
+    def attach_game(self, game_key):
+        self.games.append(game_key)
+        self.put()
+
+    def get_games(self):
+        return [db.get(key) for key in self.games]
+
+    # Notification
+    def get_notifications(self, pretty_dates=False):
+        notifications = [db.get(note) for note in self.notifications]
+        notifications = sorted(notifications,
+                               key=lambda notification: notification.sent,
+                               reverse=True)
+
+        if pretty_dates:
+            for notification in notifications:
+                pretty_date = pretty.date(notification.sent)
+                notification.pretty_date = pretty_date
+
+        return notifications
+
+    @property
+    def notification_count(self):
+        return len(self.notifications)
+
+    @property
+    def unread_notification_count(self):
+        count = 0
+        for notification in self.get_notifications():
+            if not notification.read:
+                count += 1
+        return count
+
+    def read_notifications(self):
+        for notification in self.get_notifications():
+            notification.read = True
+            notification.put()
+
 
 class Anonymous(AnonymousUser):
     username = "Anonymous"
@@ -67,3 +111,4 @@ class Anonymous(AnonymousUser):
     @property
     def display_name(self):
         return self.username
+

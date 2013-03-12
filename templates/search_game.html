@@ -12,13 +12,13 @@
             </thead>
 
             <tbody>
-            {% for game in games %}
+            {% for game in public_games %}
                 <tr>
                     <td>{{ game.title }}</td>
                     <td>{{ game.created }}</td>
                     <td> 
                         <div class="btn-group">
-                            <a href="" class="btn" style="display:inline;margin-top:5px;" role="button" data-toggle="modal">Join</a>
+                            <a href="/join/{{ game.key() }}" class="btn" style="display:inline;margin-top:5px;" role="button" data-toggle="modal">Join</a>
                         </div>
                     </td>
                 </tr>
@@ -38,7 +38,7 @@
             "bFilter": true,
             "bSort": true,
             "bInfo": false,
-            "bAutoWidth": false,
+            "bAutoWidth": false
         });
 
     // server side example
