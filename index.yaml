@@ -14,6 +14,11 @@ indexes:
   properties:
   - name: perms
   - name: created
+
+- kind: Game
+  properties:
+  - name: perms
+  - name: created
     direction: desc
 
 - kind: Round

@@ -1,0 +1,11 @@
+{% extends "themes/email.txt" %}
+
+{% block content %}
+
+    Hello,
+
+    You have been invited to play a game of sketchophone by {{ created_by }}!
+
+    Please follow this link to play: {{ game_link }}
+
+{% endblock %}

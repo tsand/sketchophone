@@ -1,61 +1,32 @@
-{% extends 'themes/base.html' %}
+{% extends "auth/base_form.html" %}
 
-{% block content %}
+{% block form %}
 
-    <div class="container">
-        <h3>Register</h3>
-        <form class="form-horizontal" method="post" action="">
-            {{ form.csrf_token }}
+    <form class="form-signin" action="" method="post">
+        <h3 class="form-signin-heading">Register</h3>
+        {{ form.csrf_token }}
 
-            {% if verification %}
+        {% if verification %}
+            {{ form.username(placeholder="username", class="input-block-level") }}
 
-                <div class="control-group">
-                    {{ form.username.label(class="control-label") }}
-                    <div class="controls">
-                        {{ form.username }}
-                    </div>
-                </div>
-                <div class="control-group">
-                    {{ form.password.label(class="control-label") }}
-                    <div class="controls">
-                        {{ form.password }}
-                    </div>
-                </div>
-                <div class="control-group">
-                    {{ form.confirm.label(class="control-label") }}
-                    <div class="controls">
-                        {{ form.confirm }}
-                    </div>
-                </div>
-                <div class="control-group">
-                    <div class="controls">
-                        <label class="checkbox">
-                            {{ form.remember }}Remember me
-                        </label>
-                        {{ form.submit(class="btn btn-primary") }}
-                    </div>
-                </div>
+            {{ form.password(placeholder="password", class="input-block-level") }}
 
-            {% else %}
+            {{ form.confirm(placeholder="confirm password", class="input-block-level") }}
 
-                <div class="control-group">
-                    {{ form.email.label(class="control-label") }}
-                    <div class="controls">
-                        {{ form.email }}
-                    </div>
-                </div>
-                <div class="control-group">
-                    <div class="controls">
-                        {{ form.submit(class="btn btn-primary") }}
-                        <a class="btn btn-primary" href="{{ url_for('facebook_login') }}">
-                            <i class="icon-facebook-sign icon-large"></i> Login with Facebook
-                        </a>
-                    </div>
-                </div>
+            <label class="checkbox">
+                {{ form.remember }}Remember me
+            </label>
 
-            {% endif %}
+        {% else %}
 
-        </form>
-    </div>
+            {{ form.email(class="input-block-level", placeholder="email") }}
+
+        {% endif %}
+
+        <div class="btn-container">
+            {{ form.submit(class="btn btn-primary btn-block btn-large") }}
+        </div>
+    </form>
 
 {% endblock %}
+
