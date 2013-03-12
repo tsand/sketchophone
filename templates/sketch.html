@@ -8,13 +8,16 @@
 <div class="well">
 <h3><center>Description Text Here!</center></h3>
 </div>
-<div class="sketch well" id="sketch_page">
-		<a class="btn" id="editor_pen"><i class='icon-pencil'></i> Marker</a>
-		<a class="btn" id="editor_erase"><i class='icon-circle-blank'></i> Eraser</a>
-		<a class="btn" id="editor_undo"><i class="icon-undo"></i> Undo</a>
-		<a class="btn" id="editor_redo"><i class="icon-repeat"></i> Redo</a>
-		<a class="btn" id="colorpicker" data-color-format="hex" data-color="rgb(255, 255, 255)">Marker Color <span class="caret"></span></a>
-		<div class="btn-group" id="size_dropdown">
+<div class="sketch row" id="sketch_page">
+	<div class="span9">
+	<div class="row">
+		<div class="span2">
+		<p><a class="btn" id="editor_pen"><i class='icon-pencil'></i> Marker</a></p>
+		<p><a class="btn" id="editor_erase"><i class='icon-circle-blank'></i> Eraser</a></p>
+		<p><a class="btn" id="editor_undo"><i class="icon-undo"></i> Undo</a></p>
+		<p><a class="btn" id="editor_redo"><i class="icon-repeat"></i> Redo</a></p>
+		<p><a class="btn" id="colorpicker" data-color-format="hex" data-color="rgb(255, 255, 255)">Marker Color <span class="caret"></span></a></p>
+		<p><div class="btn-group" id="size_dropdown">
 				<a class="btn dropdown-toggle" data-toggle="dropdown" id="size">Marker Size <span class="caret"></span></a>
 				<ul class="dropdown-menu">
 					<li><a id="editor_tiny">Tiny</a></li>
@@ -23,18 +26,23 @@
 					<li><a id="editor_large">Large</a></li>
 					<li><a id="editor_huge">Huge</a></li>
 				</ul>
-		</div>
-		<div class="btn-group" id="opacity_dropdown">
+		</div></p>
+		<p><div class="btn-group" id="opacity_dropdown">
 			<a class="btn dropdown-toggle" data-toggle="dropdown" id="opacity">Opacity <span class="caret"></span></a>
 				<ul class="dropdown-menu">
 					<li><a id="editor_solid">Solid</a></li>
 					<li><a id="editor_fuzzy">Fuzzy</a></li>
 				</ul>
+		</div></p>
+		<p><a class="btn btn-danger" id="editor_clear"><i class='icon-trash'></i> Clear Sketch</a></p>
 		</div>
-		<a class="btn btn-danger" id="editor_clear"><i class='icon-trash'></i> Clear Sketch</a>
-
+		<div class="span7">
+			<div align="center" id="editor" style="width: 750px; height: 400px; background:#fff;"></div>
+		</div>
+	</div>
+	</div>
 </div>
-		<div id="editor" style="cursor: crosshair; background:#fff"></div>
+		
 		<input type="hidden" id="data2" name="data2" />
 
 		<p>
@@ -61,8 +69,8 @@
 
 			$(document).ready(function() {
 			var sketchpad = Raphael.sketchpad("editor", {
-			height: 400,
-			width: 1050,
+			height: "100%",
+			width: "100%",
 			editing: true	// true is default
 			});
 
@@ -70,6 +78,9 @@
 			sketchpad.change(function() {
 				$("#data2").val(sketchpad.json());
 			});
+			$.ajax(function() {
+				
+			})
 			$(function() {
 				$('#colorpicker').colorpicker().on('changeColor', function(ev){
 				sketchpad.pen().color(ev.color.toHex());
