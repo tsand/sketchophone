@@ -2,7 +2,7 @@ import random
 
 from google.appengine.ext import db
 from sketch import models as sketch_models
-from auth import actions as auth_actions
+from auth.actions import create_registered_user
 
 
 def create_game(first_round_text, title, perms, num_of_rounds, created_by):
@@ -17,7 +17,7 @@ def create_game(first_round_text, title, perms, num_of_rounds, created_by):
     created_by.attach_game(new_game.key())
 
     # Add 1st round
-    add_round_by_game_key(new_game.key(), first_round_text, None)
+    add_round_by_game_key(new_game.key(), sketch_models.Round.STORY, first_round_text, created_by)
     return new_game
 
 
@@ -71,22 +71,21 @@ def get_random_game():
     return None
 
 
-def add_round_by_game_key(game_key, new_data, participant):
+def add_round_by_game_key(game_key, round_type, new_data, participant):
     """
     Add a round to a game
     """
+    new_round = None
     game = get_game_by_key(game_key)
-    last_round = get_latest_round(game_key)
-    if last_round is not None:
-        new_round_type = sketch_models.Round.SKETCH if last_round.round_type == sketch_models.Round.TEXT else sketch_models.Round.TEXT
-    else:
-        new_round_type = sketch_models.Round.TEXT
+    if game is not None:
+        new_round = sketch_models.Round(data=new_data,
+                                        user=participant,
+                                        round_type=round_type,
+                                        parent=game)
+        if new_round is not None:
+            freed_user_key = game.updated_locked_users(participant.key())
+            new_round.put()
 
-    new_round = sketch_models.Round(data=new_data,
-                                    user=participant,
-                                    round_type=new_round_type,
-                                    parent=game)
-    new_round.put()
     return new_round
 
 
@@ -107,7 +106,7 @@ def create_test_data(num=100):
     from sketch import actions
     actions.create_test_data(100)
     """
-    user = auth_actions.create_registered_user('TEST_LOADER', 'test')
+    user = create_registered_user('TEST_LOADER', 'test')
 
     import random
     for n in xrange(num):

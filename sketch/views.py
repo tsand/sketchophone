@@ -5,9 +5,9 @@ from base import actions as base_actions
 from flask import abort, url_for, request, flash, redirect
 from flask.views import MethodView
 from flask.templating import render_template
-from google.appengine.ext import db
 from resources.flask_login import current_user, login_required
 from sketch import actions as sketch_actions
+from auth import actions as auth_actions
 
 
 class Game(MethodView):
@@ -36,6 +36,30 @@ class Game(MethodView):
                                    story=round.data)
 
 
+    def post(self,game_key):
+        """ URL POST '/game/sketch/(game_key)' 
+        Required JSON 
+        {
+            round_type:'story or sketch?',
+            data:'json_drawing or story',
+        }
+        JSON returned
+        {
+            success:'true or false'
+        }
+        """
+        json_data = json.loads(request.data)
+
+        participant = auth_actions.get_user_by_flask_user(current_user)
+        round_type = json_data.get('round_type', None)
+        data = json_data.get('data', None)
+
+        new_round = sketch_actions.add_round_by_game_key(game_key, 
+                                                         data, 
+                                                         round_type, 
+                                                         participant)
+        return json.dumps({'success':new_round is not None})
+
 
 class CreationWizard(MethodView):
     @login_required
@@ -50,11 +74,11 @@ class CreationWizard(MethodView):
 
         title = str(j_form.get('name', 'foo'))
 
-        guests = [db.get(key) for key in j_form.get('guests', None)]
+        guests = [auth_actions.get_user_by_key(key) for key in j_form.get('guests', None)]
         guest_keys = [guest.key() for guest in guests]
 
         # Add created_by user to game
-        created_by = db.get(current_user.key())
+        created_by = auth_actions.get_user_by_key(current_user.key())
         guest_keys.append(created_by.key())
 
         if j_form is not None:
@@ -98,6 +122,11 @@ class CreationWizard(MethodView):
 
             return json.dumps({'success': True})
         return json.dumps({'success': False})
+
+
+class SuccessView(MethodView):
+    def get(self):
+        return render_template('submition_success.html')
 
 
 class SearchGamesView(MethodView):
