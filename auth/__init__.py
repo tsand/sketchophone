@@ -1,10 +1,8 @@
-from auth import models as auth_models
-
+from auth.models import User, Anonymous
 from flask import session
 from resources.flask_login import LoginManager
 from resources.flask_oauth import OAuth
 
-from models import User, Anonymous
 
 import settings
 
@@ -27,7 +25,7 @@ def initialize(app):
 
 @login_manager.user_loader
 def load_user(id):
-    return auth_models.User.get_by_id(int(id))
+    return User.get_by_id(int(id))
 
 @facebook.tokengetter
 def get_facebook_oauth_token():
