@@ -240,11 +240,6 @@
                     waiting_server_reply = true;
                     var submition = $wizard_from.serializeObject();
 
-                    // overide friends with keys to return (w/ current_user)
-                    {% if current_user.is_authenticated() %}
-                        submition['created_by'] = "{{ current_user.key() }}"
-                    {% endif %}
-
                     submition['guests'] = []
                     $.each(keys_to_return, function(key, value) {
                         submition['guests'].push(value);

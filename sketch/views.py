@@ -53,12 +53,9 @@ class CreationWizard(MethodView):
         guests = [db.get(key) for key in j_form.get('guests', None)]
         guest_keys = [guest.key() for guest in guests]
 
-        created_by = str(j_form.get('created_by'))
-        if created_by:
-            created_by = db.get(created_by)
-
-            # Add created_by user to game
-            guest_keys.append(created_by.key())
+        # Add created_by user to game
+        created_by = db.get(current_user.key())
+        guest_keys.append(created_by.key())
 
         if j_form is not None:
             game = sketch_actions.create_game(
