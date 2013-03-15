@@ -11,6 +11,10 @@ from google.appengine.ext import db
 def get_user_by_key(key):
     return db.get(key)
 
+def get_user_by_flask_user(user):
+    if not user.is_anonymous():
+        return get_user_by_key(user.key())
+    return None
 
 def get_user_by_email(email):
     user = auth_models.User.all().filter('email =', email).get()
