@@ -9,6 +9,10 @@ libraries:
   version: 2.6
 
 handlers:
+- url: /(.*)\.(ico|png|txt)
+  static_files: \1.\2
+  upload: (.*)\.(ico|png|txt)
+
 - url: /static
   static_dir: static
   secure: always
