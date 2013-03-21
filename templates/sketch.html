@@ -1,167 +1,102 @@
 {% extends "themes/base.html" %}
 
+{% block style %}
+
+    <link href="{{ url_for('static', filename="css/colorpicker.css") }}" rel="stylesheet">
+    <style>
+        .toolbar {
+            text-align: center;
+        }
+
+        .sketch-container {
+            margin-top: 20px;
+        }
+    </style>
+
+{% endblock %}
+
 {% block content %}
-<head>
-	<link href="{{ url_for('static', filename="css/colorpicker.css") }}" rel="stylesheet">
-</head>
-<div class="hero-unit">
-<div class="well">
-    <h2>Game: {{ game }}</h2>
-    <h3>Story: {{ story }}</h3>
-</div>
-<div class="sketch row" id="sketch_page">
-	<div class="span9">
-	<div class="row">
-		<div class="span2">
-		<p><a class="btn" id="editor_pen"><i class='icon-pencil'></i> Marker</a></p>
-		<p><a class="btn" id="editor_erase"><i class='icon-circle-blank'></i> Eraser</a></p>
-		<p><a class="btn" id="editor_undo"><i class="icon-undo"></i> Undo</a></p>
-		<p><a class="btn" id="editor_redo"><i class="icon-repeat"></i> Redo</a></p>
-		<p><a class="btn" id="colorpicker" data-color-format="hex" data-color="rgb(255, 255, 255)">Marker Color <span class="caret"></span></a></p>
-		<p><div class="btn-group" id="size_dropdown">
-				<a class="btn dropdown-toggle" data-toggle="dropdown" id="size">Marker Size <span class="caret"></span></a>
-				<ul class="dropdown-menu">
-					<li><a id="editor_tiny">Tiny</a></li>
-					<li><a id="editor_small">Small</a></li>
-					<li><a id="editor_medium">Medium</a></li>
-					<li><a id="editor_large">Large</a></li>
-					<li><a id="editor_huge">Huge</a></li>
-				</ul>
-		</div></p>
-		<p><div class="btn-group" id="opacity_dropdown">
-			<a class="btn dropdown-toggle" data-toggle="dropdown" id="opacity">Opacity <span class="caret"></span></a>
-				<ul class="dropdown-menu">
-					<li><a id="editor_solid">Solid</a></li>
-					<li><a id="editor_fuzzy">Fuzzy</a></li>
-				</ul>
-		</div></p>
-		<p><a class="btn btn-danger" id="editor_clear"><i class='icon-trash'></i> Clear Sketch</a></p>
-		</div>
-		<div class="span7">
-			<div align="center" id="editor" style="width: 750px; height: 400px; background:#fff;"></div>
-		</div>
-	</div>
-	</div>
-</div>
-		
-		<input type="hidden" id="data2" name="data2" />
 
-		<p>
-			<div class="btn-group dropup" id="image_size">
-				<a class="btn dropdown-toggle" data-toggle="dropdown" href="#" id="options"><i class='icon-reorder'></i> Image Options <span class="icon-caret-up"></span></a>
-				<ul class="dropdown-menu">
-					<li><a data-download="png"><i class="icon-external-link"></i> Download</a></li>
-					<li><a id="editor_animate"><i class="icon-refresh icon-spin"></i> Animate Image!</a></li>
-				</ul>
-			</div>
-			<a href="#" class="btn btn-success"><i class='icon-ok-sign'></i> Submit</a>
-		</p>
+    <h2>{{ game.title }}</h2>
+    <div class="well">
+        <p class="lead">{{ story }}</p>
+    </div>
 
-		
-		{% endblock content %}
+    <div class="row-fluid">
+        <div class="span12 toolbar">
+            <a class="btn" id="editor_pen"><i class='icon-pencil'></i> Marker</a>
+            <a class="btn" id="editor_erase"><i class='icon-circle-blank'></i> Eraser</a>
+            <a class="btn" id="editor_undo"><i class="icon-undo"></i> Undo</a>
+            <a class="btn" id="editor_redo"><i class="icon-repeat"></i> Redo</a>
+            <a class="btn" id="colorpicker" data-color-format="hex" data-color="rgb(255, 255, 255)">Marker Color <span class="caret"></span></a>
+            <div class="btn-group" id="size_dropdown">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" id="size">Marker Size <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a id="editor_tiny">Tiny</a></li>
+                    <li><a id="editor_small">Small</a></li>
+                    <li><a id="editor_medium">Medium</a></li>
+                    <li><a id="editor_large">Large</a></li>
+                    <li><a id="editor_huge">Huge</a></li>
+                </ul>
+            </div>
+            <div class="btn-group" id="opacity_dropdown">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" id="opacity">Opacity <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a id="editor_solid">Solid</a></li>
+                    <li><a id="editor_fuzzy">Fuzzy</a></li>
+                </ul>
+            </div>
+            <a class="btn btn-danger" id="editor_clear"><i class='icon-trash'></i> Clear Sketch</a>
+        </div>
 
-	{% block js_include %}
-		<script src="{{ url_for('static', filename="js/sketch.js") }}"></script>
-		<script src="{{ url_for('static', filename="js/bootstrap-colorpicker.js")}}"></script>
-		<script src="{{ url_for('static', filename="js/json2.js")}}"></script>
-		<script src="{{ url_for('static', filename="js/raphael.js")}}"></script>
-		<script src="{{ url_for('static', filename="js/raphael.sketchpad.js")}}"></script>
-		<script type="text/javascript">
+        <div class="row-fluid">
+            <div class="span12">
 
-			$(document).ready(function() {
-			var sketchpad = Raphael.sketchpad("editor", {
-			height: "100%",
-			width: "100%",
-			editing: true	// true is default
-			});
+                <div class="sketch-container well">
+                    <div id="editor" style="margin:0 auto; width: 750px; height: 400px; background:#fff;"></div>
+                </div>
 
-			// When the sketchpad changes, update the input field.
-			sketchpad.change(function() {
-				$("#data2").val(sketchpad.json());
-			});
-			$.ajax(function() {
-				
-			})
-			$(function() {
-				$('#colorpicker').colorpicker().on('changeColor', function(ev){
-				sketchpad.pen().color(ev.color.toHex());
-			});
-			});
-			function enable(element, enable) {
-				if (enable) {
-					$(element).removeClass("disabled");
-				} else {
-					$(element).addClass("disabled");
-				}
-			};
+                <div class="row-fluid">
+                    <div class="span12 toolbar">
 
-			function select(element1, element2) {
-				$(element1).addClass("selected");
-				$(element2).removeClass("selected");
-			}
+                        <a href="#" id="btn-submit-sketch" class="btn btn-success pull-right" onclick="submitDrawing()"><i class='icon-ok-sign'></i> Submit</a>
 
-			$("#editor_undo").click(function() {
-				sketchpad.undo();
-			});
-			$("#editor_redo").click(function() {
-				sketchpad.redo();
-			});
-			$("#editor_clear").click(function() {
-				sketchpad.clear();
-			});
-			$("#editor_animate").click(function() {
-				sketchpad.animate();
-			});
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-			$("#editor_tiny").click(function() {
-				sketchpad.pen().width(2);
-			});
-			$("#editor_small").click(function() {
-				sketchpad.pen().width(10);
-			});
-			$("#editor_medium").click(function() {
-				sketchpad.pen().width(15);
-			});
-			$("#editor_large").click(function() {
-				sketchpad.pen().width(20);
-			});
-			$("#editor_huge").click(function() {
-				sketchpad.pen().width(25);
-			});
-			$("#editor_solid").click(function() {
-				select("#editor_solid", "#editor_fuzzy");
-				sketchpad.pen().opacity(1);
-			});
-			$("#editor_erase").click(function() {
-				select("#editor_erase","#editor_pen");
-				sketchpad.editing("erase");
-			});
-			$("#editor_pen").click(function() {
-				select("#editor_pen", "#editor_erase");
-				sketchpad.editing(true);
-			});
-			$("#editor_fuzzy").click(function() {
-				select("#editor_fuzzy", "#editor_solid");
-				sketchpad.pen().opacity(0.3);
-			});
 
-			$("#editor_draw_erase").toggle(function() {
-				sketchpad.editing("erase");
-			}, function() {
-				$(this).text("Draw");
-				sketchpad.editing(true);
-			});
+{% endblock content %}
 
-			function update_actions() {
-				enable("#editor_undo", sketchpad.undoable());
-				enable("#editor_redo", sketchpad.redoable());
-				enable("#editor_clear", sketchpad.strokes().length > 0);
-			}
+{% block js_include %}
 
-			sketchpad.change(update_actions);
+    <script src="{{ url_for('static', filename="js/raphael.js")}}"></script>
+    <script src="{{ url_for('static', filename="js/json2.js")}}"></script>
+    <script src="{{ url_for('static', filename="js/raphael.sketchpad.js")}}"></script>
+    <script src="{{ url_for('static', filename="js/bootstrap-colorpicker.js")}}"></script>
+    <script src="{{ url_for('static', filename="js/sketch.js")}}"></script>
 
-			update_actions();
-		});
-		</script>
-</div>
+    <script>
+
+        // Submit Drawing
+        function submitDrawing() {
+            $.ajax({
+                type: "POST",
+                url: "/game/sketch/{{ game.key() }}",
+                data: JSON.stringify({
+                    round_type: 'sketch',
+                    data: sketchpad.json()
+                }),
+                contentType: 'application/json',
+                dataType: 'json',
+                complete: function() {
+                    location.reload();
+                }
+            })
+        }
+
+    </script>
+
 {% endblock js_include %}

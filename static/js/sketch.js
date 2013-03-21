@@ -1,204 +1,96 @@
-var __slice = Array.prototype.slice;
-(function($) {
-  var Sketch;
-  $.fn.sketch = function() {
-    var args, key, sketch;
-    key = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-    if (this.length > 1) {
-      $.error('Sketch.js can only be called on one element at a time.');
-    }
-    sketch = this.data('sketch');
-    if (typeof key === 'string' && sketch) {
-      if (sketch[key]) {
-        if (typeof sketch[key] === 'function') {
-          return sketch[key].apply(sketch, args);
-        } else if (args.length === 0) {
-          return sketch[key];
-        } else if (args.length === 1) {
-          return sketch[key] = args[0];
-        }
-      } else {
-        return $.error('Sketch.js did not recognize the given command.');
-      }
-    } else if (sketch) {
-      return sketch;
+
+// Helper Functions
+function enable(element, enable) {
+    if (enable) {
+        $(element).removeClass("disabled");
     } else {
-      this.data('sketch', new Sketch(this.get(0), key));
-      return this;
+        $(element).addClass("disabled");
     }
-  };
-  Sketch = (function() {
-    function Sketch(el, opts) {
-      this.el = el;
-      this.canvas = $(el);
-      this.context = el.getContext('2d');
-      this.options = $.extend({
-        toolLinks: true,
-        defaultTool: 'marker',
-        defaultColor: '#000000',
-        defaultSize: 5
-      }, opts);
-      this.painting = false;
-      this.color = this.options.defaultColor;
-      this.size = this.options.defaultSize;
-      this.tool = this.options.defaultTool;
-      this.actions = [];
-      this.action = [];
-      this.canvas.bind('click mousedown mouseup mousemove mouseleave mouseout touchstart touchmove touchend touchcancel', this.onEvent);
-      if (this.options.toolLinks) {
-        $('body').delegate("a[href=\"#" + (this.canvas.attr('id')) + "\"]", 'click', function(e) {
-          var $canvas, $this, key, sketch, _i, _len, _ref;
-          $this = $(this);
-          $canvas = $($this.attr('href'));
-          sketch = $canvas.data('sketch');
-          _ref = ['color', 'size', 'tool'];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            key = _ref[_i];
-            if ($this.attr("data-" + key)) {
-              sketch.set(key, $(this).attr("data-" + key));
-            }
-          }
-          if ($(this).attr('data-download')) {
-            sketch.download($(this).attr('data-download'));
-          }
-          if ($(this).attr('data-undo')) {
-            sketch.undo($(this).attr('data-undo'));
-          }
-          return false;
-        });
-      }
-    }
-    Sketch.prototype.download = function(format) {
-      var mime;
-      format || (format = "png");
-      if (format === "jpg") {
-        format = "jpeg";
-      }
-      mime = "image/" + format;
-      return window.open(this.el.toDataURL(mime));
-    };
-    Sketch.prototype.undo = function(format) {
+}
 
-      if(format === "true"){
-        console.log("data-undo is true");
-        if(this.actions.length === 0){
-        console.log("length is 0");
-        }
-        if(this.actions.length < 0){
-        console.log("length below 0");
-        }
-        if(this.actions.length > 0)
+function select(element1, element2) {
+    $(element1).addClass("selected");
+    $(element2).removeClass("selected");
+}
 
-        {
-          console.log("length > 0");
-          this.actions.pop();
-          this.redraw();
+// Initialize Raphael Sketchpad
+var sketchpad = Raphael.sketchpad("editor", {
+    height: "400",
+    width: "600",
+    editing: true	// true is default
+});
 
-        }
-      }
-     
+// Event Handler for Colorpicker
+$('#colorpicker').colorpicker().on('changeColor', function(ev){
+    sketchpad.pen().color(ev.color.toHex());
+});
 
-    };
-    Sketch.prototype.set = function(key, value) {
-      this[key] = value;
-      return this.canvas.trigger("sketch.change" + key, value);
-    };
-    Sketch.prototype.startPainting = function() {
-      this.painting = true;
-      return this.action = {
-        tool: this.tool,
-        color: this.color,
-        size: parseFloat(this.size),
-        events: []
-      };
-    };
-    Sketch.prototype.stopPainting = function() {
-      if (this.action) {
-        this.actions.push(this.action);
-      }
-      this.painting = false;
-      this.action = null;
-      return this.redraw();
-    };
-    Sketch.prototype.onEvent = function(e) {
-      if (e.originalEvent && e.originalEvent.targetTouches) {
-        e.pageX = e.originalEvent.targetTouches[0].pageX;
-        e.pageY = e.originalEvent.targetTouches[0].pageY;
-      }
-      $.sketch.tools[$(this).data('sketch').tool].onEvent.call($(this).data('sketch'), e);
-      e.preventDefault();
-      return false;
-    };
-    Sketch.prototype.redraw = function() {
-      var sketch;
-      this.el.width = this.canvas.width();
-      this.context = this.el.getContext('2d');
-      sketch = this;
-      $.each(this.actions, function() {
-        if (this.tool) {
-          return $.sketch.tools[this.tool].draw.call(sketch, this);
-        }
-      });
-      if (this.painting && this.action) {
-        return $.sketch.tools[this.action.tool].draw.call(sketch, this.action);
-      }
-    };
-    return Sketch;
-  })();
-  $.sketch = {
-    tools: {}
-  };
-  $.sketch.tools.marker = {
-    onEvent: function(e) {
-      switch (e.type) {
-        case 'mousedown':
-        case 'touchstart':
-          this.startPainting();
-          break;
-        case 'mouseup':
-        case 'mouseout':
-        case 'mouseleave':
-        case 'touchend':
-        case 'touchcancel':
-          this.stopPainting();
-      }
-      if (this.painting) {
-        this.action.events.push({
-          x: e.pageX - this.canvas.offset().left,
-          y: e.pageY - this.canvas.offset().top,
-          event: e.type
-        });
-        return this.redraw();
-      }
-    },
-    draw: function(action) {
-      var event, previous, _i, _len, _ref;
-      this.context.lineJoin = "round";
-      this.context.lineCap = "round";
-      this.context.beginPath();
-      this.context.moveTo(action.events[0].x, action.events[0].y);
-      _ref = action.events;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        event = _ref[_i];
-        this.context.lineTo(event.x, event.y);
-        previous = event;
-      }
-      this.context.strokeStyle = action.color;
-      this.context.lineWidth = action.size;
-      return this.context.stroke();
-    }
-  };
-  return $.sketch.tools.eraser = {
-    onEvent: function(e) {
-      return $.sketch.tools.marker.onEvent.call(this, e);
-    },
-    draw: function(action) {
-      var oldcomposite;
-      oldcomposite = this.context.globalCompositeOperation;
-      this.context.globalCompositeOperation = "copy";
-      action.color = "rgba(0,0,0,0)";
-      $.sketch.tools.marker.draw.call(this, action);
-      return this.context.globalCompositeOperation = oldcomposite;
-    }
-  };
-})(jQuery);
+// Undo/Redo
+$("#editor_undo").click(function() {
+    sketchpad.undo();
+});
+$("#editor_redo").click(function() {
+    sketchpad.redo();
+});
+
+// Clear Drawing
+$("#editor_clear").click(function() {
+    sketchpad.clear();
+});
+
+// Marker Sizes
+$("#editor_tiny").click(function() {
+    sketchpad.pen().width(2);
+});
+$("#editor_small").click(function() {
+    sketchpad.pen().width(10);
+});
+$("#editor_medium").click(function() {
+    sketchpad.pen().width(15);
+});
+$("#editor_large").click(function() {
+    sketchpad.pen().width(20);
+});
+$("#editor_huge").click(function() {
+    sketchpad.pen().width(25);
+});
+
+// Marker Opacity
+$("#editor_solid").click(function() {
+    select("#editor_solid", "#editor_fuzzy");
+    sketchpad.pen().opacity(1);
+});
+$("#editor_fuzzy").click(function() {
+    select("#editor_fuzzy", "#editor_solid");
+    sketchpad.pen().opacity(0.3);
+});
+
+// Eraser
+$("#editor_erase").click(function() {
+    select("#editor_erase","#editor_pen");
+    sketchpad.editing("erase");
+});
+
+// Pen
+$("#editor_pen").click(function() {
+    select("#editor_pen", "#editor_erase");
+    sketchpad.editing(true);
+});
+
+
+$("#editor_draw_erase").toggle(function() {
+    sketchpad.editing("erase");
+}, function() {
+    $(this).text("Draw");
+    sketchpad.editing(true);
+});
+
+function update_actions() {
+    enable("#editor_undo", sketchpad.undoable());
+    enable("#editor_redo", sketchpad.redoable());
+    enable("#editor_clear", sketchpad.strokes().length > 0);
+}
+
+sketchpad.change(update_actions);
+
+update_actions();
