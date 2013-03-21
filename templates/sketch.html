@@ -1,16 +1,102 @@
 {% extends "themes/base.html" %}
 
+{% block style %}
+
+    <link href="{{ url_for('static', filename="css/colorpicker.css") }}" rel="stylesheet">
+    <style>
+        .toolbar {
+            text-align: center;
+        }
+
+        .sketch-container {
+            margin-top: 20px;
+        }
+    </style>
+
+{% endblock %}
+
 {% block content %}
-    <h2>Game: {{ game }}</h2>
-    <h3>Story: {{ story }}</h3>
-    <canvas id="simple_sketch" width="800" height="300"></canvas>
+
+    <h2>{{ game.title }}</h2>
+    <div class="well">
+        <p class="lead">{{ story }}</p>
+    </div>
+
+    <div class="row-fluid">
+        <div class="span12 toolbar">
+            <a class="btn" id="editor_pen"><i class='icon-pencil'></i> Marker</a>
+            <a class="btn" id="editor_erase"><i class='icon-circle-blank'></i> Eraser</a>
+            <a class="btn" id="editor_undo"><i class="icon-undo"></i> Undo</a>
+            <a class="btn" id="editor_redo"><i class="icon-repeat"></i> Redo</a>
+            <a class="btn" id="colorpicker" data-color-format="hex" data-color="rgb(255, 255, 255)">Marker Color <span class="caret"></span></a>
+            <div class="btn-group" id="size_dropdown">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" id="size">Marker Size <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a id="editor_tiny">Tiny</a></li>
+                    <li><a id="editor_small">Small</a></li>
+                    <li><a id="editor_medium">Medium</a></li>
+                    <li><a id="editor_large">Large</a></li>
+                    <li><a id="editor_huge">Huge</a></li>
+                </ul>
+            </div>
+            <div class="btn-group" id="opacity_dropdown">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" id="opacity">Opacity <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a id="editor_solid">Solid</a></li>
+                    <li><a id="editor_fuzzy">Fuzzy</a></li>
+                </ul>
+            </div>
+            <a class="btn btn-danger" id="editor_clear"><i class='icon-trash'></i> Clear Sketch</a>
+        </div>
+
+        <div class="row-fluid">
+            <div class="span12">
+
+                <div class="sketch-container well">
+                    <div id="editor" style="margin:0 auto; width: 750px; height: 400px; background:#fff;"></div>
+                </div>
+
+                <div class="row-fluid">
+                    <div class="span12 toolbar">
+
+                        <a href="#" id="btn-submit-sketch" class="btn btn-success pull-right" onclick="submitDrawing()"><i class='icon-ok-sign'></i> Submit</a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 {% endblock content %}
 
 {% block js_include %}
-    <script src="{{ url_for('static', filename="js/sketch.min.js") }}"></script>
-    <script type="text/javascript">
-        $(function() {
-            $('#simple_sketch').sketch();
-        });
+
+    <script src="{{ url_for('static', filename="js/raphael.js")}}"></script>
+    <script src="{{ url_for('static', filename="js/json2.js")}}"></script>
+    <script src="{{ url_for('static', filename="js/raphael.sketchpad.js")}}"></script>
+    <script src="{{ url_for('static', filename="js/bootstrap-colorpicker.js")}}"></script>
+    <script src="{{ url_for('static', filename="js/sketch.js")}}"></script>
+
+    <script>
+
+        // Submit Drawing
+        function submitDrawing() {
+            $.ajax({
+                type: "POST",
+                url: "/game/sketch/{{ game.key() }}",
+                data: JSON.stringify({
+                    round_type: 'sketch',
+                    data: sketchpad.json()
+                }),
+                contentType: 'application/json',
+                dataType: 'json',
+                complete: function() {
+                    location.reload();
+                }
+            })
+        }
+
     </script>
+
 {% endblock js_include %}
