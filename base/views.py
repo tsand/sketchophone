@@ -12,8 +12,13 @@ class HomeView(MethodView):
 
 
 class AboutView(View):
-	def dispatch_request(self):
-		return render_template('about.html' )
+    def dispatch_request(self):
+        return render_template('about.html')
+
+
+class InstructionsView(View):
+    def dispatch_request(self):
+        return render_template('instructions.html')
 
 
 class Cron(View):
