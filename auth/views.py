@@ -10,7 +10,7 @@ from auth import forms as auth_forms
 from auth import utils as auth_utils
 from auth import actions as auth_actions
 
-from base import mail, cron
+from base import mail
 import json
 
 
@@ -95,7 +95,7 @@ class Register(MethodView):
 
                 # For local debugging, since you can't send mail
                 import logging
-                logging.log(logging.INFO, registration_url)
+                logging.log(logging.INFO, 'REGISTRATION URL: %s' % registration_url)
 
                 # Delete unregistered user
                 user = auth_actions.get_user_by_email(form.email.data)
@@ -208,14 +208,26 @@ class User(View):
 
     @login_required
     def dispatch_request(self):
-        return render_template('auth/user.html',  user=current_user)
+        games = sorted(current_user.get_games(),
+                       key=lambda game: game.created,
+                       reverse=True)
+        return render_template(
+            'auth/user.html',
+            user=current_user,
+            games=games,
+            notifications=current_user.get_notifications(pretty_dates=True)
+        )
+
 
 class HandleUserQuery(MethodView):
+
     def get(self):
         query = request.args.get('query','')
         users = auth_actions.guess_users_by_username(query)
 
-        return json.dumps({"found_tags":[user.username for user in users]})
+        key_dict = {user.username: str(user.key()) for user in users}
+        usernames = [user.username for user in users]
+        return json.dumps({"key_by_username": key_dict, "usernames": usernames})
 
 
 class FacebookLogin(View):

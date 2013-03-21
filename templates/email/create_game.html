@@ -1,0 +1,11 @@
+{% extends "themes/email.html" %}
+
+{% block content %}
+
+    Hello,
+
+    You have been invited to play a game of sketchophone by {{ created_by }}!
+
+    <a href="{{ game_link }}">PLAY!</a>
+
+{% endblock %}
