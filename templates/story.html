@@ -1,0 +1,57 @@
+{% extends "themes/base.html" %}
+
+{% block style %}
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="sketch-container well">
+        <div id="viewer"></div>
+    </div>
+
+    <div>
+        <input class="input-block-level" placeholder="story" id="story">
+        <a class="btn btn-primary pull-right" onclick="submitStory()" style="margin-top: 10px">Submit</a>
+    </div>
+
+{% endblock content %}
+
+{% block js_include %}
+
+    <script src="{{ url_for('static', filename="js/raphael.js")}}"></script>
+    <script src="{{ url_for('static', filename="js/json2.js")}}"></script>
+    <script src="{{ url_for('static', filename="js/raphael.sketchpad.js")}}"></script>
+    <script src="{{ url_for('static', filename="js/bootstrap-colorpicker.js")}}"></script>
+    <script src="{{ url_for('static', filename="js/sketch.js")}}"></script>
+
+    <script>
+
+        // Initialize viewer
+        var sketchpad = Raphael.sketchpad("viewer", {
+            width: 600,
+            height: 400,
+            strokes: {{ sketch_json | safe }},
+            editing: false
+        });
+
+        // Submit Story
+        function submitStory() {
+            $.ajax({
+                type: "POST",
+                url: "/game/sketch/{{ game.key() }}",
+                data: JSON.stringify({
+                    round_type: 'story',
+                    data: $('#story').val()
+                }),
+                contentType: 'application/json',
+                dataType: 'json',
+                complete: function() {
+                    location.reload();
+                }
+            })
+        }
+
+    </script>
+
+{% endblock js_include %}
