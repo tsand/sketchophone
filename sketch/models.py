@@ -6,6 +6,12 @@ class Game(db.Model):
     title = db.StringProperty()
 
     created = db.DateTimeProperty(auto_now_add=True)
+
+    def get_date_formatted(self):
+        if self.created:
+            return self.created.strftime("%m/%d/%y %I:%M %p")
+        return ''
+
     created_by = db.ReferenceProperty(User)
 
     PUBLIC = 'public'
@@ -44,4 +50,10 @@ class Round(db.Model):
     round_type = db.StringProperty(choices=[SKETCH, STORY])
 
     data = db.TextProperty()
+
+    def get_data(self):
+        import json
+        if self.round_type == self.SKETCH:
+            return json.loads(self.data)
+        return self.data
 
