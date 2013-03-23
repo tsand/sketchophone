@@ -29,36 +29,30 @@ class Game(MethodView):
 
         round = sketch_actions.get_latest_round(game.key())
         if round.round_type == round.SKETCH:
-            return json.dumps('Story page will go here')
+            test = round.data
+            return render_template('story.html',
+                                   game=game,
+                                   sketch_json=round.data)
         else:
             return render_template('sketch.html',
-                                   game=game.title,
+                                   game=game,
                                    story=round.data)
 
-
-    def post(self,game_key):
-        """ URL POST '/game/sketch/(game_key)' 
-        Required JSON 
-        {
-            round_type:'story or sketch?',
-            data:'json_drawing or story',
-        }
-        JSON returned
-        {
-            success:'true or false'
-        }
-        """
+    def post(self, game_key):
         json_data = json.loads(request.data)
 
         participant = auth_actions.get_user_by_flask_user(current_user)
         round_type = json_data.get('round_type', None)
         data = json_data.get('data', None)
 
-        new_round = sketch_actions.add_round_by_game_key(game_key, 
-                                                         data, 
-                                                         round_type, 
+        new_round = sketch_actions.add_round_by_game_key(game_key,
+                                                         round_type,
+                                                         data,
                                                          participant)
-        return json.dumps({'success':new_round is not None})
+
+        flash('%s Saved' % round_type.capitalize(), 'success')
+
+        return redirect(url_for('/'))
 
 
 class CreationWizard(MethodView):
