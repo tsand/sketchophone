@@ -53,7 +53,7 @@ class Game(MethodView):
 
         flash('%s Saved' % round_type.capitalize(), 'success')
 
-        return redirect(url_for('/'))
+        return redirect(url_for('success'))
 
 
 class Timeline(MethodView):
