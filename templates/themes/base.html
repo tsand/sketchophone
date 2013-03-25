@@ -65,12 +65,16 @@
                 <a class="brand" href="{{ url_for('home')}}">Sketchophone</a>
                 <div class="nav-collapse collapse">
                     <ul class="nav pull-right">
+                        {% if current_user.is_authenticated() %}
+                            {% if current_user.unread_notification_count %}
+                                <li>
+                                    <a href="{{ url_for('user') }}#notifications"><span class="badge badge-info">{{ current_user.unread_notification_count }}</span></a>
+                                </li>
+                            {% endif %}
+                        {% endif %}
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                                 {% if current_user.is_authenticated() %}
-                                    {% if current_user.unread_notification_count %}
-                                        <span class="badge badge-info">{{ current_user.unread_notification_count }}</span>
-                                    {% endif %}
                                     {{ current_user.display_name }}
                                 {% else %}
                                     Get Started
@@ -79,11 +83,13 @@
                             </a>
                             <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
                                 {% if current_user.is_authenticated() %}
-                                    <li><a href={{ url_for('user') }}>My Account</a></li>
-                                    <li><a href={{ url_for('logout') }}>Logout</a></li>
+                                    <li><a href="{{ url_for('user') }}#games"><i class="icon-pencil"></i> My Games</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="{{ url_for('user') }}"><i class="icon-user"></i> My Account</a></li>
+                                    <li><a href="{{ url_for('logout') }}"><i class="icon-lock"></i> Logout</a></li>
                                 {% else %}
-                                    <li><a href={{ url_for('login') }}>Sign In</a></li>
-                                    <li><a href={{ url_for('register') }}>Sign Up</a></li>
+                                    <li><a href="{{ url_for('login') }}">Sign In</a></li>
+                                    <li><a href="{{ url_for('register') }}">Sign Up</a></li>
                                 {% endif %}
                             </ul>
                         </li>

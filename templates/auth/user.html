@@ -45,12 +45,8 @@
                         <td>{{ user.email }}</td>
                     </tr>
                     <tr>
-                        <td>Created</td>
-                        <td>{{ user.created }}</td>
-                    </tr>
-                    <tr>
-                        <td>Last Updated</td>
-                        <td>{{ user.updated }}</td>
+                        <td>Games</td>
+                        <td>{{ user.get_game_count() }}</td>
                     </tr>
                     {% if user.is_facebook_user() %}
                         <tr>
@@ -63,27 +59,30 @@
                     </tbody>
                 </table>
 
-                {% if user.is_base_user() %}
+                <div class="pull-right">
+                <br>
+                    {% if user.is_base_user() %}
 
-                    <a class="btn btn-primary" href="{{ url_for('password') }}">
-                        Change Password
-                    </a>
+                        <a class="btn btn-primary" href="{{ url_for('password') }}">
+                            Change Password
+                        </a>
 
-                {% endif %}
+                    {% endif %}
 
-                {% if user.is_facebook_user() %}
+                    {% if user.is_facebook_user() %}
 
-                    <a class="btn btn-primary" href="{{ url_for('facebook_deauth') }}">
-                        <i class="icon-facebook-sign icon-large"></i> Disconnect
-                    </a>
+                        <a class="btn btn-primary" href="{{ url_for('facebook_deauth') }}">
+                            <i class="icon-facebook-sign icon-large"></i> Disconnect
+                        </a>
 
-                {% else %}
+                    {% else %}
 
-                    <a class="btn btn-primary" href="{{ url_for('facebook_login') }}">
-                        <i class="icon-facebook-sign icon-large"></i> Connect
-                    </a>
+                        <a class="btn btn-primary" href="{{ url_for('facebook_login') }}">
+                            <i class="icon-facebook-sign icon-large"></i> Connect
+                        </a>
 
-                {% endif %}
+                    {% endif %}
+                </div>
 
             </div>
 
@@ -111,7 +110,6 @@
                             <td colspan="3" style="text-align: center;"><strong>No Notifications!</strong></td>
                         </tr>
                     {% endif %}
-                    <div class="hide">{{ user.read_notifications() }}</div>
                     </tbody>
                 </table>
 
@@ -123,6 +121,7 @@
                     <thead>
                     <tr>
                         <th>Name</th>
+                        <th>Last Played</th>
                         <th>Created</th>
                         <th>Actions</th>
                     </tr>
@@ -133,10 +132,12 @@
                         {% for game in games %}
                             <tr>
                                 <td>{{ game.title }}</td>
-                                <td>{{ game.created }}</td>
+                                <td>{{ game.pretty_updated }}</td>
+                                <td>{{ game.pretty_created }}</td>
                                 <td>
                                     <div class="btn-group">
-                                        <a href="/game/{{ game.key() }}" class="btn" style="display:inline;margin-top:5px;" role="button" data-toggle="modal">Play</a>
+                                        <a href="/game/{{ game.key() }}" class="btn"><i class="icon-pencil"></i> Play</a>
+                                        <a href="/game/timeline/{{ game.key() }}" class="btn"><i class="icon-list-alt"></i> View Timeline</a>
                                     </div>
                                 </td>
                             </tr>
@@ -160,12 +161,27 @@
 {% block js_include %}
 
     <script type="text/javascript">
-        $(document).ready(function(){
-            $('#notifications-table tr').click(function(){
-                window.location = $(this).attr('href');
-                return false;
-            });
+
+        {# Make Row clickable #}
+        $('#notifications-table tr').click(function(){
+            window.location = $(this).attr('href');
+            return false;
         });
+
+        {# Set active tab (Ex: 'url'#games) #}
+        $(function () {
+            var activeTab = $('[href=' + location.hash + ']');
+            activeTab && activeTab.tab('show');
+        });
+
+        {# Mark notifications as read #}
+        $('a[data-toggle="tab"]').on('shown', function (e) {
+            var active_tab = e.target
+            if (active_tab.hash == '#notifications') {
+                $.get('/auth/notifications')
+            }
+        })
+
     </script>
 
 {% endblock %}
