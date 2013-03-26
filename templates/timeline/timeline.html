@@ -1,0 +1,126 @@
+{% extends "themes/base.html" %}
+
+{% block style %}
+
+    <style type="text/css">
+        .item {
+            margin-top: 25px;
+            margin-bottom: 25px;
+        }
+        .icon-caret-down {
+            color: #999999;
+
+        }
+        .icon-quote-right {
+            color: #999999;
+            margin-top: -10px;
+        }
+        .icon-quote-left {
+            color: #999999;
+            margin-top: -10px;
+        }
+    </style>
+
+{% endblock %}
+
+{% block content %}
+    <h1>{{game.title}}</h1>
+    <div class="muted">
+        <p>Created by {{game.created_by.display_name}}.</p>
+        <p>{{game.get_date_formatted()}}</p>
+        <p>{{game.number_of_rounds}} Rounds</p>
+    </div>
+    
+    <div id="timeline_div" style="text-align:center;" >
+        <div class="item text-success"> 
+            <h2> The Start! </h2> 
+        </div>
+        <i class="icon-caret-down icon-4x"></i>
+
+    </div>
+{% endblock content %}
+
+{% block js_include %}
+    <script src="{{ url_for('static', filename="js/raphael.js")}}"></script>
+    <script src="{{ url_for('static', filename="js/json2.js")}}"></script>
+    <script src="{{ url_for('static', filename="js/raphael.sketchpad.js")}}"></script>
+
+    <script>
+        'use strict';
+        function renderSketch(sketch_key)
+        {
+            return '{{sketch_html|safe}}'.replace('sketch_key',sketch_key);
+        }
+
+        function renderStory(story_text)
+        {
+            return '{{story_html|safe}}'.replace('story_text',story_text);
+        }
+
+        function scaleRahael(paper, x_percent, y_percent)
+        {
+            paper.forEach(function(obj){
+                obj.transform('S'+x_percent+','+y_percent+',0,0');
+            });
+        }
+        var $time_line = $("#timeline_div");
+        var loading_in_progress = false;
+        var done_loading = false;
+        function loadTimeline(number,offset){
+            if (!loading_in_progress)
+            {
+                loading_in_progress = true;
+                $.ajax({
+                    url: '/game/timeline/{{game.key()}}',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({'offset':offset, 'number':number}),
+                    dataType: 'json'
+                }).done(function(data){
+
+                    $.each( data.rounds, function(index, round){
+                        if (round['round_type'] == 'story')
+                        {
+                            $time_line.append(renderStory(round['data']));
+                        }
+                        else
+                        {
+                            $time_line.append(renderSketch(round['key']));
+                            var sketchpad = Raphael.sketchpad(String(round['key']), {
+                                width: "600",
+                                height: "400",
+                                strokes: round['data'],
+                                editing: false
+                            });
+
+                            // scaleRahael(sketchpad.paper(), 0.8, 0.8);
+                        }
+                    });
+                    if (data.rounds.length < number){
+                        done_loading = true;
+                        $time_line.append('<h2 class = "text-error">THE END?</h2>');
+                    }
+
+                    loading_in_progress = false;
+                });
+                return number+offset;
+            }
+            else
+            {
+                return offset;
+            }
+
+        }
+        var curr_offset = loadTimeline(25,0);
+        var $doc = $(document);
+        var $win = $(window);
+
+        $win.scroll(function(){
+            var bottom = $doc.height() - ($win.scrollTop() + $win.height());
+            if(bottom < 50 && !done_loading){
+                curr_offset = loadTimeline(25,curr_offset);
+            }
+        });
+
+    </script>
+{% endblock %}  

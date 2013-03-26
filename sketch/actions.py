@@ -1,4 +1,5 @@
 import random
+import logging
 
 from google.appengine.ext import db
 from sketch import models as sketch_models
@@ -43,7 +44,14 @@ def get_latest_round(game_key):
     return latest_round
 
 
-def get_rounds_by_game_key(game_key, num=None, offset=0):
+def get_oldest_rounds_by_game_key(game_key, num=None, offset=0):
+    """
+    Given a game key, get all rounds in the game
+    """
+    return sketch_models.Round.all().ancestor(game_key).order("created").fetch(num, offset=offset)
+
+
+def get_latest_rounds_by_game_key(game_key, num=None, offset=0):
     """
     Given a game key, get all rounds in the game
     """
@@ -98,24 +106,52 @@ def guess_games_by_title(title):
 
 
 # TEST FUNCTIONS
-def create_test_data(num=100):
+def create_test_data(num_games=5, rounds_per_game=100):
     """
     You can run this from the interactive console on your local host
     http://localhost:8001/_ah/admin/interactive
     -----
     from sketch import actions
-    actions.create_test_data(100)
+    actions.create_test_data(10, 100)
     """
     user = create_registered_user('TEST_LOADER', 'test')
 
     import random
-    for n in xrange(num):
+    for n in xrange(num_games):
         rand_string = ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for abc in range(7))
+        create_test_game(rand_string, rounds_per_game, user)
 
-        game = create_game('Mumble dog face to the banana patch.',
-                    rand_string,
-                    'public',
-                    random.randint(3, 100),
-                    user)
+
+def create_test_game(game_name ,num_rounds , user = None):
+    """
+    You can run this from the interactive console on your local host
+    http://localhost:8001/_ah/admin/interactive
+    -----
+    from sketch import actions
+    actions.create_test_data2('Game Test', 50, user)
+    """
+
+    if user is None:
+        user = create_registered_user('TEST_LOADER', 'test')
+
+    game = create_game('Mumble dog face to the banana patch.  Mumble dog face to the banana patch.  Mumble dog face to the banana patch.  Mumble dog face to the banana patch. (round #0)',
+                        game_name,
+                        'public',
+                        num_rounds,
+                        user)
+
+    def generate_json():
+        path = "M0,%s,0" % (",".join(['%sL%s' %(random.randint(-1000, 1000),random.randint(-1000, 1000)) for m in xrange(100)]))
+        return '[{"fill":"none","stroke":"#000000","path":"%s","stroke-opacity":1,"stroke-width":5,"stroke-linecap":"round","stroke-linejoin":"round","transform":[],"type":"path"}]' % (path)
+
+    import time
+    for n in xrange(num_rounds):
+        if n%2 == 0:
+            add_round_by_game_key(game.key(), 'sketch', generate_json(), user)
+        else:
+            add_round_by_game_key(game.key(), 'story', 'Zim zim zalabim  (round #%s)' % (n), user)
+
+
+    print 'The Game Key ---> %s' %(game.key())
 
 
