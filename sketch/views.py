@@ -1,4 +1,5 @@
 import json
+import logging
 
 from base import mail
 from base import actions as base_actions
@@ -53,6 +54,26 @@ class Game(MethodView):
         flash('%s Saved' % round_type.capitalize(), 'success')
 
         return redirect(url_for('/'))
+
+
+class Timeline(MethodView):
+    def get(self, game_key):
+        game = sketch_actions.get_game_by_key(game_key)
+        sketch_html = ' '.join(render_template('/timeline/sketch_item.html').split())
+        story_html = ' '.join(render_template('/timeline/story_item.html').split())
+
+        return render_template('/timeline/timeline.html',game = game, story_html = story_html, sketch_html = sketch_html)
+
+    def post(self, game_key):
+        load_form = json.loads(request.data)
+        number = load_form.get('number')
+        offset = load_form.get('offset')
+        from google.appengine.ext.db import Key
+        rounds = sketch_actions.get_oldest_rounds_by_game_key(Key(game_key), number, offset)
+
+        round_data = [{'data':r.get_data(), 'round_type':r.round_type, 'key':str(r.key())} for r in rounds]
+
+        return json.dumps({'rounds':round_data})
 
 
 class CreationWizard(MethodView):

@@ -25,4 +25,9 @@ indexes:
   ancestor: yes
   properties:
   - name: created
+
+- kind: Round
+  ancestor: yes
+  properties:
+  - name: created
     direction: desc
