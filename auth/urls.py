@@ -16,3 +16,6 @@ def apply_urls(app):
     app.add_url_rule('/auth/facebook_login', view_func=auth_views.FacebookLogin.as_view('facebook_login'))
     app.add_url_rule('/auth/facebook_auth', view_func=auth_views.FacebookAuthorize.as_view('facebook_auth'))
     app.add_url_rule('/auth/facebook_deauth', view_func=auth_views.FacebookDeauthorize.as_view('facebook_deauth'))
+
+    # Notifications
+    app.add_url_rule('/auth/notifications', view_func=auth_views.Notifications.as_view('notifications'))
