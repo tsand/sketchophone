@@ -73,6 +73,9 @@ class User(db.Model):
     def get_games(self):
         return [db.get(key) for key in self.games]
 
+    def get_game_count(self):
+        return len(self.games)
+
     # Notification
     def get_notifications(self, pretty_dates=False):
         notifications = [db.get(note) for note in self.notifications]
