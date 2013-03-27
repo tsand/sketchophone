@@ -92,7 +92,7 @@
                 contentType: 'application/json',
                 dataType: 'json',
                 complete: function() {
-                    location.reload();
+                    window.location = "{{ url_for('success') }}"
                 }
             })
         }

@@ -1,8 +1,11 @@
+import json
+
 from flask import request, redirect, url_for, flash, session
 from flask.views import View, MethodView
 from flask.templating import render_template
 
 from resources.flask_login import login_user, current_user, logout_user, login_required
+from resources import pretty
 
 from auth import facebook
 from auth import models as auth_models
@@ -11,7 +14,8 @@ from auth import utils as auth_utils
 from auth import actions as auth_actions
 
 from base import mail
-import json
+
+from sketch import actions as sketch_actions
 
 
 class Register(MethodView):
@@ -208,13 +212,22 @@ class User(View):
 
     @login_required
     def dispatch_request(self):
-        games = sorted(current_user.get_games(),
-                       key=lambda game: game.created,
-                       reverse=True)
+        games = current_user.get_games()
+
+        for game in games:
+            last_updated = sketch_actions.get_latest_round(game.key()).created
+
+            game.last_updated = last_updated
+            game.pretty_created = pretty.date(game.created)
+            game.pretty_updated = pretty.date(last_updated)
+
+
         return render_template(
             'auth/user.html',
             user=current_user,
-            games=games,
+            games=sorted(games,
+                         key=lambda game: game.last_updated,
+                         reverse=True),
             notifications=current_user.get_notifications(pretty_dates=True)
         )
 
@@ -296,3 +309,14 @@ class FacebookDeauthorize(View):
         current_user.name = None
         current_user.put()
         return redirect(url_for('user'))
+
+
+class Notifications(View):
+
+    @login_required
+    def dispatch_request(self):
+        notes = current_user.get_notifications()
+        notes = [(note.title, note.description) for note in notes]
+        current_user.read_notifications()  # Mark as read
+        return json.dumps(notes)
+
