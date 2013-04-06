@@ -7,34 +7,30 @@
             background-color: #f5f5f5;
         }
 
-        .form-signin {
+        form {
             max-width: 300px;
-            padding: 35px;
-            margin: 0 auto 20px;
+            padding: 20px;
+            margin: 0 auto;
+
             background-color: #fff;
-            border: 1px solid #e5e5e5;
-            -webkit-border-radius: 5px;
-            -moz-border-radius: 5px;
+
+            border: 1px solid #dfdfdf;
             border-radius: 5px;
-            -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-            -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-            box-shadow: 0 1px 2px rgba(0,0,0,.05);
         }
-        .form-signin .form-signin-heading,
-        .form-signin .checkbox {
-            margin-top: 0px;
-            margin-bottom: 10px;
-        }
-        .form-signin input[type="text"],
-        .form-signin input[type="password"] {
+
+        form input[type="text"],
+        form input[type="password"] {
             font-size: 16px;
             height: auto;
             margin-bottom: 15px;
             padding: 7px 9px;
         }
-        .form-signin .btn-container {
-            padding-top: 1px;
-            text-align: center;
+
+        {# Turn off footer on phones #}
+        @media (max-width: 480px) {
+            footer {
+                visibility: hidden;
+            }
         }
 
     </style>
@@ -44,17 +40,22 @@
 {% block content %}
 
     <div class="container">
-        {% block form %} {% endblock %}
+        <form action="" method="post">
+            <h3 class="form-heading">{% block form_heading %}{% endblock %}</h3>
+            {{ form.csrf_token }}
 
-        <p style="text-align: center" class="lead">OR</p>
+            {% block form_contents %} {% endblock %}
 
-        <div class="form-signin">
-            <div class="btn-container">
-                <a class="btn btn-primary btn-block btn-large" href="{{ url_for('facebook_login') }}">
-                    <i class="icon-facebook-sign icon-large"></i> Sign In with Facebook
-                </a>
+            <div class="btn-container" style="text-align: right">
+                <div class="btn-group">
+                    {% block submit_btn %}{% endblock %}
+                    <a class="btn btn-primary btn-large" href="{{ url_for('facebook_login') }}">
+                        <i class="icon-facebook-sign icon-large"></i>
+                    </a>
+                </div>
             </div>
-        </div>
+
+        </form>
     </div>
 
 {% endblock %}
