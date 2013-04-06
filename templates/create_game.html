@@ -1,5 +1,9 @@
 {% extends "themes/base.html" %}
 
+{% block style %}
+    <link href="{{ url_for('static', filename="css/bootstrap-tagmanager.css") }}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
     <div id="wizard_page">
 
@@ -99,8 +103,10 @@
 {% endblock content %}
 
 
-
 {% block js_include %}
+
+    <script src="{{ url_for('static', filename="js/bootstrap-tagmanager.js") }}"></script>
+
     <script>
         //************
         // init code 

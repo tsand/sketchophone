@@ -9,18 +9,14 @@
 
     {# Icons #}
     <!-- Fav and touch icons -->
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">
-    <link rel="shortcut icon" href="../assets/ico/favicon.png">
-    <link rel="icon" href="/favicon.ico" />
-
+{#    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">#}
+{#    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">#}
+{#    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">#}
+{#    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">#}
+    <link href="{{ url_for('static', filename="img/favicon.css") }}" rel="icon">
 
     <link href="{{ url_for('static', filename="css/bootstrap.css") }}" rel="stylesheet">
-
     <link href="{{ url_for('static', filename="css/font-awesome.min.css") }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename="css/bootstrap-tagmanager.css") }}" rel="stylesheet">
 
     {% block style %}{% endblock %}
 
@@ -104,23 +100,18 @@
     <div class="container">
         <p class="muted">&copy; Sketchophone 2013</p>
         <ul class="inline">
+            <li><a href="{{ url_for('instructions') }}">How to Play</a></li>
+            <li>|</li>
             <li><a href="{{ url_for('about')}}">About Us</a></li>
             <li>|</li>
             <li><a href="mailto:sketchophoneapp@gmail.com">Contact</a></li>
-            <li>|</li>
-            <li><a href="{{ url_for('instructions') }}">How to Play</a></li>
         </ul>
     </div>
 </footer>
 
-
-
-<!-- Le javascript
-    ================================================== -->
-<!-- Placed at the end of the document so the pages load faster -->
 <script src="{{ url_for('static', filename="js/jquery-1.9.0.min.js") }}"></script>
 <script src="{{ url_for('static', filename="js/bootstrap.min.js") }}"></script>
-<script src="{{ url_for('static', filename="js/bootstrap-tagmanager.js") }}"></script>
+
 {% block js_include %}{% endblock %}
 
 <script type="text/javascript">
