@@ -6,46 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
+
+    {# Icons #}
+    <!-- Fav and touch icons -->
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">
+    <link rel="shortcut icon" href="../assets/ico/favicon.png">
     <link rel="icon" href="/favicon.ico" />
-    <!-- Le styles -->
-    <link href="{{ url_for('static', filename="css/bootstrap.min.css") }}" rel="stylesheet">
 
-    <style>
-        html,
-        body {
-            height: 100%;
-        }
 
-        #page-container {
-            padding-top: 40px;
-        }
-
-        #wrap {
-            min-height: 100%;
-            height: auto !important;
-            height: 100%;
-            margin: 0 auto -60px;
-        }
-
-        #push,
-        #footer {
-            height: 60px;
-            text-align: center;
-        }
-
-        @media (max-width: 767px) {
-            #footer {
-                margin-left: -20px;
-                margin-right: -20px;
-                padding-left: 20px;
-                padding-right: 20px;
-            }
-        }
-    </style>
+    <link href="{{ url_for('static', filename="css/bootstrap.css") }}" rel="stylesheet">
 
     <link href="{{ url_for('static', filename="css/font-awesome.min.css") }}" rel="stylesheet">
     <link href="{{ url_for('static', filename="css/bootstrap-tagmanager.css") }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename="css/bootstrap.dataTables.css") }}" rel="stylesheet">
 
     {% block style %}{% endblock %}
 
@@ -66,33 +41,33 @@
                 <div class="nav-collapse collapse">
                     <ul class="nav pull-right">
                         {% if current_user.is_authenticated() %}
+
                             {% if current_user.unread_notification_count %}
                                 <li>
                                     <a href="{{ url_for('user') }}#notifications"><span class="badge badge-info">{{ current_user.unread_notification_count }}</span></a>
                                 </li>
                             {% endif %}
-                        {% endif %}
-                        <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                {% if current_user.is_authenticated() %}
+
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                                     {{ current_user.display_name }}
-                                {% else %}
-                                    Get Started
-                                {% endif %}
-                                <b class="caret"></b>
-                            </a>
-                            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                                {% if current_user.is_authenticated() %}
+                                    <b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
                                     <li><a href="{{ url_for('user') }}#games"><i class="icon-pencil"></i> My Games</a></li>
                                     <li class="divider"></li>
                                     <li><a href="{{ url_for('user') }}"><i class="icon-user"></i> My Account</a></li>
                                     <li><a href="{{ url_for('logout') }}"><i class="icon-lock"></i> Logout</a></li>
-                                {% else %}
-                                    <li><a href="{{ url_for('login') }}">Sign In</a></li>
-                                    <li><a href="{{ url_for('register') }}">Sign Up</a></li>
-                                {% endif %}
-                            </ul>
-                        </li>
+                                </ul>
+                            </li>
+
+                        {% else %}
+
+                            <li><a href="{{ url_for('register') }}">Sign Up</a></li>
+                            <li class="divider-vertical"></li>
+                            <li><a href="{{ url_for('login') }}">Sign In</a></li>
+
+                        {% endif %}
                     </ul>
                 </div>
             </div>
@@ -101,7 +76,7 @@
 
     <div class="container-fluid" id="page-container">
         <div class="row-fluid">
-            <div class="span8 offset2">
+            <div class="span8 offset2" id="flash-alert-container">
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         {% for category, message in messages %}
@@ -113,11 +88,11 @@
                     {% endif %}
                 {% endwith %}
             </div>
+        </div>
 
-            <div class="row-fluid">
-                <div class="span8 offset2">
-                    <div id="content">{% block content %}{% endblock %}</div>
-                </div>
+        <div class="row-fluid">
+            <div class="span12">
+                <div id="content">{% block content %}{% endblock %}</div>
             </div>
         </div>
     </div>
@@ -125,18 +100,18 @@
     <div id="push"></div>
 </div>
 
-<div id="footer">
-    <div class="container"
-    <p class="muted">&copy; Sketchophone 2013</p>
-    <ul class="inline">
-        <li><a href="{{ url_for('about')}}">About Us</a></li>
-        <li>|</li>
-        <li><a href="mailto:sketchophoneapp@gmail.com">Contact</a></li>
-        <li>|</li>
-        <li><a href="{{ url_for('instructions') }}">How to Play</a></li>
-    </ul>
-</div>
-</div>
+<footer class="footer" id="footer">
+    <div class="container">
+        <p class="muted">&copy; Sketchophone 2013</p>
+        <ul class="inline">
+            <li><a href="{{ url_for('about')}}">About Us</a></li>
+            <li>|</li>
+            <li><a href="mailto:sketchophoneapp@gmail.com">Contact</a></li>
+            <li>|</li>
+            <li><a href="{{ url_for('instructions') }}">How to Play</a></li>
+        </ul>
+    </div>
+</footer>
 
 
 
@@ -146,7 +121,6 @@
 <script src="{{ url_for('static', filename="js/jquery-1.9.0.min.js") }}"></script>
 <script src="{{ url_for('static', filename="js/bootstrap.min.js") }}"></script>
 <script src="{{ url_for('static', filename="js/bootstrap-tagmanager.js") }}"></script>
-<script src="{{ url_for('static', filename="js/jquery.dataTables.js") }}"></script>
 {% block js_include %}{% endblock %}
 
 <script type="text/javascript">
