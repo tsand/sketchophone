@@ -3,12 +3,8 @@
 {% block style %}
     <style>
 
-        .tabbable {
-            margin-top: 40px;
-        }
-
-        .tab-pane {
-            padding-left: 40px;
+        h2 img {
+            padding-right: 20px;
         }
 
     </style>
@@ -16,143 +12,149 @@
 
 {% block content %}
 
-    <h3>{{ user.display_name }}</h3>
-    <hr>
+    <div class="span10 offset1">
+        <h2>
+            {% if user.is_facebook_user() %}
+                <img src="https://graph.facebook.com/{{ user.facebook_id }}/picture?type=normal">
+            {% endif %}
+            {{ user.display_name }}
+        </h2>
 
-    <div class="tabbable tabs-left">
-        <ul class="nav nav-tabs">
-            <li class="active"><a href="#account" data-toggle="tab">Account</a></li>
-            <li class="">
-                <a href="#notifications" data-toggle="tab">Notifications
-                    {% if current_user.unread_notification_count %}
-                        <span class="badge badge-info">{{ current_user.unread_notification_count }}</span>
-                    {% endif %}
-                </a>
-            </li>
-            <li class=""><a href="#games" data-toggle="tab">Games</a></li>
-        </ul>
-        <div class="tab-content">
-            <div class="tab-pane fade in active" id="account">
+        <hr>
 
-                <table class="table table-bordered table-hover table-striped">
-                    <tbody>
-                    <tr>
-                        <td>Name</td>
-                        <td>{{ user.display_name }}</td>
-                    </tr>
-                    <tr>
-                        <td>Email</td>
-                        <td>{{ user.email }}</td>
-                    </tr>
-                    <tr>
-                        <td>Games</td>
-                        <td>{{ user.get_game_count() }}</td>
-                    </tr>
-                    {% if user.is_facebook_user() %}
-                        <tr>
-                            <td>Facebook</td>
-                            <td><a href="https://www.facebook.com/{{ user.facebook_id }}">
-                                <img src="https://graph.facebook.com/{{ user.facebook_id }}/picture"/>
-                            </a></td>
-                        </tr>
-                    {% endif %}
-                    </tbody>
-                </table>
-
-                <div class="pull-right">
-                <br>
-                    {% if user.is_base_user() %}
-
-                        <a class="btn btn-primary" href="{{ url_for('password') }}">
-                            Change Password
-                        </a>
-
-                    {% endif %}
-
-                    {% if user.is_facebook_user() %}
-
-                        <a class="btn btn-primary" href="{{ url_for('facebook_deauth') }}">
-                            <i class="icon-facebook-sign icon-large"></i> Disconnect
-                        </a>
-
-                    {% else %}
-
-                        <a class="btn btn-primary" href="{{ url_for('facebook_login') }}">
-                            <i class="icon-facebook-sign icon-large"></i> Connect
-                        </a>
-
-                    {% endif %}
+        <div class="accordion" id="user-accordion">
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#user-accordion" href="#info">
+                        <i class="icon-dashboard"></i><span class="divide"></span> Account Info
+                    </a>
                 </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="notifications">
-
-                <table class="table table-hover table-striped table-bordered" id="notifications-table">
-                    <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Description</th>
-                        <th>Sent</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% if notifications %}
-                        {% for notification in notifications %}
-                            <tr href="{{ notification.link }}" {% if not notification.read %} class="info" {% endif %} style="cursor: pointer">
-                                <td>{{ notification.title }}</td>
-                                <td>{{ notification.description | safe}}</td>
-                                <td>{{ notification.pretty_date }}</td>
-                            </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="3" style="text-align: center;"><strong>No Notifications!</strong></td>
-                        </tr>
-                    {% endif %}
-                    </tbody>
-                </table>
-
-            </div>
-
-            <div class="tab-pane fade" id="games">
-
-                <table class="table table-bordered table-striped table-hover">
-                    <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Last Played</th>
-                        <th>Created</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                    {% if games %}
-                        {% for game in games %}
+                <div id="info" class="accordion-body collapse in">
+                    <div class="accordion-inner">
+                        <table class="table table-bordered table-hover table-striped">
+                            <tbody>
                             <tr>
-                                <td>{{ game.title }}</td>
-                                <td>{{ game.pretty_updated }}</td>
-                                <td>{{ game.pretty_created }}</td>
-                                <td>
-                                    <div class="btn-group">
-                                        <a href="/game/{{ game.key() }}" class="btn"><i class="icon-pencil"></i> Play</a>
-                                        <a href="/game/timeline/{{ game.key() }}" class="btn"><i class="icon-list-alt"></i> View Timeline</a>
-                                    </div>
-                                </td>
+                                <td>Name</td>
+                                <td>{{ user.display_name }}</td>
                             </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="3" style="text-align: center;">
-                                <strong><a href="{{ url_for('wizard') }}">Create</a> or <a href="{{ url_for('search') }}">Join</a> a Game!</strong>
-                            </td>
-                        </tr>
-                    {% endif %}
-                    </tbody>
-                </table>
-
+                            <tr>
+                                <td>Email</td>
+                                <td>{{ user.email }}</td>
+                            </tr>
+                            <tr>
+                                <td>Games</td>
+                                <td>{{ user.get_game_count() }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#user-accordion" href="#notifications">
+                        <i class="icon-comment"></i><span class="divide"></span> Notifications
+                    </a>
+                </div>
+                <div id="notifications" class="accordion-body collapse">
+                    <div class="accordion-inner">
+                        <table class="table table-hover table-striped table-bordered" id="notifications-table">
+                            <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Sent</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% if notifications %}
+                                {% for notification in notifications %}
+                                    <tr href="{{ notification.link }}" {% if not notification.read %} class="info" {% endif %} style="cursor: pointer">
+                                        <td>{{ notification.title }}</td>
+                                        <td>{{ notification.description | safe}}</td>
+                                        <td>{{ notification.pretty_date }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="3" style="text-align: center;"><strong>No Notifications!</strong></td>
+                                </tr>
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#user-accordion" href="#games">
+                        <i class="icon-trophy"></i><span class="divide"></span> Games
+                    </a>
+                </div>
+                <div id="games" class="accordion-body collapse">
+                    <div class="accordion-inner">
+                        <table class="table table-bordered table-striped table-hover">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Last Played</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            {% if games %}
+                                {% for game in games %}
+                                    <tr>
+                                        <td>{{ game.title }}</td>
+                                        <td>{{ game.pretty_updated }}</td>
+                                        <td>{{ game.pretty_created }}</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="/game/{{ game.key() }}" class="btn"><i class="icon-pencil"></i> Play</a>
+                                                <a href="/game/timeline/{{ game.key() }}" class="btn"><i class="icon-list-alt"></i> View Timeline</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" style="text-align: center;">
+                                        <strong><a href="{{ url_for('wizard') }}">Create</a> or <a href="{{ url_for('search') }}">Join</a> a Game!</strong>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pull-right">
+            <br>
+            {% if user.is_base_user() %}
+
+                <a class="btn btn-primary" href="{{ url_for('password') }}">
+                    Change Password
+                </a>
+
+            {% endif %}
+
+            {% if user.is_facebook_user() %}
+
+                <a class="btn btn-primary" href="{{ url_for('facebook_deauth') }}">
+                    <i class="icon-facebook-sign icon-large"></i> Disconnect
+                </a>
+
+            {% else %}
+
+                <a class="btn btn-primary" href="{{ url_for('facebook_login') }}">
+                    <i class="icon-facebook-sign icon-large"></i> Connect
+                </a>
+
+            {% endif %}
         </div>
     </div>
 
@@ -161,6 +163,9 @@
 {% block js_include %}
 
     <script type="text/javascript">
+
+        var hash = window.location.hash;
+        $('a[href^="' + hash + '"]').click();
 
         {# Make Row clickable #}
         $('#notifications-table tr').click(function(){
