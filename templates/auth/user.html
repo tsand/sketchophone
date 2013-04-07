@@ -25,13 +25,14 @@
         <hr>
 
         <div class="accordion" id="user-accordion">
+
             <div class="accordion-group">
                 <div class="accordion-heading">
                     <a class="accordion-toggle" data-toggle="collapse" data-parent="#user-accordion" href="#info">
                         <i class="icon-dashboard"></i><span class="divide"></span> Account Info
                     </a>
                 </div>
-                <div id="info" class="accordion-body collapse in">
+                <div id="info" class="accordion-body collapse">
                     <div class="accordion-inner">
                         <table class="table table-bordered table-hover table-striped">
                             <tbody>
@@ -52,6 +53,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="accordion-group">
                 <div class="accordion-heading">
                     <a class="accordion-toggle" data-toggle="collapse" data-parent="#user-accordion" href="#notifications">
@@ -87,6 +89,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="accordion-group">
                 <div class="accordion-heading">
                     <a class="accordion-toggle" data-toggle="collapse" data-parent="#user-accordion" href="#games">
@@ -132,6 +135,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
 
         <div class="pull-right">
@@ -182,9 +186,9 @@
         });
 
         {# Mark notifications as read #}
-        $('a[data-toggle="tab"]').on('shown', function (e) {
+        $('#notifications').on('shown', function (e) {
             var active_tab = e.target
-            if (active_tab.hash == '#notifications') {
+            if (active_tab.id == 'notifications') {
                 $.get('/auth/notifications')
             }
         })
