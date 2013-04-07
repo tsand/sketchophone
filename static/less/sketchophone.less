@@ -4,8 +4,7 @@
 }
 
 
-/* Jumbotrons
--------------------------------------------------- */
+/* Jumbotrons */
 .jumbotron {
   position: relative;
   text-align: center;
@@ -27,6 +26,37 @@
   height: 20px;
   margin-top: 10px;
   margin-bottom: 20px;
+}
+
+/* Accordion */
+@accord-header-dark: @grayLighter;
+@accord-header-light: lighten(@accord-header-dark, 8%);
+
+.accordion-group {
+  margin-top: 10px;
+}
+
+.accordion-heading {
+  background-color: #fafafa;
+  background-image: -moz-linear-gradient(top, @accord-header-light, @accord-header-dark);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@accord-header-light), to(@accord-header-dark));
+  background-image: -webkit-linear-gradient(top, @accord-header-light, @accord-header-dark);
+  background-image: -o-linear-gradient(top, @accord-header-light, @accord-header-dark);
+  background-image: linear-gradient(to bottom, @accord-header-light, @accord-header-dark);
+  -webkit-border-radius: 2px 2px 0px 0px;
+  -moz-border-radius: 2px 2px 0px 0px;
+  border-radius: 2px 2px 0px 0px;
+}
+
+.accordion-heading a {
+  text-decoration: none;
+}
+
+.accordion-heading .divide {
+  border-left: 1px solid #fcfcfc;
+  border-right: 1px solid #ddd;
+  margin: -10px 12px -10px 12px;
+  padding: 10px 0px 10px 0px;
 }
 
 
@@ -93,8 +123,7 @@
   }
 }
 
-/* Sticky footer styles
--------------------------------------------------- */
+/* Sticky footer */
 html,
 body {
   height: 100%;
