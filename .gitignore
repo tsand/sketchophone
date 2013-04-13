@@ -43,3 +43,6 @@ nosetests.xml
 
 # Mac
 .DS_Store
+
+# Codekit
+codekit-config.json

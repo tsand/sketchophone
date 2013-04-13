@@ -1,27 +1,45 @@
 {% extends "auth/base_form.html" %}
 
+{% block form_heading %}Sign In{% endblock %}
+
+{% block form_contents %}
+
+    {{ form.email(placeholder="email", class="input-block-level") }}
+    {{ form.password(placeholder="password", class="input-block-level") }}
+
+    <label class="checkbox">
+        {{ form.remember }}Remember&nbsp;me
+    </label>
+
+{% endblock %}
+
+{% block submit_btn %}
+    {{ form.submit(class="btn btn-primary btn-large") }}
+{% endblock %}
+
 {% block form %}
 
     <form class="form-signin" action="" method="post">
         <h3 class="form-signin-heading">Sign In</h3>
         {{ form.csrf_token }}
 
-        {{ form.email(placeholder="email", class="input-block-level") }}
-        {{ form.password(placeholder="password", class="input-block-level") }}
+
 
         <div>
-            <div style="float: left">
+            <div>
                 <label class="checkbox">
                     {{ form.remember }}Remember&nbsp;me
                 </label>
             </div>
-            <div style="text-align: right; padding-bottom: 5px; float: right;">
-                <a href="{{ url_for('register') }}">Register</a>
-            </div>
         </div>
 
-        <div class="btn-container">
-            {{ form.submit(class="btn btn-primary btn-block btn-large") }}
+        <div class="btn-container" style="text-align: right">
+            <div class="btn-group">
+                {{ form.submit(class="btn btn-primary btn-large") }}
+                <a class="btn btn-primary btn-large" href="{{ url_for('facebook_login') }}">
+                    <i class="icon-facebook-sign icon-large"></i>
+                </a>
+            </div>
         </div>
     </form>
 

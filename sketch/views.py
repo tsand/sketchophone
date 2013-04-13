@@ -79,7 +79,7 @@ class Timeline(MethodView):
 class CreationWizard(MethodView):
     @login_required
     def get(self):
-        return render_template('/create_game/wizard.html',
+        return render_template('/create_game.html',
                                current_user=current_user)
 
     @login_required

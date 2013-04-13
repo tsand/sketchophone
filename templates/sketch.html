@@ -11,6 +11,35 @@
         .sketch-container {
             margin-top: 20px;
         }
+
+        #overlay {
+            background: #000;
+            opacity: .8;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 10000;
+            display: none;
+        }
+
+        #overlay .message {
+            position: absolute;
+            opacity: 1;
+            top: 25%;
+            left:0;
+            right:0;
+            margin-left:auto;
+            margin-right:auto;
+            text-align: center;
+            display: none;
+        }
+
+        #overlay h1,
+        #overlay i {
+            color: #fff;
+        }
     </style>
 
 {% endblock %}
@@ -67,6 +96,12 @@
         </div>
     </div>
 
+    <div id="overlay">
+        <div class="message">
+            <h1>Please Expand Screen</h1>
+            <i class="icon-desktop icon-4x"></i>
+        </div>
+    </div>
 
 {% endblock content %}
 
@@ -95,6 +130,40 @@
                     window.location = "{{ url_for('success') }}"
                 }
             })
+        }
+
+        var overlay = $('#overlay, #overlay .message');
+
+        function checkWindow() {
+            if(window.innerHeight > window.innerWidth){
+                overlay.css('display', 'block')
+            } else {
+                overlay.css('display', 'None')
+            }
+        }
+
+        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
+            $('#overlay .message').html(
+                "<h1>Please Rotate Device</h1>" +
+                "<i class='icon-tablet icon-4x'></i>"
+            );
+
+            window.addEventListener("orientationchange", function() {
+                checkWindow()
+            }, false);
+
+            {# Prevent scrolling in portrait #}
+            document.ontouchmove = function(event){
+                if (window.innerHeight > window.innerWidth) {
+                    event.preventDefault();
+                }
+            };
+
+            checkWindow()
+        }
+
+        window.onresize = function(event) {
+            checkWindow()
         }
 
     </script>
