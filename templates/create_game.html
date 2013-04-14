@@ -1,7 +1,24 @@
 {% extends "themes/base.html" %}
 
+{% block style %}
+    <link href="{{ url_for('static', filename="css/bootstrap-tagmanager.css") }}" rel="stylesheet">
+
+    <style>
+        .item h3 {
+            margin: 0;
+            padding: 0;
+        }
+
+        .item-header {
+            text-align: center;
+            padding-bottom: 30px;
+        }
+    </style>
+
+{% endblock %}
+
 {% block content %}
-    <div id="wizard_page">
+    <div class="span8 offset2" id="wizard_page">
 
         <div class="page-header" style='border-bottom: none;' >
             <h2>Create A Game</h2>
@@ -11,58 +28,34 @@
             <button class="btn btn btn-large disabled i" id="prev"><i class="icon-arrow-left"></i> Previous</button>
             <button class="btn btn-primary btn-large pull-right "  id="next">Next <i class="icon-arrow-right"></i></button>
         </div>
-        <form class="form-horizontal well" id="wizard_form" style="height:450px;">
+
+        <form class="form-horizontal well" id="wizard_form" style="height: 305px">
             <div id="wizard_carousel" class="carousel slide" >
-                <div class="carousel-inner" style="height:450px;">
-                    <div class="active item"  align='center'>
+                <div class="carousel-inner">
 
-                        <h3>Privacy Policy</h3>
+                    <div class="item active" id="game_settings">
+                        <div class="item-header">
+                            <h3>Game Settings</h3>
+                        </div>
 
-                        <table style="margin-top: 50px;" class=" table table-striped table-bordered">
-                            <tr>
-
-                                <td style="border-right: none;width:150px;">
-                                    <label class="radio">
-                                        <input type="radio" name="perms" value="public" checked/>
-                                        Public
-                                    </label>
-                                </td>
-                                <td style="border-left: none;">
-                                    <i class="icon-group">
-                                </td>
-                                <td style=" border-left: none;">
-                                    Want to share your joy wth the world wide web? Createing a public will share the love.  A public game will be accessible to any anonymous user to join, no login required. You know what they say, sharing is caring!
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="border-right: none;width:150px;">
-                                    <label class="radio">
-                                        <input type="radio" name="perms" value="private" />
-                                        Private
-                                    </label>
-                                </td>
-                                <td style="border-left: none;">
-                                    <i class="icon-lock">
-                                </td>
-                                <td style="border-left: none;">
-                                    Feel like sticking close to your buds? Creating a private game will keep things personal. A private game will require all users (including yourself) to login and have appropriate permission in order to participate in a game. What happens in sketchophone stays in sketchophone!
-                                </td>
-                            </tr>
-
-                        </table>
-
-                    </div>
-
-                    <div class="item " >
-                        <h3 align='center'>Game Settings</h3>
-
-                        <div >
-                            <div class="control-group" >
+                        <div>
+                            <div class="control-group">
                                 <label class="control-label">Game Title</label>
                                 <div class="controls">
                                     <input type="text" name="name" />
                                 </div>
                             </div>
+
+                            <div class="control-group" >
+                                <label class="control-label">Type</label>
+                                <div class="controls">
+                                    <div class="btn-group" data-toggle="buttons-radio">
+                                        <button type="button" name="perms" value="public" class="btn active"><i class="icon-group"></i> Public</button>
+                                        <button type="button" name="perms" value="private" class="btn"><i class="icon-lock"></i> Private</button>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="control-group">
                                 <label class="control-label">Number of Rounds</label>
                                 <div class="controls">
@@ -70,25 +63,36 @@
 
                                 </div>
                             </div>
-                            <div class="control-group">
-                                <label class="control-label">Friends to Invite</label>
-                                <div class="controls">
-                                    <input type="text" name="tags" placeholder="Type username here" class="tagManager"/>
-                                </div>
+                        </div>
+                    </div>
+
+                    <div class="item" id="invite_friends">
+                        <div class="item-header">
+                            <h3 style="padding-bottom: 0">Invite Friends</h3>
+                            <h3 style="margin-top: 0"><small>Facebook Support Coming Soon!</small></h3>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">Friends to Invite</label>
+                            <div class="controls">
+                                <input type="text" name="tags" placeholder="Type username here" class="tagManager"/>
                             </div>
-                            <div class="control-group">
-                                <label class="control-label">Friend List</label>
-                                <div class="controls" id='tagsContainer'>
-                                </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">Friend List</label>
+                            <div class="controls" id='tagsContainer'>
                             </div>
                         </div>
                     </div>
 
-                    <div class="item" align='center'>
+                    <div class="item">
+                        <div class="item-header">
+                            <h1>Let's Get Things Started!</h1>
+                            <h3 class="muted">Start the game with a phrase.</h3>
+                        </div>
 
-                        <h1>Let's Get Things Started!</h1>
-                        <h3 class="muted">Start the game with a phrase.</h3>
-                        <div>
+                        <div style="text-align: center">
                             <input class="span8" style="margin-top: 20px;" type="text" name="start_text" placeholder="Enter your phrase here..."/>
                         </div>
                     </div>
@@ -99,8 +103,10 @@
 {% endblock content %}
 
 
-
 {% block js_include %}
+
+    <script src="{{ url_for('static', filename="js/bootstrap-tagmanager.js") }}"></script>
+
     <script>
         //************
         // init code 
