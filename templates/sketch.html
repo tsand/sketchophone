@@ -131,6 +131,19 @@
                 }
             })
         }
+        window.onbeforeunload = function(){
+            $.ajax({
+                type: "POST",
+                url: "/game/sketch/{{ game.key() }}",
+                data: JSON.stringify({
+                    evict_user:true
+                }),
+                contentType: 'application/json',
+                dataType: 'json',
+                async: false,
+            });
+        }
+
 
         var overlay = $('#overlay, #overlay .message');
 

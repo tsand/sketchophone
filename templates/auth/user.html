@@ -23,7 +23,7 @@
         </h2>
 
         <hr>
-
+        <div id = "alert_placeholder"></div>
         <div class="accordion" id="user-accordion">
 
             <div class="accordion-group">
@@ -104,6 +104,7 @@
                                 <th>Name</th>
                                 <th>Last Played</th>
                                 <th>Created</th>
+                                <th>Player Participating</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
@@ -115,10 +116,12 @@
                                         <td>{{ game.title }}</td>
                                         <td>{{ game.pretty_updated }}</td>
                                         <td>{{ game.pretty_created }}</td>
+                                        <td>{{ game.occupant_name }}</td>
                                         <td>
                                             <div class="btn-group">
                                                 <a href="/game/{{ game.key() }}" class="btn"><i class="icon-pencil"></i> Play</a>
                                                 <a href="/game/timeline/{{ game.key() }}" class="btn"><i class="icon-list-alt"></i> View Timeline</a>
+                                                <a id="evict_button" value="{{game.key()}}" class="btn"><i class="icon-unlock"></i> Evict User</a>
                                             </div>
                                         </td>
                                     </tr>
@@ -192,6 +195,25 @@
                 $.get('/auth/notifications')
             }
         })
+        var showWarniing = function(message) {
+            $('#alert_placeholder').html('<div class="alert alert-success"><a class="close" data-dismiss="alert">×</a><span>'+message+'</span></div>');
+
+            $(".alert").delay(3000).fadeOut("slow", function () { $(this).remove(); });
+        }
+        $('#evict_button').click(function(){
+            var game_key = $(this).attr("value");
+            $.ajax({
+                type: "POST",
+                url: "/game/sketch/"+game_key,
+                data: JSON.stringify({
+                    evict_user:true
+                }),
+                contentType: 'application/json',
+                dataType: 'json',
+            });
+
+            showWarniing('Game has been cleared!');
+        });
 
     </script>
 
