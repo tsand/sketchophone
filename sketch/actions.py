@@ -1,8 +1,11 @@
 import random
 
-from google.appengine.ext import db
-from sketch import models as sketch_models
 from datetime import datetime, timedelta
+from flask import url_for
+from google.appengine.ext import db
+
+from base import actions as base_actions
+from sketch import models as sketch_models
 
 
 def create_game(first_round_text, title, perms, max_rounds, created_by):
@@ -46,7 +49,7 @@ def evict_user_by_game_key(key):
 
 def evict_lazy_users():
     games = sketch_models.Game.all().filter('occupied_session !=', None).run()
-    expiry_time = datetime.now() - timedelta(hours = 3)
+    expiry_time = datetime.now() - timedelta(hours=3)
 
     to_put = []
     for game in games:
@@ -99,21 +102,35 @@ def get_random_game():
     return None
 
 
-def add_round_by_game_key(game_key, round_type, new_data, participant, session = None):
+def add_round_by_game_key(game_key, round_type, new_data, participant, session=None):
     """
     Add a round to a game
     """
     new_round = None
     game = get_game_by_key(game_key)
     if game is not None:
-        # quick hack fix because anons can't be stored in game model
-        participant_check = None if participant.is_anonymous() else participant
+
+        # Quick hack fix because anons can't be stored in game model
+        if participant.is_authenticated():
+            participant = db.get(participant.key())
+        else:
+            participant = None
+
         new_round = sketch_models.Round(data=new_data,
-                                        user=participant_check,
+                                        user=participant,
                                         round_type=round_type,
                                         parent=game)
         if new_round is not None:
             freed_user_key = game.updated_locked_users(participant, session)
+
+            if freed_user_key:
+                # Notify released user
+                base_actions.notify_user(
+                    db.get(db.Key(freed_user_key)),
+                    'Your turn to play!',
+                    'You may now return to the game %s' % game.title,
+                    url_for('game', game_key=game.key()))
+
             new_round.put()
             game.num_rounds += 1
 
