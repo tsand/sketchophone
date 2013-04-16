@@ -22,6 +22,7 @@
             <tr>
                 <th class="col-name">Name</th>
                 <th class="col-created">Created</th>
+                <th class="col-status">Status</th>
                 <th class="col-actions">Actions</th>
             </tr>
             </thead>
@@ -31,6 +32,7 @@
                 <tr>
                     <td class="col-name">{{ game.title }}</td>
                     <td class="col-created">{{ game.created }}</td>
+                    <td class="col-status">{{ game.status }}</td>
                     <td class="col-actions">
                         <div class="btn-group">
                             <a href="/game/{{ game.key() }}" class="btn" role="button" data-toggle="modal">Join</a>

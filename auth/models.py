@@ -71,7 +71,7 @@ class User(db.Model):
         self.put()
 
     def get_games(self):
-        return [db.get(key) for key in self.games]
+        return [game for game in db.get(self.games) if game is not None]
 
     def get_game_count(self):
         return len(self.games)
