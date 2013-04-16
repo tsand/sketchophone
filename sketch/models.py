@@ -1,4 +1,6 @@
 from google.appengine.ext import db
+from datetime import datetime
+
 from auth.models import User
 
 
@@ -26,10 +28,9 @@ class Game(db.Model):
     occupied_session = db.StringProperty()
 
     def occupy(self, user, session):
-        import datetime
         self.occupant_name = user.display_name
         self.occupied_session = session
-        self.date_occupied = datetime.datetime.now()
+        self.date_occupied = datetime.now()
 
     def evict_occupancy(self):
         self.occupant_name = None

@@ -55,6 +55,7 @@ def evict_lazy_users():
             to_put.append(game)
     db.put(to_put)
 
+
 def get_latest_round(game_key):
     """
     Given a game key, return the last round played in the game.
