@@ -1,5 +1,6 @@
 import random
 from datetime import datetime, timedelta
+from google.appengine.ext import db
 
 from auth import models as auth_models
 from auth import utils as auth_utils
