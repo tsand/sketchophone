@@ -4,6 +4,7 @@ import logging
 from google.appengine.ext import db
 from sketch import models as sketch_models
 from auth.actions import create_registered_user
+from datetime import datetime, timedelta
 
 
 def create_game(first_round_text, title, perms, num_of_rounds, created_by):
@@ -35,6 +36,25 @@ def get_game_by_title(title):
     """
     return sketch_models.Game.all().filter('title =', title).get()
 
+
+def evict_user_by_game_key(key):
+    game = get_game_by_key(key)
+    if game is not None:
+        game.evict_occupancy()
+        game.put()
+    return game
+
+
+def evict_lazy_users():
+    games = sketch_models.Game.all().filter('occupied_session !=', None).run()
+    expiry_time = datetime.now() - timedelta(hours = 3)
+
+    to_put = []
+    for game in games:
+        if game.date_occupied < expiry_time:
+            game.evict_occupancy()
+            to_put.append(game)
+    db.put(to_put)
 
 def get_latest_round(game_key):
     """
@@ -71,28 +91,33 @@ def get_random_game():
     Return the public games.
     If not num, return all games
     """
-    game_count = sketch_models.Game.all(keys_only=True).filter('perms =', 'public').count()
+    game_count = sketch_models.Game.all(keys_only=True).filter('perms =', 'public').filter('occupied_by =', None).count()
     if game_count:
         rand_num = random.randint(0, game_count - 1)
-        game = sketch_models.Game.all().filter('perms =', 'public').fetch(1, offset=rand_num)[0]
+        game = sketch_models.Game.all().filter('perms =', 'public').filter('occupied_by =', None).fetch(1, offset=rand_num)[0]
         return game
     return None
 
 
-def add_round_by_game_key(game_key, round_type, new_data, participant):
+def add_round_by_game_key(game_key, round_type, new_data, participant, session = None):
     """
     Add a round to a game
     """
     new_round = None
     game = get_game_by_key(game_key)
     if game is not None:
+        # quick hack fix because anons can't be stored in game model
+        participant_check = None if participant.is_anonymous() else participant
         new_round = sketch_models.Round(data=new_data,
-                                        user=participant,
+                                        user=participant_check,
                                         round_type=round_type,
                                         parent=game)
         if new_round is not None:
-            freed_user_key = game.updated_locked_users(participant.key())
+            freed_user_key = game.updated_locked_users(participant, session)
             new_round.put()
+
+        game.evict_occupancy()
+        game.put()
 
     return new_round
 
@@ -121,6 +146,19 @@ def create_test_data(num_games=5, rounds_per_game=100):
         rand_string = ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for abc in range(7))
         create_test_game(rand_string, rounds_per_game, user)
 
+
+def reset_data_store():
+    from auth import models as auth_models
+    from base import models as base_mdoels
+
+    to_delete = []
+    to_delete.extend(sketch_models.Game.all(keys_only=True).fetch(None))
+    to_delete.extend(sketch_models.Round.all(keys_only=True).fetch(None))
+
+    to_delete.extend(auth_models.User.all(keys_only=True).fetch(None))
+
+    to_delete.extend(base_mdoels.Notification.all(keys_only=True).fetch(None))
+    db.delete(to_delete)
 
 def create_test_game(game_name ,num_rounds , user = None):
     """

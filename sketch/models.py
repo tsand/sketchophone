@@ -20,9 +20,36 @@ class Game(db.Model):
 
     number_of_rounds = db.IntegerProperty()
 
+    occupant_name = db.StringProperty()
+    date_occupied = db.DateTimeProperty()
+    occupied_session = db.StringProperty()
 
-    locked_length = 5
+    def occupy(self, user, session):
+        import datetime
+        self.occupant_name = user.display_name
+        self.occupied_session = session
+        self.date_occupied = datetime.datetime.now()
+
+    def evict_occupancy(self):
+        self.occupant_name = None
+        self.date_occupied = None
+        self.occupied_session = None
+        
+    def is_occupied(self):
+        return self.occupied_session is not None
+
+    def session_is_occupant(self,session):
+        return self.occupied_session == session
+
+    locked_length = 3
     locked_users = db.StringProperty(default=':'.join([''for x in xrange(locked_length)]))
+
+    def is_locked_out(self, user, session):
+        convicts = self.get_locked_users()
+        if user.is_anonymous():
+            return session in convicts
+        else:
+            return str(user.key()) in convicts
 
     def get_locked_users(self):
         return self.locked_users.split(':')
@@ -30,12 +57,15 @@ class Game(db.Model):
     def set_locked_users(self, user_list):
         self.locked_users = ':'.join(user_list)
 
-    def updated_locked_users(self, new_user_key):
-        new_user_key = str(new_user_key) if new_user_key is not None else ''
-
+    def updated_locked_users(self, user, session):
+        identifier = ''
+        if user.is_anonymous():
+            identifier = session
+        else:
+            identifier = str(user.key()) 
         inmate_list = self.get_locked_users()
         freed_user = inmate_list.pop(0)
-        inmate_list.append(new_user_key)
+        inmate_list.append(identifier)
         self.set_locked_users(inmate_list)
         return freed_user
 

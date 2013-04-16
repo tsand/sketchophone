@@ -23,6 +23,19 @@ class Game(MethodView):
                 flash('No games avaliable', 'error')
                 return redirect('/')
 
+        session = request.cookies.get('session')
+        if game.is_occupied():
+            if not game.session_is_occupant(session):
+                flash('Another user is currently completing a round in this game.')
+                return redirect('/')
+        else:
+            game.occupy(current_user, session)
+            game.put()
+
+        if game.is_locked_out(current_user,session):
+            flash('You have to wait before you get to participate in this game again.')
+            return redirect('/')
+
         # Check if private
         if game.perms == game.PRIVATE:
             if game.key() not in current_user.games:
@@ -41,15 +54,20 @@ class Game(MethodView):
 
     def post(self, game_key):
         json_data = json.loads(request.data)
+        session = request.cookies.get('session')
 
-        participant = auth_actions.get_user_by_flask_user(current_user)
+        if json_data.get('evict_user', False):
+            sketch_actions.evict_user_by_game_key(game_key)
+            return redirect('/')
+
         round_type = json_data.get('round_type', None)
         data = json_data.get('data', None)
 
         new_round = sketch_actions.add_round_by_game_key(game_key,
                                                          round_type,
                                                          data,
-                                                         participant)
+                                                         current_user,
+                                                         session)
 
         flash('%s Saved' % round_type.capitalize(), 'success')
 
@@ -147,6 +165,17 @@ class SuccessView(MethodView):
 class SearchGamesView(MethodView):
     def get(self):
         public_games = sketch_actions.get_latest_public_games()
+        session = request.cookies.get('session')
+        for game in public_games:
+            game.status = 'Joinable'
+            
+            if game.is_locked_out(current_user, session):
+                game.status = 'Locked out'
+            elif game.session_is_occupant(session):
+                game.status = 'In progress'
+            elif game.is_occupied():
+                game.status = 'Is occupied'
+
         return render_template('search_game.html',
                                public_games=public_games)
 
