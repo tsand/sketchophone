@@ -77,10 +77,8 @@ class Game(MethodView):
 class Timeline(MethodView):
     def get(self, game_key):
         game = sketch_actions.get_game_by_key(game_key)
-        sketch_html = ' '.join(render_template('/timeline/sketch_item.html').split())
-        story_html = ' '.join(render_template('/timeline/story_item.html').split())
 
-        return render_template('/timeline/timeline.html',game = game, story_html = story_html, sketch_html = sketch_html)
+        return render_template('timeline.html', game=game)
 
     def post(self, game_key):
         load_form = json.loads(request.data)
@@ -119,7 +117,7 @@ class CreationWizard(MethodView):
                 first_round_text=str(j_form.get('start_text', '')),
                 title=title,
                 perms=str(j_form.get('perms', 'public')),
-                num_of_rounds=int(j_form.get('num_of_rounds', 3)),
+                max_rounds=int(j_form.get('num_of_rounds', 3)),
                 created_by=created_by
             )
 

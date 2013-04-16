@@ -2,120 +2,101 @@
 
 {% block style %}
 
-    <link href="{{ url_for('static', filename="css/colorpicker.css") }}" rel="stylesheet">
     <style>
-        .toolbar {
-            text-align: center;
+        .toolbox a {
+            margin: 0;
         }
 
-        .sketch-container {
-            margin-top: 20px;
+        .tool div {
+            color: #000;
+            margin: 10px auto;
+            padding: 0;
         }
 
-        #overlay {
-            background: #000;
-            opacity: .8;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 10000;
-            display: none;
+        .toolbox .accordion-heading div {
+            color: #000;
+            margin: 0 auto;
         }
 
-        #overlay .message {
-            position: absolute;
-            opacity: 1;
-            top: 25%;
-            left:0;
-            right:0;
-            margin-left:auto;
-            margin-right:auto;
-            text-align: center;
-            display: none;
+        .colorbox {
+            width: 28px;
+            height: 28px;
+            border-radius: 5px;
         }
 
-        #overlay h1,
-        #overlay i {
-            color: #fff;
-        }
+{#        .colorbox .selected {#}
+{#            border: 1px solid #000;#}
+{#        }#}
     </style>
 
 {% endblock %}
 
 {% block content %}
 
-    <h2>{{ game.title }}</h2>
-    <div class="well">
-        <p class="lead">{{ story }}</p>
-    </div>
+    <div class="span8 offset2">
 
-    <div class="row-fluid">
-        <div class="span12 toolbar">
-            <a class="btn" id="editor_pen"><i class='icon-pencil'></i> Marker</a>
-            <a class="btn" id="editor_erase"><i class='icon-circle-blank'></i> Eraser</a>
-            <a class="btn" id="editor_undo"><i class="icon-undo"></i> Undo</a>
-            <a class="btn" id="editor_redo"><i class="icon-repeat"></i> Redo</a>
-            <a class="btn" id="colorpicker" data-color-format="hex" data-color="rgb(255, 255, 255)">Marker Color <span class="caret"></span></a>
-            <div class="btn-group" id="size_dropdown">
-                <a class="btn dropdown-toggle" data-toggle="dropdown" id="size">Marker Size <span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                    <li><a id="editor_tiny">Tiny</a></li>
-                    <li><a id="editor_small">Small</a></li>
-                    <li><a id="editor_medium">Medium</a></li>
-                    <li><a id="editor_large">Large</a></li>
-                    <li><a id="editor_huge">Huge</a></li>
-                </ul>
-            </div>
-            <div class="btn-group" id="opacity_dropdown">
-                <a class="btn dropdown-toggle" data-toggle="dropdown" id="opacity">Opacity <span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                    <li><a id="editor_solid">Solid</a></li>
-                    <li><a id="editor_fuzzy">Fuzzy</a></li>
-                </ul>
-            </div>
-            <a class="btn btn-danger" id="editor_clear"><i class='icon-trash'></i> Clear Sketch</a>
+        <h2>{{ game.title }}</h2>
+        <div class="well">
+            <p class="lead">{{ story }}</p>
         </div>
 
-        <div class="row-fluid">
-            <div class="span12">
-
-                <div class="sketch-container well">
-                    <div id="editor" style="margin:0 auto; width: 600px; height: 400px; background:#fff;"></div>
-                </div>
-
-                <div class="row-fluid">
-                    <div class="span12 toolbar">
-
-                        <a href="#" id="btn-submit-sketch" class="btn btn-success pull-right" onclick="submitDrawing()"><i class='icon-ok-sign'></i> Submit</a>
-
+        <div class="container-fluid well">
+            <div class="span1 toolbox">
+                <h4>Toolbox</h4>
+                <div class="accordion" id="toolbox">
+                    <div class="accordion-group">
+                        <div class="accordion-heading">
+                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#toolbox" href="#colors">
+                                <div class="colorbox" id="current-color" style="background-color: black"></div>
+                            </a>
+                        </div>
+                        <div id="colors" class="accordion-body collapse">
+                            <div class="accordion-inner">
+                                <a class="tool" href="#"><div class="colorbox" style="background-color: black"></div></a>
+                                <a class="tool" href="#"><div class="colorbox" style="background-color: red"></div></a>
+                                <a class="tool" href="#"><div class="colorbox" style="background-color: blue"></div></a>
+                                <a class="tool" href="#"><div class="colorbox" style="background-color: green"></div></a>
+                                <a class="tool" href="#"><div class="colorbox" style="background-color: yellow"></div></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-group">
+                        <div class="accordion-heading">
+                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#toolbox" href="#utensils">
+                                <div><i class="icon-pencil icon-2x"></i></div>
+                            </a>
+                        </div>
+                        <div id="utensils" class="accordion-body collapse">
+                            <div class="accordion-inner">
+                                <a class="tool" id="pencil" href="#"><div class="utencil"><i class="icon-pencil icon-2x"></i></div></a>
+                                <a class="tool" id="eraser" href="#"><div class="utencil"><i class="icon-remove icon-2x"></i></div></a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="span11">
+                <canvas id="sketch">Your browser does not support HTML5 Canvas.</canvas>
+            </div>
         </div>
-    </div>
+        <a href="#" class="btn btn-large btn-primary pull-right" onclick="submitDrawing()">Submit</a>
 
-    <div id="overlay">
-        <div class="message">
-            <h1>Please Expand Screen</h1>
-            <i class="icon-desktop icon-4x"></i>
-        </div>
     </div>
 
 {% endblock content %}
 
 {% block js_include %}
 
-    <script src="{{ url_for('static', filename="js/raphael.js")}}"></script>
-    <script src="{{ url_for('static', filename="js/json2.js")}}"></script>
-    <script src="{{ url_for('static', filename="js/raphael.sketchpad.js")}}"></script>
-    <script src="{{ url_for('static', filename="js/bootstrap-colorpicker.js")}}"></script>
-    <script src="{{ url_for('static', filename="js/sketch.js")}}"></script>
+    <script src="{{ url_for('static', filename="js/responsive-sketchpad.js")}}"></script>
 
     <script>
+        // Initialize Sketchpad
+        var sketchpad = $("#sketch").sketchpad({
+            aspectRatio: 2,
+            backgroundColor: '#fff'
+        });
 
-        // Submit Drawing
+        {# Submit Drawing #}
         function submitDrawing() {
             $.ajax({
                 type: "POST",
@@ -131,53 +112,25 @@
                 }
             })
         }
-        window.onbeforeunload = function(){
-            $.ajax({
-                type: "POST",
-                url: "/game/sketch/{{ game.key() }}",
-                data: JSON.stringify({
-                    evict_user:true
-                }),
-                contentType: 'application/json',
-                dataType: 'json',
-                async: false,
-            });
-        }
 
+        $(".tool").click(function() {
+            $(this).closest('.collapse').collapse('hide');
+        });
 
-        var overlay = $('#overlay, #overlay .message');
+        $
 
-        function checkWindow() {
-            if(window.innerHeight > window.innerWidth){
-                overlay.css('display', 'block')
-            } else {
-                overlay.css('display', 'None')
-            }
-        }
+        $(".colorbox").click(function() {
+            // Get color
+            var color = $(this).css('backgroundColor');
 
-        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
-            $('#overlay .message').html(
-                "<h1>Please Rotate Device</h1>" +
-                "<i class='icon-tablet icon-4x'></i>"
-            );
+            // Set new color
+            $('#current-color').css('backgroundColor', color);
+            sketchpad.lineColor(color);
+        });
 
-            window.addEventListener("orientationchange", function() {
-                checkWindow()
-            }, false);
-
-            {# Prevent scrolling in portrait #}
-            document.ontouchmove = function(event){
-                if (window.innerHeight > window.innerWidth) {
-                    event.preventDefault();
-                }
-            };
-
-            checkWindow()
-        }
-
-        window.onresize = function(event) {
-            checkWindow()
-        }
+        $("#eraser").click(function() {
+            sketchpad.lineColor('white');
+        })
 
     </script>
 
