@@ -56,7 +56,7 @@ def generate_random_users(count=25):
     """
     for n in xrange(count):
         rand_string = ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for abc in range(7))
-        create_registered_user(rand_string, rand_string)
+        create_registered_user(rand_string, 'pwd')
 
 
 def create_test_game(game_name, num_rounds, user=None):

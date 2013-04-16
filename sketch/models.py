@@ -38,12 +38,12 @@ class Game(db.Model):
         self.occupied_session = None
         
     def is_occupied(self):
-        return self.occupied_session is not None
+        return bool(self.occupied_session)
 
-    def session_is_occupant(self,session):
+    def session_is_occupant(self, session):
         return self.occupied_session == session
 
-    locked_length = 3
+    locked_length = 2
     locked_users = db.StringProperty(default=':'.join([''for x in xrange(locked_length)]))
 
     def is_locked_out(self, user, session):
