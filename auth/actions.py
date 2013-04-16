@@ -3,7 +3,6 @@
 
 from auth import models as auth_models
 from auth import utils as auth_utils
-from datetime import datetime, timedelta
 from google.appengine.ext import db
 
 
@@ -71,43 +70,3 @@ def authenticate(email, password):
         return salted_password == user.password
 
     return False
-
-
-# Batch User Retrieval
-def delete_expired_users():
-    users = auth_models.User.all().filter('registered =', False).run()
-    expiry_time = datetime.now() - timedelta(1)
-    for user in users:
-        if user.created < expiry_time:
-            user.delete()
-
-
-# Testing
-def create_registered_user(username, password):
-    """
-    Only use for testing!
-    """
-    password, salt = auth_utils.salt_password(password)
-    user = auth_models.User(
-        username=username,
-        password=password,
-        salt=salt,
-        email='%s@test.com' % username,
-        registered=True
-    )
-    user.put()
-    return user
-
-
-def generate_random_users(num=25):
-    """
-    You can run this from the interactive console on your local host
-    http://localhost:8001/_ah/admin/interactive
-    -----
-    from auth import actions
-    actions.generate_random_users()
-    """
-    import random
-    for n in xrange(num):
-        rand_string = ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for abc in range(7))
-        create_registered_user(rand_string, rand_string)

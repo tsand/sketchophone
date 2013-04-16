@@ -18,7 +18,8 @@ class Game(db.Model):
     PRIVATE = 'private'
     perms = db.StringProperty(choices=[PUBLIC, PRIVATE])
 
-    number_of_rounds = db.IntegerProperty()
+    max_rounds = db.IntegerProperty()
+    num_rounds = db.IntegerProperty()
 
     occupant_name = db.StringProperty()
     date_occupied = db.DateTimeProperty()
