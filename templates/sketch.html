@@ -1,86 +1,274 @@
-{% extends "themes/base.html" %}
+{% extends "themes/no_navbar.html" %}
 
 {% block style %}
 
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <meta name="viewport" content="width=device-width" />
+
     <style>
-        .toolbox a {
-            margin: 0;
+        body {
+            overflow: hidden;
         }
 
-        .tool div {
-            color: #000;
+        .canvas-container {
+            position: relative;
+            width: 95%;
             margin: 10px auto;
+            border-radius: 5px;
+            background-color: #2FA4E7;
+            padding: 20px 15px;
+        }
+
+        .canvas-container p.brand-name {
+            color: #fff;
+            font-size: 23px;
+            float: right;
+            margin: -15px 0 0 0;
             padding: 0;
         }
 
-        .toolbox .accordion-heading div {
-            color: #000;
+        ul.toolbar {
+            position:absolute;
+            top: 40px;
+            left: 20px;
+            width:60px;
+            margin: 0;
+            padding: 0;
+            background-color: rgba(47, 168, 231, 0.8);
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        ul.toolbar li {
+            padding: 10px 0;
+            border-bottom: 2px solid #4E4E4E;
+            position: relative;
+            height: 40px;
+            list-style: none;
+        {#            overflow: hidden;#}
+        }
+
+        {# Main Tools #}
+
+        ul.toolbar li i, ul.toolbar li div {
+            cursor: pointer;
+            color: #fff;
+            opacity: 0.6;
             margin: 0 auto;
         }
 
-        .colorbox {
-            width: 28px;
-            height: 28px;
+        ul.toolbar li i:hover, ul.toolbar li div:hover {
+            opacity: 1;
+        }
+
+        {# Sidebar #}
+
+        ul.toolbar li ul {
+            position: absolute;
+            top: 10px;
+            left: 65px;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+
+            margin: 0;
+            padding: 0;
             border-radius: 5px;
         }
 
-{#        .colorbox .selected {#}
-{#            border: 1px solid #000;#}
-{#        }#}
+        ul.toolbar li ul li {
+            list-style: none;
+            height: 42px;
+            padding: 5px 0 !important;
+        }
+
+        ul.toolbar #size-select li {
+            height: auto !important;
+            border-bottom: 0px !important;
+            padding: 7px 5px !important;
+        }
+
+        .circle {
+            background-color: #fff;
+            border-radius: 50%;
+            display:inline-block;
+            vertical-align:middle;
+            width:49%;
+        }
+
+        {# Story #}
+        .story-container {
+            position: absolute;
+            top: 40px;
+            left: 10%;
+            width: 80%;
+            pointer-events: none;
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 4px 12px;
+            text-align: center;
+        }
+
+        .story-container p.story-label {
+            color: #fff;
+            font-size: 15px;
+            float: left;
+        }
+
+        .story-container p.story {
+            font-size: 30px;
+            line-height: 1.25;
+            color: rgba(47, 168, 231, 1);
+        }
+
+        @media (max-width: 767px) {
+            ul.toolbar {
+                -webkit-transform: scale(0.8);
+                -moz-transform: scale(0.8);
+                -o-transform: scale(0.8);
+                -ms-transform: scale(0.8);
+                margin: 0;
+                top: 3px;
+                left: 13px;
+            }
+
+            .story-container {
+                top: 40px;
+                left: 15%;
+                width: 70%;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .canvas-container {
+                width: 100% !important;
+                margin: 0 auto;
+                padding: 10px 5px;
+            }
+
+            ul.toolbar {
+                -webkit-transform: scale(0.6);
+                -moz-transform: scale(0.6);
+                -o-transform: scale(0.6);
+                -ms-transform: scale(0.6);
+                top: -45px;
+                left: -3px;
+            }
+
+            .story-container {
+                top: 30px;
+                left: 15%;
+                width: 70%;
+                padding: 0 3px;
+            }
+
+            .story-container p.story {
+                font-size: 15px;
+            }
+
+            .story-container p.story-label {
+                font-size: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .canvas-container p.brand-name {
+                font-size: 12px;
+                margin-top: -18px;
+            }
+
+            ul.toolbar {
+                -webkit-transform: scale(0.4);
+                -moz-transform: scale(0.4);
+                -o-transform: scale(0.4);
+                -ms-transform: scale(0.4);
+                top: -86px;
+                left: -9px;
+            }
+
+            .story-container {
+                top: 25px;
+                left: 15%;
+                width: 70%;
+                padding: 0 3px;
+            }
+
+            .story-container p.story {
+                font-size: 15px;
+            }
+
+            .story-container p.story-label {
+                font-size: 10px;
+            }
+        }
+
     </style>
 
 {% endblock %}
 
 {% block content %}
 
-    <div class="span8 offset2">
-
-        <h2>{{ game.title }}</h2>
-        <div class="well">
-            <p class="lead">{{ story }}</p>
+    <div class="canvas-container">
+        <a href="{{ url_for('home') }}"><p class="brand-name lead">Sketchophone</p></a>
+        <canvas id="sketch">Your browser does not support HTML5 Canvas.</canvas>
+        <div class="story-container well">
+            <p class="story-label">Story</p>
+            <p class="story">{{ story }}</p>
         </div>
+        <ul class="toolbar">
+            <li id="color-select" class="tool"><i class="icon-tint icon-3x" style="color: black"></i>
+                <ul class="submenu">
+                    <li><i class="color icon-circle icon-3x" style="color: black"></i></li>
+                    <li><i class="color icon-circle icon-3x" style="color: red"></i></li>
+                    <li><i class="color icon-circle icon-3x" style="color: orange"></i></li>
+                    <li><i class="color icon-circle icon-3x" style="color: yellow"></i></li>
+                    <li><i class="color icon-circle icon-3x" style="color: green"></i></li>
+                    <li><i class="color icon-circle icon-3x" style="color: blue"></i></li>
+                    <li><i class="color icon-circle icon-3x" style="color: indigo"></i></li>
+                </ul>
+            </li>
+            <li id="utensil-select" class="tool"><i class="icon-pencil icon-3x"></i></li>
+            <li id="size-select" class="tool"><div class="circle" style="width: 20px; height: 20px;"></div>
+                <ul class="submenu">
+                    <li><div class="size circle" data-size="10" style="width: 10px; height: 10px;"></div></li>
+                    <li><div class="size circle" data-size="20" style="width: 15px; height: 15px;"></div></li>
+                    <li><div class="size circle" data-size="30" style="width: 20px; height: 20px;"></div></li>
+                    <li><div class="size circle" data-size="40" style="width: 25px; height: 25px;"></div></li>
+                    <li><div class="size circle" data-size="50" style="width: 35px; height: 35px;"></div></li>
+                    <li><div class="size circle" data-size="50" style="width: 45px; height: 45px;"></div></li>
+                </ul>
+            </li>
+            <li id="undo" class="tool"><i class="icon-undo icon-3x"></i></li>
+            <li id="trash" class="tool"><i class="icon-trash icon-3x"></i></li>
+            <li id="save" class="tool"><i class="icon-ok icon-3x"></i></li>
+        </ul>
+    </div>
 
-        <div class="container-fluid well">
-            <div class="span1 toolbox">
-                <h4>Toolbox</h4>
-                <div class="accordion" id="toolbox">
-                    <div class="accordion-group">
-                        <div class="accordion-heading">
-                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#toolbox" href="#colors">
-                                <div class="colorbox" id="current-color" style="background-color: black"></div>
-                            </a>
-                        </div>
-                        <div id="colors" class="accordion-body collapse">
-                            <div class="accordion-inner">
-                                <a class="tool" href="#"><div class="colorbox" style="background-color: black"></div></a>
-                                <a class="tool" href="#"><div class="colorbox" style="background-color: red"></div></a>
-                                <a class="tool" href="#"><div class="colorbox" style="background-color: blue"></div></a>
-                                <a class="tool" href="#"><div class="colorbox" style="background-color: green"></div></a>
-                                <a class="tool" href="#"><div class="colorbox" style="background-color: yellow"></div></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-group">
-                        <div class="accordion-heading">
-                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#toolbox" href="#utensils">
-                                <div><i class="icon-pencil icon-2x"></i></div>
-                            </a>
-                        </div>
-                        <div id="utensils" class="accordion-body collapse">
-                            <div class="accordion-inner">
-                                <a class="tool" id="pencil" href="#"><div class="utencil"><i class="icon-pencil icon-2x"></i></div></a>
-                                <a class="tool" id="eraser" href="#"><div class="utencil"><i class="icon-remove icon-2x"></i></div></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="span11">
-                <canvas id="sketch">Your browser does not support HTML5 Canvas.</canvas>
-            </div>
+    <div id="save-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3>Submit Sketch</h3>
         </div>
-        <a href="#" class="btn btn-large btn-primary pull-right" onclick="submitDrawing()">Submit</a>
+        <div class="modal-body">
+            <p>Are you sure you want to submit this drawing?</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button id="save-submit" class="btn btn-primary">Submit</button>
+        </div>
+    </div>
 
+    <div id="trash-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3>Trash Sketch</h3>
+        </div>
+        <div class="modal-body">
+            <p>Would you like to <strong>exit</strong> or <strong>clear</strong> the sketchpad?</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button id="trash-exit" class="btn btn-danger">Exit</button>
+            <button id="trash-submit" class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Clear</button>
+        </div>
     </div>
 
 {% endblock content %}
@@ -91,46 +279,114 @@
 
     <script>
         // Initialize Sketchpad
-        var sketchpad = $("#sketch").sketchpad({
-            aspectRatio: 2,
-            backgroundColor: '#fff'
-        });
+        var sketchpad = $("#sketch").sketchpad({aspectRatio: 2});
 
-        {# Submit Drawing #}
-        function submitDrawing() {
-            $.ajax({
-                type: "POST",
-                url: "/game/sketch/{{ game.key() }}",
-                data: JSON.stringify({
-                    round_type: 'sketch',
-                    data: sketchpad.json()
-                }),
-                contentType: 'application/json',
-                dataType: 'json',
-                complete: function() {
-                    window.location = "{{ url_for('success') }}"
-                }
-            })
+        function closeAll() {
+            $('.tool').each(function() {
+                var subMenu = $($(this).find('.submenu'));
+                if (subMenu) { subMenu.css('display', 'none') }
+            });
+        }
+
+        function selectMenu(element) {
+            closeAll();
+            $($(element).find('.submenu')).css('display', 'inline');
+        }
+
+        var prevColor = '#fff';
+        function selectTool(tool) {
+            var icon = $('#utensil-select > i');
+            var colorSelect = $('#color-select > i');
+            if (tool == 'eraser' && !icon.hasClass('icon-circle-blank')) {
+                icon.addClass('icon-circle-blank');
+                icon.removeClass('icon-pencil');
+
+                // Set to white
+                prevColor = colorSelect.css('color');
+                var color = '#fff';
+                colorSelect.css('color', color);
+                sketchpad.setLineColor(color);
+            }  else if (tool == 'pencil' && !icon.hasClass('icon-pencil')) {
+                icon.addClass('icon-pencil');
+                icon.removeClass('icon-circle-blank');
+
+                // Set to previous color
+                var color = prevColor;
+                colorSelect.css('color', color);
+                sketchpad.setLineColor(color);
+            }
         }
 
         $(".tool").click(function() {
-            $(this).closest('.collapse').collapse('hide');
+            selectMenu(this);
         });
 
-        $
-
-        $(".colorbox").click(function() {
-            // Get color
-            var color = $(this).css('backgroundColor');
-
-            // Set new color
-            $('#current-color').css('backgroundColor', color);
-            sketchpad.lineColor(color);
+        $("#utensil-select").click(function() {
+            var icon = $(this).find('i');
+            if (icon.hasClass('icon-pencil')) {
+                selectTool('eraser');
+            } else {
+                selectTool('pencil');
+            }
         });
 
-        $("#eraser").click(function() {
-            sketchpad.lineColor('white');
-        })
+        $("#undo").click(function() {
+            sketchpad.undo();
+        });
+
+        $("#trash").click(function() {
+            $('#trash-modal').modal('show');
+        });
+
+        $('#trash-submit').click(function() {
+            sketchpad.clear();
+        });
+
+        $('#trash-exit').click(function() {
+            window.location = "{{ url_for('home') }}"
+        });
+
+        $("#save").click(function() {
+            $('#save-modal').modal('show');
+        });
+
+        $("#save-submit").click(function() {
+            $.ajax({
+                       type: "POST",
+                       url: "/game/sketch/{{ game.key() }}",
+                       data: JSON.stringify({round_type: 'sketch', data: sketchpad.json()}),
+                       contentType: 'application/json',
+                       dataType: 'json',
+                       complete: function() {
+                           window.location = "{{ url_for('success') }}"
+                       }
+                   });
+        });
+
+        {# Change color #}
+        $('.color').click(function() {
+            selectTool('pencil');
+            var color = $(this).css('color');
+            $('#color-select > i').css('color', color);
+            sketchpad.setLineColor(color);
+        });
+
+        {# Change size #}
+        $('.size').click(function() {
+            var size = parseInt($(this).css('width'), 10);
+            $('#size-select > div').css('width', size);
+            $('#size-select > div').css('height', size);
+            sketchpad.setLineSize(size);
+        });
+
+        {# Allow drawings behind toolbar and close menus #}
+        sketchpad.on('mousedown touchstart', function() {
+            closeAll();
+            $('.toolbar').css('pointer-events', 'none')
+        });
+        sketchpad.on('mouseup mouseleave touchend', function() {
+            $('.toolbar').css('pointer-events', 'auto')
+        });
 
     </script>
 
