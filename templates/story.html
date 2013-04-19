@@ -6,33 +6,32 @@
 
 {% block content %}
 
-    <div class="sketch-container well">
-        <div id="viewer"></div>
-    </div>
+    <div class="span8 offset2">
 
-    <div>
-        <input class="input-block-level" placeholder="story" id="story">
-        <a class="btn btn-primary pull-right" onclick="submitStory()" style="margin-top: 10px">Submit</a>
+        <div class="well">
+            <canvas id="viewer"></canvas>
+        </div>
+
+        <div>
+            <input class="input-block-level" placeholder="story" id="story">
+            <a class="btn btn-primary pull-right" onclick="submitStory()" style="margin-top: 10px">Submit</a>
+        </div>
+
     </div>
 
 {% endblock content %}
 
 {% block js_include %}
 
-    <script src="{{ url_for('static', filename="js/raphael.js")}}"></script>
-    <script src="{{ url_for('static', filename="js/json2.js")}}"></script>
-    <script src="{{ url_for('static', filename="js/raphael.sketchpad.js")}}"></script>
-    <script src="{{ url_for('static', filename="js/bootstrap-colorpicker.js")}}"></script>
-    <script src="{{ url_for('static', filename="js/sketch.js")}}"></script>
+    <script src="{{ url_for('static', filename="js/responsive-sketchpad.js")}}"></script>
 
     <script>
 
         // Initialize viewer
-        var sketchpad = Raphael.sketchpad("viewer", {
-            width: 600,
-            height: 400,
-            strokes: {{ sketch_json | safe }},
-            editing: false
+        var sketchpad = $('#viewer').sketchpad({
+            backgroundColor: '#fff',
+            data: {{ sketch_json | safe }},
+            locked: true
         });
 
         // Submit Story
@@ -51,18 +50,7 @@
                 }
             })
         }
-        window.onbeforeunload = function(){
-            $.ajax({
-                type: "POST",
-                url: "/game/sketch/{{ game.key() }}",
-                data: JSON.stringify({
-                    evict_user:true
-                }),
-                contentType: 'application/json',
-                dataType: 'json',
-                async: false,
-            });
-        }
+
     </script>
 
 {% endblock js_include %}

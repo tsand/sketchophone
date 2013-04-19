@@ -1,5 +1,4 @@
 from base import views as base_views
-from base import cron
 
 
 def apply_urls(app):
