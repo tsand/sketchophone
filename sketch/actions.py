@@ -89,19 +89,6 @@ def get_latest_public_games(num=None, offset=0):
     return sketch_models.Game.all().filter('perms =', 'public').order("-created").fetch(num, offset=offset)
 
 
-def get_random_game():
-    """
-    Return the public games.
-    If not num, return all games
-    """
-    game_count = sketch_models.Game.all(keys_only=True).filter('perms =', 'public').filter('occupied_by =', None).count()
-    if game_count:
-        rand_num = random.randint(0, game_count - 1)
-        game = sketch_models.Game.all().filter('perms =', 'public').filter('occupied_by =', None).fetch(1, offset=rand_num)[0]
-        return game
-    return None
-
-
 def add_round_by_game_key(game_key, round_type, new_data, participant, session=None):
     """
     Add a round to a game

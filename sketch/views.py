@@ -14,14 +14,10 @@ from auth import actions as auth_actions
 class Game(MethodView):
     def get(self, game_key):
 
-        if game_key:
-            game = sketch_actions.get_game_by_key(game_key)
-        else:
-            # Return random game (oldest)
-            game = sketch_actions.get_random_game()
-            if not game:
-                flash('No games available', 'error')
-                return redirect('/')
+        if not game_key:
+            return redirect('/')
+
+        game = sketch_actions.get_game_by_key(game_key)
 
         session = request.cookies.get('session')
 
