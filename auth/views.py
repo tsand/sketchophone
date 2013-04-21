@@ -235,12 +235,13 @@ class User(View):
 class HandleUserQuery(MethodView):
 
     def get(self):
-        query = request.args.get('query','')
+        query = request.args.get('query', '')
         users = auth_actions.guess_users_by_username(query)
 
-        key_dict = {user.username: str(user.key()) for user in users}
-        usernames = [user.username for user in users]
-        return json.dumps({"key_by_username": key_dict, "usernames": usernames})
+        users = [{'username': user.username, 'key': str(user.key())} for user in users]
+        return json.dumps({
+            'users': filter(lambda user: user["username"] != current_user.username, users)
+        })
 
 
 class FacebookLogin(View):
@@ -271,6 +272,7 @@ class FacebookAuthorize(View):
                 flash('Facebook user already has account')
 
             else:
+                current_user.username = me.data['username']
                 current_user.name = me.data['name']
                 current_user.facebook_id = me.data['id']
                 current_user.put()
@@ -291,9 +293,10 @@ class FacebookAuthorize(View):
                 # Create new user
                 else:
                     user = auth_models.User(name=me.data['name'],
-                        facebook_id=me.data['id'],
-                        email=me.data['email'],
-                        registered=True)
+                                            username=me.data['username'],
+                                            facebook_id=me.data['id'],
+                                            email=me.data['email'],
+                                            registered=True)
                     user.put()
 
             login_user(user, True)

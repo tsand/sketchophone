@@ -65,8 +65,9 @@ class User(db.Model):
 
     # Games
     def attach_game(self, game_key):
-        self.games.append(game_key)
-        self.put()
+        if game_key not in self.games:
+            self.games.append(game_key)
+            self.put()
 
     def get_games(self):
         return [game for game in db.get(self.games) if game is not None]
