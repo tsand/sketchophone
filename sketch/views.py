@@ -54,9 +54,7 @@ class Game(MethodView):
         json_data = json.loads(request.data)
         session = request.cookies.get('session')
 
-        if json_data.get('evict_user', False):
-            sketch_actions.evict_user_by_game_key(game_key)
-            return redirect('/')
+        game = sketch_actions.get_game_by_key(game_key)
 
         round_type = json_data.get('round_type', None)
         data = json_data.get('data', None)
@@ -67,6 +65,7 @@ class Game(MethodView):
                                                          current_user,
                                                          session)
 
+        current_user.attach_game(game.key())
         flash('%s Saved' % round_type.capitalize(), 'success')
 
         return redirect(url_for('success'))
@@ -98,41 +97,35 @@ class CreationWizard(MethodView):
 
     @login_required
     def post(self):
+        form = json.loads(request.data).get('form', None)
 
-        j_form = json.loads(request.data).get('form', None)
-
-        title = str(j_form.get('name', 'foo'))
-
-        guests = [auth_actions.get_user_by_key(key) for key in j_form.get('guests', None)]
-        guest_keys = [guest.key() for guest in guests]
-
-        # Add created_by user to game
+        title = str(form.get('name', 'foo'))
         created_by = auth_actions.get_user_by_key(current_user.key())
-        guest_keys.append(created_by.key())
+        friends = dict(form.get('friends', {}))
+        friends = [auth_actions.get_user_by_key(key) for key in friends.values()]
 
-        if j_form is not None:
+        if form is not None:
             game = sketch_actions.create_game(
-                first_round_text=str(j_form.get('start_text', '')),
+                first_round_text=str(form.get('start_text', '')),
                 title=title,
-                perms=str(j_form.get('perms', 'public')),
-                max_rounds=int(j_form.get('num_of_rounds', 3)),
+                perms=str(form.get('perms', 'public')),
+                max_rounds=int(form.get('num_of_rounds', 3)),
                 created_by=created_by
             )
 
             internal_game_link = url_for('game', game_key=game.key())
-            external_game_link = url_for('game', game_key=game.key(),
-                                         _external=True)
-            for guest in guests:
+            external_game_link = url_for('game', game_key=game.key(), _external=True)
+            for friend in friends:
 
                 # Send email
-                mail.send_created_game_email(guest.email,
+                mail.send_created_game_email(friend.email,
                                              title,
                                              external_game_link,
                                              created_by.display_name)
 
                 # Send notification
                 base_actions.notify_user(
-                    guest,
+                    friend,
                     'New Game Request',
                     """
                     <strong>%s</strong> has invited you to play in the game <em>%s</em>
@@ -141,7 +134,7 @@ class CreationWizard(MethodView):
                 )
 
                 # Attach game to user
-                guest.attach_game(game.key())
+                friend.attach_game(game.key())
 
             # For local debugging, since you can't send mail
             import logging
@@ -174,4 +167,20 @@ class SearchGamesView(MethodView):
 
         return render_template('search_game.html',
                                public_games=public_games)
+
+
+class Evict(MethodView):
+    def get(self, game_key):
+        game = sketch_actions.get_game_by_key(game_key)
+
+        if current_user.key() == game.created_by.key() or current_user.administrator:
+            if game.is_occupied():
+                game.evict_occupancy()
+                flash('User Evicted', 'info')
+            else:
+                flash('The game is not currently occupied', 'info')
+        else:
+            flash('Only the creator of the game may evict users', 'error')
+
+        return redirect(url_for('user') + '#games')
 

@@ -25,10 +25,11 @@
         <h2>
             {% if user.is_facebook_user() %}
                 <img src="https://graph.facebook.com/{{ user.facebook_id }}/picture?width=100&height=100" width="100" height="100">
+                {{ user.display_name }} <span class="muted" style="font-size: 20px">({{ user.username }})</span>
             {% else %}
                 <img src="{{ url_for('static', filename="img/blank-facebook.jpg") }}" width="100" height="100">
+                {{ user.display_name }}
             {% endif %}
-            {{ user.display_name }}
         </h2>
 
         <hr>
@@ -130,7 +131,9 @@
                                             <div class="btn-group">
                                                 <a href="/game/{{ game.key() }}" class="btn"><i class="icon-pencil"></i> Play</a>
                                                 <a href="/game/timeline/{{ game.key() }}" class="btn"><i class="icon-list-alt"></i> View Timeline</a>
-                                                <a id="evict_button" value="{{game.key()}}" class="btn"><i class="icon-unlock"></i> Evict User</a>
+                                                {% if current_user.key() == game.created_by.key() %}
+                                                    <a href="/game/evict/{{ game.key() }}" class="btn"><i class="icon-unlock"></i> Evict Player</a>
+                                                {% endif %}
                                             </div>
                                         </td>
                                     </tr>
@@ -182,6 +185,7 @@
 
     <script type="text/javascript">
 
+        {# Auto open collapse #}
         var hash = window.location.hash;
         $('a[href^="' + hash + '"]').click();
 
@@ -191,38 +195,12 @@
             return false;
         });
 
-        {# Set active tab (Ex: 'url'#games) #}
-        $(function () {
-            var activeTab = $('[href=' + location.hash + ']');
-            activeTab && activeTab.tab('show');
-        });
-
         {# Mark notifications as read #}
-        $('#notifications').on('shown', function (e) {
-            var active_tab = e.target
-            if (active_tab.id == 'notifications') {
-                $.get('/auth/notifications')
-            }
-        })
-        var showWarniing = function(message) {
-            $('#alert_placeholder').html('<div class="alert alert-success"><a class="close" data-dismiss="alert">×</a><span>'+message+'</span></div>');
-
-            $(".alert").delay(3000).fadeOut("slow", function () { $(this).remove(); });
+        function readNotifications() {
+            $.get({{ url_for('notifications') }})
         }
-        $('#evict_button').click(function(){
-            var game_key = $(this).attr("value");
-            $.ajax({
-                type: "POST",
-                url: "/game/sketch/"+game_key,
-                data: JSON.stringify({
-                    evict_user:true
-                }),
-                contentType: 'application/json',
-                dataType: 'json',
-            });
-
-            showWarniing('Game has been cleared!');
-        });
+        $('#notifications').bind('shown', readNotifications());
+        $('a[href^="notifications"]').bind('shown', readNotifications());
 
     </script>
 
