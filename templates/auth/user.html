@@ -227,22 +227,25 @@
 
     <script type="text/javascript">
 
-        {# Auto open collapse #}
-        var hash = window.location.hash;
-        $('a[href^="' + hash + '"]').click();
-
-        {# Make Row clickable #}
-        $('#notifications-table tr').click(function(){
-            window.location = $(this).attr('href');
-            return false;
-        });
-
         {# Mark notifications as read #}
         function readNotifications() {
-            $.get({{ url_for('notifications') }})
+            $.get("{{ url_for('notifications') }}")
         }
-        $('#notifications').bind('shown', readNotifications());
-        $('a[href^="notifications"]').bind('shown', readNotifications());
+
+        $(document).ready(function() {
+            $('#notifications').bind('shown', readNotifications());
+            $('a[href="#notifications"]').bind('click', readNotifications());
+
+            {# Auto open collapse #}
+            var hash = window.location.hash;
+            $('a[href^="' + hash + '"]').click();
+
+            {# Make Row clickable #}
+            $('#notifications-table tr').click(function(){
+                window.location = $(this).attr('href');
+                return false;
+            });
+        });
 
     </script>
 
