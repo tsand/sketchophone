@@ -212,15 +212,14 @@ class User(View):
     @login_required
     def dispatch_request(self):
         games = current_user.get_games()
+        notifications = current_user.get_notifications()
 
         for game in games:
             game.last_updated = sketch_actions.get_latest_round(game.key()).created
-        games = sorted(games, key=lambda game: game.last_updated, reverse=True)
 
         return render_template('auth/user.html',
-                               user=current_user,
                                games=games,
-                               notifications=current_user.get_notifications())
+                               notifications=notifications)
 
 
 class HandleUserQuery(MethodView):

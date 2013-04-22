@@ -26,7 +26,8 @@
             width: 100%;
         }
 
-        .accordion-body.in {
+
+        .accordion-body.in:hover {
             overflow:visible;
         }
 
@@ -38,12 +39,12 @@
 
     <div class="span10 offset1">
         <h2>
-            {% if user.is_facebook_user() %}
-                <img src="https://graph.facebook.com/{{ user.facebook_id }}/picture?width=100&height=100" width="100" height="100">
-                {{ user.display_name }} <span class="muted" style="font-size: 20px">({{ user.username }})</span>
+            {% if current_user.is_facebook_user() %}
+                <img src="https://graph.facebook.com/{{ current_user.facebook_id }}/picture?width=100&height=100" width="100" height="100">
+                {{ current_user.display_name }} <span class="muted" style="font-size: 20px">({{ current_user.username }})</span>
             {% else %}
                 <img src="{{ url_for('static', filename="img/blank-facebook.jpg") }}" width="100" height="100">
-                {{ user.display_name }}
+                {{ current_user.display_name }}
             {% endif %}
         </h2>
 
@@ -63,16 +64,22 @@
                             <table class="table table-hover">
                                 <tbody>
                                 <tr>
-                                    <td>Name</td>
-                                    <td>{{ user.display_name }}</td>
-                                </tr>
-                                <tr>
                                     <td>Email</td>
-                                    <td>{{ user.email }}</td>
+                                    <td>{{ current_user.email }}</td>
                                 </tr>
                                 <tr>
                                     <td>Games</td>
-                                    <td>{{ user.get_game_count() }}</td>
+                                    <td>{{ current_user.get_game_count() }}</td>
+                                </tr>
+                                {% if current_user.administrator %}
+                                    <tr>
+                                        <td>Administrator</td>
+                                        <td>{{ current_user.administrator }}</td>
+                                    </tr>
+                                {% endif %}
+                                <tr>
+                                    <td>Member Since</td>
+                                    <td>{{ current_user.created|pretty_date|capitalize }}</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -100,11 +107,11 @@
                                 </thead>
                                 <tbody>
                                 {% if notifications %}
-                                    {% for notification in notifications %}
+                                    {% for notification in notifications|sort(attribute='sent')|reverse %}
                                         <tr href="{{ notification.link }}" {% if not notification.read %} class="info" {% endif %} style="cursor: pointer">
                                             <td>{{ notification.title }}</td>
-                                            <td>{{ notification.description | safe}}</td>
-                                            <td>{{ notification.sent | pretty_date }}</td>
+                                            <td>{{ notification.description|safe}}</td>
+                                            <td>{{ notification.sent|pretty_date|capitalize }}</td>
                                         </tr>
                                     {% endfor %}
                                 {% else %}
@@ -145,12 +152,12 @@
 
                                 <tbody>
                                 {% if games %}
-                                    {% for game in games %}
+                                    {% for game in games|sort(attribute='last_updated')|reverse %}
                                         <tr>
                                             <td class="col-name">{{ game.title }}</td>
                                             <td class="col-rounds">{{ game.num_rounds }} / {{ game.max_rounds }}</td>
-                                            <td class="col-lastplayed">{{ game.last_updated | pretty_date }}</td>
-                                            <td class="col-created">{{ game.created | pretty_date }}</td>
+                                            <td class="col-lastplayed">{{ game.last_updated|pretty_date|capitalize }}</td>
+                                            <td class="col-created">{{ game.created|pretty_date|capitalize }}</td>
                                             <td class="col-createdby">{{ game.created_by.display_name }}</td>
                                             <td class="col-currentplayer">{% if game.is_occupied() %}{{ game.occupant_name }}{% endif %}</td>
                                             <td class="col-actions">
@@ -174,7 +181,7 @@
                                     {% endfor %}
                                 {% else %}
                                     <tr>
-                                        <td colspan="4" style="text-align: center;">
+                                        <td colspan="7" style="text-align: center;">
                                             <strong><a href="{{ url_for('wizard') }}">Create</a> or <a href="{{ url_for('search') }}">Join</a> a Game!</strong>
                                         </td>
                                     </tr>
@@ -190,7 +197,7 @@
 
         <div class="pull-right">
             <br>
-            {% if user.is_base_user() %}
+            {% if current_user.is_base_user() %}
 
                 <a class="btn btn-primary" href="{{ url_for('password') }}">
                     Change Password
@@ -198,7 +205,7 @@
 
             {% endif %}
 
-            {% if user.is_facebook_user() %}
+            {% if current_user.is_facebook_user() %}
 
                 <a class="btn btn-primary" href="{{ url_for('facebook_deauth') }}">
                     <i class="icon-facebook-sign icon-large"></i> Disconnect

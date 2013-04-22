@@ -196,14 +196,14 @@ class SearchGamesView(MethodView):
         public_games = sketch_actions.get_latest_public_games()
         session = request.cookies.get('session')
         for game in public_games:
-            game.status = 'Joinable'
+            game.status = 'Available'
             
             if game.is_locked_out(current_user, session):
-                game.status = 'Locked out'
+                game.status = 'Temporarily Locked Out'
             elif game.session_is_occupant(session):
-                game.status = 'In progress'
+                game.status = 'Currently Participating'
             elif game.is_occupied():
-                game.status = 'Is occupied'
+                game.status = 'Waiting on User'
 
         return render_template('search_game.html',
                                public_games=public_games)
