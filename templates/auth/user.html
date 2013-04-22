@@ -79,7 +79,7 @@
                                 {% endif %}
                                 <tr>
                                     <td>Member Since</td>
-                                    <td>{{ current_user.created|pretty_date|capitalize }}</td>
+                                    <td>{{ current_user.created|pretty_date }}</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -111,7 +111,7 @@
                                         <tr href="{{ notification.link }}" {% if not notification.read %} class="info" {% endif %} style="cursor: pointer">
                                             <td>{{ notification.title }}</td>
                                             <td>{{ notification.description|safe}}</td>
-                                            <td>{{ notification.sent|pretty_date|capitalize }}</td>
+                                            <td>{{ notification.sent|pretty_date }}</td>
                                         </tr>
                                     {% endfor %}
                                 {% else %}
@@ -156,8 +156,8 @@
                                         <tr>
                                             <td class="col-name">{{ game.title }}</td>
                                             <td class="col-rounds">{{ game.num_rounds }} / {{ game.max_rounds }}</td>
-                                            <td class="col-lastplayed">{{ game.last_updated|pretty_date|capitalize }}</td>
-                                            <td class="col-created">{{ game.created|pretty_date|capitalize }}</td>
+                                            <td class="col-lastplayed">{{ game.last_updated|pretty_date }}</td>
+                                            <td class="col-created">{{ game.created|pretty_date }}</td>
                                             <td class="col-createdby">{{ game.created_by.display_name }}</td>
                                             <td class="col-currentplayer">{% if game.is_occupied() %}{{ game.occupant_name }}{% endif %}</td>
                                             <td class="col-actions">
