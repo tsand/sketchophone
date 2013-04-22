@@ -31,7 +31,7 @@
             {% for game in public_games %}
                 <tr>
                     <td class="col-name">{{ game.title }}</td>
-                    <td class="col-created">{{ game.created }}</td>
+                    <td class="col-created">{{ game.created | pretty_date }}</td>
                     <td class="col-status">{{ game.status }}</td>
                     <td class="col-actions">
                         <div class="btn-group">

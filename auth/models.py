@@ -1,6 +1,5 @@
 from google.appengine.ext import db
 from resources.flask_login import AnonymousUser
-from resources import pretty
 
 
 class User(db.Model):
@@ -76,17 +75,11 @@ class User(db.Model):
         return len(self.games)
 
     # Notification
-    def get_notifications(self, pretty_dates=False):
+    def get_notifications(self):
         notifications = [db.get(note) for note in self.notifications]
         notifications = sorted(notifications,
                                key=lambda notification: notification.sent,
                                reverse=True)
-
-        if pretty_dates:
-            for notification in notifications:
-                pretty_date = pretty.date(notification.sent)
-                notification.pretty_date = pretty_date
-
         return notifications
 
     @property

@@ -8,6 +8,7 @@ from flask.views import MethodView
 from flask.templating import render_template
 from resources.flask_login import current_user, login_required
 from sketch import actions as sketch_actions
+from sketch import forms as sketch_forms
 from auth import actions as auth_actions
 
 
@@ -144,6 +145,35 @@ class CreationWizard(MethodView):
 
             return json.dumps({'success': True})
         return json.dumps({'success': False})
+
+
+class EditGame(MethodView):
+    def get(self, game_key):
+        form = sketch_forms.EditGameForm()
+        game = sketch_actions.get_game_by_key(game_key)
+        return render_template('edit_game.html', form=form, game=game)
+
+    def post(self, game_key):
+        if game_key:
+            game = sketch_actions.get_game_by_key(game_key)
+        else:
+            return abort(404)
+
+        form = sketch_forms.EditGameForm()
+
+        if form.validate_on_submit():
+            game.title = form.name.data
+            game.max_rounds = form.rounds.data
+            game.perms = form.type.data
+            game.put()
+        else:
+            # Show error messages
+            for field in form.errors:
+                for error in form.errors[field]:
+                    flash(error, 'error')
+            return redirect('game/edit/' + game_key)
+
+        return 'Success'
 
 
 class SuccessView(MethodView):

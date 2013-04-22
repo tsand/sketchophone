@@ -5,7 +5,6 @@ from flask.views import View, MethodView
 from flask.templating import render_template
 
 from resources.flask_login import login_user, current_user, logout_user, login_required
-from resources import pretty
 
 from auth import facebook
 from auth import models as auth_models
@@ -215,21 +214,13 @@ class User(View):
         games = current_user.get_games()
 
         for game in games:
-            last_updated = sketch_actions.get_latest_round(game.key()).created
+            game.last_updated = sketch_actions.get_latest_round(game.key()).created
+        games = sorted(games, key=lambda game: game.last_updated, reverse=True)
 
-            game.last_updated = last_updated
-            game.pretty_created = pretty.date(game.created)
-            game.pretty_updated = pretty.date(last_updated)
-
-
-        return render_template(
-            'auth/user.html',
-            user=current_user,
-            games=sorted(games,
-                         key=lambda game: game.last_updated,
-                         reverse=True),
-            notifications=current_user.get_notifications(pretty_dates=True)
-        )
+        return render_template('auth/user.html',
+                               user=current_user,
+                               games=games,
+                               notifications=current_user.get_notifications())
 
 
 class HandleUserQuery(MethodView):
