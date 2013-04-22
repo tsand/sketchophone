@@ -149,9 +149,13 @@ class CreationWizard(MethodView):
 
 class EditGame(MethodView):
     def get(self, game_key):
-        form = sketch_forms.EditGameForm()
         game = sketch_actions.get_game_by_key(game_key)
-        return render_template('edit_game.html', form=form, game=game)
+        if current_user.key() == game.created_by.key() or current_user.administrator:
+            form = sketch_forms.EditGameForm()
+            return render_template('edit_game.html', form=form, game=game)
+        else:
+            flash('Only the creator of the game may edit it')
+            return redirect(url_for('user') + '#games')
 
     def post(self, game_key):
         if game_key:
@@ -159,21 +163,27 @@ class EditGame(MethodView):
         else:
             return abort(404)
 
-        form = sketch_forms.EditGameForm()
+        if current_user.key() == game.created_by.key() or current_user.administrator:
+            form = sketch_forms.EditGameForm()
 
-        if form.validate_on_submit():
-            game.title = form.name.data
-            game.max_rounds = form.rounds.data
-            game.perms = form.type.data
-            game.put()
+            if form.validate_on_submit():
+                game.title = form.name.data
+                game.max_rounds = form.rounds.data
+                game.perms = form.type.data
+                game.put()
+            else:
+                # Show error messages
+                for field in form.errors:
+                    for error in form.errors[field]:
+                        flash(error, 'error')
+                return redirect('game/edit/' + game_key)
+
+            flash('Game Updated')
+            return redirect(url_for('user') + '#games')
+
         else:
-            # Show error messages
-            for field in form.errors:
-                for error in form.errors[field]:
-                    flash(error, 'error')
-            return redirect('game/edit/' + game_key)
-
-        return 'Success'
+            flash('Only the creator of the game may edit it')
+            redirect(url_for('home'))
 
 
 class SuccessView(MethodView):
