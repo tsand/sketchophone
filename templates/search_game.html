@@ -17,7 +17,7 @@
 
 {% block content %}
 
-        <table class="table table-bordered table-striped" id="search_table">
+        <table class="table table-bordered table-hover table-striped" id="search_table">
             <thead>
             <tr>
                 <th class="col-name">Name</th>
@@ -35,7 +35,7 @@
                     <td class="col-status">{{ game.status }}</td>
                     <td class="col-actions">
                         <div class="btn-group">
-                            <a href="/game/{{ game.key() }}" class="btn" role="button" data-toggle="modal">Join</a>
+                            <a href="/game/{{ game.key() }}" class="btn btn-primary" role="button" data-toggle="modal">Join</a>
                         </div>
                     </td>
                 </tr>
