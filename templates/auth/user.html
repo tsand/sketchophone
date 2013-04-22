@@ -86,7 +86,7 @@
                                     <tr href="{{ notification.link }}" {% if not notification.read %} class="info" {% endif %} style="cursor: pointer">
                                         <td>{{ notification.title }}</td>
                                         <td>{{ notification.description | safe}}</td>
-                                        <td>{{ notification.pretty_date }}</td>
+                                        <td>{{ notification.sent | pretty_date }}</td>
                                     </tr>
                                 {% endfor %}
                             {% else %}
@@ -124,16 +124,22 @@
                                 {% for game in games %}
                                     <tr>
                                         <td>{{ game.title }}</td>
-                                        <td>{{ game.pretty_updated }}</td>
-                                        <td class="col-created">{{ game.pretty_created }}</td>
+                                        <td>{{ game.last_updated | pretty_date }}</td>
+                                        <td class="col-created">{{ game.created | pretty_date }}</td>
                                         <td>{{ game.occupant_name }}</td>
                                         <td>
                                             <div class="btn-group">
-                                                <a href="/game/{{ game.key() }}" class="btn"><i class="icon-pencil"></i> Play</a>
-                                                <a href="/game/timeline/{{ game.key() }}" class="btn"><i class="icon-list-alt"></i> View Timeline</a>
-                                                {% if current_user.key() == game.created_by.key() %}
-                                                    <a href="/game/evict/{{ game.key() }}" class="btn"><i class="icon-unlock"></i> Evict Player</a>
-                                                {% endif %}
+                                                <a href="/game/{{ game.key() }}" class="btn btn-primary"><i class="icon-pencil"></i> Play</a>
+                                                <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                                                    <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a href="/game/edit/{{ game.key() }}"><i class="icon-edit"></i> Edit Game</a></li>
+                                                    <li><a href="/game/timeline/{{ game.key() }}"><i class="icon-list-alt"></i> View Timeline</a></li>
+                                                    {% if current_user.key() == game.created_by.key() %}
+                                                        <li><a href="/game/evict/{{ game.key() }}"><i class="icon-unlock"></i> Evict Player</a></li>
+                                                    {% endif %}
+                                                </ul>
                                             </div>
                                         </td>
                                     </tr>
