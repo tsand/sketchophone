@@ -69,6 +69,7 @@
         var items_per_request = 10;
         var number_loaded = 0;
         var done_loading = false;
+        var is_anon = {{is_anon|safe}};
         var is_admin = {{is_admin|safe}};
 
         var starRoundFunction = function(){
@@ -132,6 +133,8 @@
                 var rendered_options = Mustache.render(options_html, {round_key:round['key'],
                                                                       flag:flag_attribute,
                                                                       admin_options:renderd_admin_options});
+                if (is_anon)
+                    rendered_options = "";
 
                 if (round['is_banned']) {
                     round_html +=Mustache.render(banned_html,{});

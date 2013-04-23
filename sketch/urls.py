@@ -12,5 +12,6 @@ def apply_urls(app):
     app.add_url_rule('/game/examine/<round_key>', view_func=sketch_views.ExamineView.as_view('examine'))
     app.add_url_rule('/game/flag', view_func=sketch_views.FlagView.as_view('flag_round'))
     app.add_url_rule('/game/ban', view_func=sketch_views.BanView.as_view('ban_round'))
+    app.add_url_rule('/game/end', view_func=sketch_views.EndGameView.as_view('end_game'))
 
 

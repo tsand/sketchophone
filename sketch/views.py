@@ -80,7 +80,8 @@ class Timeline(MethodView):
     def get(self, game_key):
         game = sketch_actions.get_game_by_key(game_key)
         is_admin = 'true' if current_user.administrator else 'false'
-        return render_template('timeline.html', game=game, is_admin=is_admin)
+        is_anon = 'true' if current_user.is_anonymous() else 'false'
+        return render_template('timeline.html', game=game, is_admin=is_admin, is_anon=is_anon)
 
     def post(self, game_key):
         load_form = json.loads(request.data)
@@ -173,7 +174,9 @@ class SearchGamesView(MethodView):
         for game in public_games:
             game.status = 'Joinable'
             
-            if game.is_locked_out(current_user, session):
+            if game.is_over():
+                game.status = 'Is over'
+            elif game.is_locked_out(current_user, session):
                 game.status = 'Locked out'
             elif game.session_is_occupant(session):
                 game.status = 'In progress'
@@ -210,3 +213,10 @@ class BanView(MethodView):
         return json.dumps({'success': result})
 
 
+class EndGameView(MethodView):
+    def post(self):
+        payload = json.loads(request.data)
+        game_key = payload.get('game_key')
+
+        success = sketch_actions.end_game_by_key(game_key, current_user)
+        return json.dumps({'success': success})
