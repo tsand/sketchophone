@@ -13,9 +13,14 @@
             text-align: center;
         }
 
-        .icon-caret-down, .icon-quote-left, .icon-quote-right {
+        .icon-caret-down, .icon-quote-left, .icon-quote-right .icon-star {
             color: #999999;
         }
+
+        .icon-star:hover {
+            color: #E9AB17;
+        }
+
         .icon-quote-right {
             margin-top: -10px;
             float: right;
@@ -24,6 +29,11 @@
             margin-top: -10px;
             float: left;
         }
+        .btn-group {
+            margin-bottom: 10px;
+
+        }
+
     </style>
 
 {% endblock %}
@@ -59,23 +69,80 @@
         var items_per_request = 10;
         var number_loaded = 0;
         var done_loading = false;
+        var is_admin = {{is_admin|safe}};
+
+        var starRoundFunction = function(){
+            window.alert("Here is the key of the round to star --->" + $(this).val());
+            $(this).css( "color", "#E9AB17" );
+        };
+        var banRoundFunction = function(){
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for('ban_round') }}",
+                data: JSON.stringify({
+                    round_key: $(this).val(),
+                    state: true
+                }),
+                contentType: 'application/json',
+                dataType: 'json',
+            });
+        };
+
+        var flagRoundFunction = function(){
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for('flag_round') }}",
+                data: JSON.stringify({
+                    round_key: $(this).val(),
+                    state: true
+                }),
+                contentType: 'application/json',
+                dataType: 'json',
+            });
+            $(this).addClass("btn-danger");
+        };
 
         {# Use 'raw' block to escape mustache templates #}
         {% raw %}
-        var sketch_html = '<canvas id="{{ sketch_id }}"></canvas>';
-        var story_html = '<i class="icon-quote-left icon-2x"></i><h3>{{ story }}</h3><i class="icon-quote-right icon-2x"></i>';
+        var sketch_html = '{{{options}}}'+
+                          '<canvas id="{{ sketch_id }}">'+
+                          '</canvas>';
+        var story_html = '<i class="icon-quote-left icon-2x"></i>'+
+                         '{{{options}}}'+
+                         '<h3>{{ story }}</h3>'+
+                         '<i class="icon-quote-right icon-2x"></i>';
+
+        var options_html =  '<div class="pull-right btn-group">'+
+                                '<button class="btn icon-flag {{flag}} flag-round" value="{{round_key}}" style="text-decoration: none;"></button>'+
+                                '<button class="btn icon-star star-round" value="{{round_key}}" style="text-decoration: none;"></button>'+
+                                '{{{admin_options}}}'+
+                            '</div>';
+        var admin_options_html = '<button class="btn icon-remove ban-round" value="{{round_key}}" style="text-decoration: none;"></button>'
+        var banned_html = '<h3>This round has been banned...</h3>';
         {% endraw %}
 
         function renderTimeline(data) {
             $.each(data.rounds, function(index, round){
                 timeline.append('<i class="icon-caret-down icon-4x"></i>');
 
-                var round_html = '<div class="well item">';
-                if (round['round_type'] == 'story') {
-                    round_html += Mustache.render(story_html, {story: round['data']});
+                var flag_attribute = round['is_flagged'] ? 'btn-danger':'';
+                var renderd_admin_options = is_admin ? Mustache.render(admin_options_html,
+                                                                      {round_key:round['key']}):'';
+                var round_html = '<div id="div-'+round['key']+'"" class="well item">';
+                var rendered_options = Mustache.render(options_html, {round_key:round['key'],
+                                                                      flag:flag_attribute,
+                                                                      admin_options:renderd_admin_options});
+
+                if (round['is_banned']) {
+                    round_html +=Mustache.render(banned_html,{});
+
+                } else if (round['round_type'] == 'story') {
+                    round_html += Mustache.render(story_html, {story: round['data'],
+                                                               options: rendered_options});
 
                 } else {
-                    round_html += Mustache.render(sketch_html, {sketch_id: round['key']});
+                    round_html += Mustache.render(sketch_html, {sketch_id: round['key'],
+                                                               options: rendered_options});
                 }
                 round_html += '</div>';
                 timeline.append(round_html);
@@ -88,6 +155,9 @@
                     });
                 }
 
+                $('.flag-round').click(flagRoundFunction);
+                $('.ban-round').click(banRoundFunction);
+                $('.star-round').click(starRoundFunction);
                 number_loaded++;
                 if (number_loaded >= {{ game.num_rounds }}) {
                     timeline.append('<i class="icon-caret-down icon-4x"></i>');
