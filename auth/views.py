@@ -221,6 +221,8 @@ class User(View):
             game.pretty_created = pretty.date(game.created)
             game.pretty_updated = pretty.date(last_updated)
 
+        if current_user.administrator:
+            flags = sketch_actions.get_flagged_rounds()
 
         return render_template(
             'auth/user.html',
@@ -228,6 +230,7 @@ class User(View):
             games=sorted(games,
                          key=lambda game: game.last_updated,
                          reverse=True),
+            flags=flags,
             notifications=current_user.get_notifications(pretty_dates=True)
         )
 
