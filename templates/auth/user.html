@@ -131,6 +131,9 @@
                                                 <a href="/game/{{ game.key() }}" class="btn"><i class="icon-pencil"></i> Play</a>
                                                 <a href="/game/timeline/{{ game.key() }}" class="btn"><i class="icon-list-alt"></i> View Timeline</a>
                                                 <a id="evict_button" value="{{game.key()}}" class="btn"><i class="icon-unlock"></i> Evict User</a>
+                                                {% if game.is_over() %}}
+                                                <a id="end_game_button" value="{{game.key()}}" class="btn"><i class="icon-fast-forward"></i> End Game</a>
+                                                {% endif %}
                                             </div>
                                         </td>
                                     </tr>
@@ -272,6 +275,22 @@
             });
 
             showWarniing('Game has been cleared!');
+        });
+
+        $('#end_game_button').click(function(){
+            var game_key = $(this).attr("value");
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for('end_game') }}",
+                data: JSON.stringify({
+                    game_key: game_key
+                }),
+                contentType: 'application/json',
+                dataType: 'json',
+            });
+
+            showWarniing('Game has ended!');
+            $(this).remove();
         });
 
         $(".ban-round").click(function(){

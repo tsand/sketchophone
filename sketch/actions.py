@@ -32,6 +32,16 @@ def get_game_by_key(key):
     return db.get(key)
 
 
+def end_game_by_key(game_key, user):
+    game = get_game_by_key(game_key)
+    if game is None or game.created_by == user:
+        return False
+
+    game.max_rounds = game.num_rounds
+    game.put()
+    return True
+
+
 def get_round_by_key(key):
     return db.get(key)
 
