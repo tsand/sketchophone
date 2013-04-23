@@ -12,12 +12,24 @@ indexes:
 
 - kind: Game
   properties:
+  - name: is_flagged
+  - name: created
+    direction: desc
+
+- kind: Game
+  properties:
   - name: perms
   - name: created
 
 - kind: Game
   properties:
   - name: perms
+  - name: created
+    direction: desc
+
+- kind: Round
+  properties:
+  - name: is_flagged
   - name: created
     direction: desc
 
