@@ -4,20 +4,19 @@
     <meta charset="utf-8">
     <title>Sketchophone</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
+    <meta name="description" content="The Online Game of Telephone Pictionary">
     <meta name="author" content="">
 
     {# Icons #}
-    <!-- Fav and touch icons -->
-{#    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">#}
-{#    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">#}
-{#    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">#}
-{#    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">#}
-    <link href="{{ url_for('static', filename="img/favicon.ico") }}" rel="icon">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{ url_for('static', filename="img/ico/apple/144.png") }}">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{{ url_for('static', filename="img/ico/apple/114.png") }}">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{{ url_for('static', filename="img/ico/apple/72.png") }}">
+    <link rel="apple-touch-icon-precomposed" href="{{ url_for('static', filename="img/ico/apple/57.png") }}">
+    <link href="{{ url_for('static', filename="img/ico/favicon.ico") }}" rel="icon">
 
+    {# CSS #}
     <link href="{{ url_for('static', filename="css/bootstrap.css") }}" rel="stylesheet">
     <link href="{{ url_for('static', filename="css/font-awesome.min.css") }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename="css/add2home.css") }}" rel="stylesheet">
 
     {% block style %}{% endblock %}
 
@@ -101,6 +100,8 @@
         <ul class="inline">
             <li><a href="{{ url_for('instructions') }}">How to Play</a></li>
             <li>|</li>
+            <li><a href="{{ url_for('app') }}">Get The App</a></li>
+            <li>|</li>
             <li><a href="{{ url_for('about')}}">About Us</a></li>
             <li>|</li>
             <li><a href="mailto:sketchophoneapp@gmail.com">Contact</a></li>
@@ -110,7 +111,6 @@
 
 <script src="{{ url_for('static', filename="js/jquery-2.0.0.min.js") }}"></script>
 <script src="{{ url_for('static', filename="js/bootstrap.min.js") }}"></script>
-<script src="{{ url_for('static', filename="js/add2home.js") }}"></script>
 
 {% block js_include %}{% endblock %}
 

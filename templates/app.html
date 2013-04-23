@@ -1,0 +1,88 @@
+{% extends "themes/base.html" %}
+
+{% block style %}
+
+    <style>
+        h2 {
+            padding-bottom: 20px;
+        }
+
+        #app-page-container {
+            text-align: center;
+        }
+
+        .qr {
+        {#            padding: 5px 0;#}
+            background-color: #fff;
+            border-radius: 10px;
+            display: inline-block;
+            margin: 20px auto;
+            padding: 15px;
+
+            -moz-box-shadow: 2px 2px 2px #888;
+            -webkit-box-shadow: 2px 2px 2px #888;
+            box-shadow: 2px 2px 2px #888;
+        }
+
+        .btn {
+            margin: 30px auto;
+        }
+    </style>
+
+{% endblock %}
+
+{% block content %}
+
+
+    <div id="app-page-container" class="span8 offset2">
+        <h2>Get the App</h2>
+        <div class="row-fluid">
+            <div id="apple" class="span6 well">
+                <h3>iPhone/iPad</h3>
+                <div class="qr">
+                    <img src="{{ url_for('static', filename="img/appleQR.png") }}" alt="iOS Sketchophone QR Code" width="200" height="200">
+                </div>
+                <div class="instructions">
+                    Scan the above QR code with your iPhone or iPad and follow the instructions on the screen
+                </div>
+            </div>
+            <div id="android" class="span6 well">
+                <h3>Android</h3>
+                <div class="qr">
+                    <img src="{{ url_for('static', filename="img/androidQR.png") }}" alt="Android Sketchophone QR Code" width="200" height="200">
+                </div>
+                <div class="instructions">
+                    Scan the above QR code with your Android device and follow installation instructions, or click the button below
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+{% block js_include %}
+
+    <script>
+        function isAndroidDevice() {
+            return (navigator.userAgent.toLowerCase().indexOf("android") > -1)
+        }
+
+        function isAppleDevice() {
+            return (
+                (navigator.userAgent.toLowerCase().indexOf("ipad") > -1) ||
+                (navigator.userAgent.toLowerCase().indexOf("iphone") > -1) ||
+                (navigator.userAgent.toLowerCase().indexOf("ipod") > -1)
+            );
+        }
+
+        $(document).ready(function () {
+            if(isAndroidDevice()) {
+                $('#app-page-container').html('<h1>Android</h1><a class="btn btn-large btn-primary btn-block" href="{{ url_for('static', filename="files/Sketchophone.apk") }}">Download Android App</a>');
+            } else if (isAppleDevice()) {
+                $('#app-page-container').html('<h1>Apple</h1><p class="lead">Click <a href="{{ url_for('home', show_popup='true') }}">here</a> and follow the instructions in the popup</p>');
+            }
+        })
+
+    </script>
+
+{% endblock %}

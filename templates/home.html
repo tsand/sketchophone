@@ -1,5 +1,9 @@
 {% extends "themes/base.html" %}
 
+{% block style %}
+    <link href="{{ url_for('static', filename="css/add2home.css") }}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
 
     <div class="jumbotron">
@@ -19,3 +23,14 @@
     </div>
 
 {% endblock content %}
+
+{% block js_include %}
+    <script src="{{ url_for('static', filename="js/add2home.js") }}"></script>
+
+    {% if reset_app2home %}
+        <script>
+            addToHome.show(true)
+        </script>
+    {% endif %}
+
+{% endblock %}
