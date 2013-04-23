@@ -1,4 +1,4 @@
-{% extends "themes/base.html" %}
+{% extends "themes/navbar.html" %}
 
 {% block style %}
 
@@ -85,7 +85,7 @@
                         '<p class="lead">Click the button below and follow the instructions in the popup to install applications</p>' +
                         '<a class="btn btn-large btn-primary btn-block" href="{{ url_for('home', show_popup='true') }}">Help Me Install iOS App</a>');
             }
-            
+
             $('#app-page-container').removeClass('hide');
         });
 
