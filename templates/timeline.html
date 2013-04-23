@@ -86,6 +86,7 @@
             window.alert("Here is the key of the round to star --->" + $(this).val());
             $(this).css( "color", "#E9AB17" );
         };
+
         var banRoundFunction = function(){
             $.ajax({
                 type: "POST",
@@ -95,7 +96,7 @@
                     state: true
                 }),
                 contentType: 'application/json',
-                dataType: 'json',
+                dataType: 'json'
             });
         };
 
@@ -108,7 +109,7 @@
                     state: true
                 }),
                 contentType: 'application/json',
-                dataType: 'json',
+                dataType: 'json'
             });
             $(this).addClass("btn-danger");
         };
@@ -128,8 +129,7 @@
                                 '<button class="btn icon-star star-round" value="{{round_key}}" style="text-decoration: none;"></button>'+
                                 '{{{admin_options}}}'+
                             '</div>';
-        var admin_options_html = '<button class="btn icon-remove ban-round" value="{{round_key}}" style="text-decoration: none;"></button>'
-        var banned_html = '<h3>This round has been banned...</h3>';
+        var admin_options_html = '<button class="btn icon-remove ban-round" value="{{round_key}}" style="text-decoration: none;"></button>';
         {% endraw %}
 
         function renderTimeline(data) {
@@ -137,23 +137,22 @@
                 timeline.append('<i class="icon-caret-down icon-4x"></i>');
 
                 var flag_attribute = round['is_flagged'] ? 'btn-danger':'';
-                var renderd_admin_options = is_admin ? Mustache.render(admin_options_html,
-                                                                      {round_key:round['key']}):'';
-                var round_html = '<div id="div-'+round['key']+'"" class="well item">';
+                var rendered_admin_options = is_admin ? Mustache.render(admin_options_html, {round_key:round['key']}) : '';
+                var round_html = '<div id="div-' + round['key'] + '" class="well item">';
                 var rendered_options = Mustache.render(options_html, {round_key:round['key'],
                                                                       flag:flag_attribute,
-                                                                      admin_options:renderd_admin_options});
+                                                                      admin_options:rendered_admin_options});
 
-                if (round['is_banned']) {
-                    round_html +=Mustache.render(banned_html,{});
-
-                } else if (round['round_type'] == 'story') {
-                    round_html += Mustache.render(story_html, {story: round['data'],
-                                                               options: rendered_options});
-
+                if (round['round_type'] == 'story') {
+                    if (round['is_banned']) {
+                        round['data'] = 'This round has been banned';
+                    }
+                    round_html += Mustache.render(story_html, {story: round['data'], options: rendered_options});
                 } else {
-                    round_html += Mustache.render(sketch_html, {sketch_id: round['key'],
-                                                               options: rendered_options});
+                    if (round['is_banned']) {
+                        round['data'] = JSON.parse('{"aspectRatio":2,"strokes":[{"stroke":[{"x":0,"y":0},{"x":1,"y":1}],"color":"black","size":0.01,"cap":"round","join":"round","miterLimit":10},{"stroke":[{"x":0,"y":1},{"x":1,"y":0}],"color":"black","size":0.01,"cap":"round","join":"round","miterLimit":10}]}');
+                    }
+                    round_html += Mustache.render(sketch_html, {sketch_id: round['key'], options: rendered_options});
                 }
                 round_html += '</div>';
                 timeline.append(round_html);
@@ -169,8 +168,10 @@
                 $('.flag-round').click(flagRoundFunction);
                 $('.ban-round').click(banRoundFunction);
                 $('.star-round').click(starRoundFunction);
+
                 number_loaded++;
                 if (number_loaded >= {{ game.num_rounds }}) {
+                    done_loading = true;
                     timeline.append('<i class="icon-caret-down icon-4x"></i>');
                     timeline.append('<h2 class="text-error">End</h2>')
                 }

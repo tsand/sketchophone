@@ -215,8 +215,8 @@ class SearchGamesView(MethodView):
 
 class ExamineView(MethodView):
     def get(self, round_key):
-        round_to_view = sketch_actions.get_round_by_key(round_key)
-        return render_template('examine.html',round_to_view = round_to_view)
+        round = sketch_actions.get_round_by_key(round_key)
+        return render_template('examine.html', round=round)
 
 
 class FlagView(MethodView):

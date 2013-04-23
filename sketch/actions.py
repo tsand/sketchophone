@@ -138,8 +138,10 @@ def ban_round_by_key(round_key, ban_state):
         return True
     return False
 
+
 def get_flagged_rounds(num=None, offset=0):
     return sketch_models.Round.all().filter('is_flagged =', True).filter('is_banned', False).fetch(num, offset=offset)
+
 
 def flag_round_by_key(round_key, flag_state):
     round_to_flag = get_round_by_key(round_key)
@@ -148,6 +150,7 @@ def flag_round_by_key(round_key, flag_state):
         round_to_flag.put()
         return True
     return False
+
 
 def guess_games_by_title(title):
     """
