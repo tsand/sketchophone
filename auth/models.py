@@ -107,3 +107,7 @@ class Anonymous(AnonymousUser):
     def display_name(self):
         return self.username
 
+    @property
+    def administrator(self):
+        return False
+

@@ -217,10 +217,15 @@ class User(View):
         for game in games:
             game.last_updated = sketch_actions.get_latest_round(game.key()).created
 
+        flags = None
+        if current_user.administrator:
+            flags = sketch_actions.get_flagged_rounds()
+
         return render_template('auth/user.html',
                                games=games,
-                               notifications=notifications)
-
+                               notifications=notifications,
+                               flags=flags)
+    
 
 class HandleUserQuery(MethodView):
 

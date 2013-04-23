@@ -1,0 +1,53 @@
+{% extends "themes/base.html" %}
+
+{% block style %}
+
+    <style type="text/css">
+
+        .item {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .icon-quote-right {
+            margin-top: -10px;
+            float: right;
+        }
+        .icon-quote-left {
+            margin-top: -10px;
+            float: left;
+        }
+    </style>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="well item">
+    {% if round_to_view.round_type == 'story' %}
+        <i class="icon-quote-left icon-2x"></i>
+            <h3>{{ round_to_view.data }}</h3>
+        <i class="icon-quote-right icon-2x"></i>
+    {% else %}
+        <canvas id="sketch"></canvas>
+    {% endif %}
+</div>
+
+{% endblock content %}
+
+{% block js_include %}
+
+    <script src="{{ url_for('static', filename="js/responsive-sketchpad.js")}}"></script>
+
+    <script>
+    {% if round_to_view.round_type == 'sketch' %}
+        $('#sketch').sketchpad({
+            backgroundColor: '#fff',
+            data: {{round_to_view.data|safe}},
+            locked: true
+        });
+    {% endif %}
+    </script>
+
+{% endblock js_include %}

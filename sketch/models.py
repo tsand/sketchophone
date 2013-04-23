@@ -71,7 +71,15 @@ class Game(db.Model):
 class Round(db.Model):
     created = db.DateTimeProperty(auto_now_add=True)
 
+    def get_date_formatted(self):
+        if self.created:
+            return self.created.strftime("%m/%d/%y %I:%M %p")
+        return ''
+
     user = db.ReferenceProperty(User)
+
+    is_banned = db.BooleanProperty(default=False)
+    is_flagged = db.BooleanProperty(default=False)
 
     SKETCH = 'sketch'
     STORY = 'story'

@@ -193,6 +193,56 @@
                 </div>
             </div>
 
+        {% if user.administrator %}
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#user-accordion" href="#admin">
+                        <i class="icon-fighter-jet"></i><span class="divide"></span>Admin Junk
+                    </a>
+                </div>
+                <div id="admin" class="accordion-body collapse">
+                    <div class="accordion-inner">
+                        Rember with great power comes great responsibility...
+
+                        <table class="table table-bordered table-striped table-hover">
+                            <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Created</th>
+                                <th>User</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% if flags %}
+                                {% for flag in flags %}
+                                    <tr id="{{ flag.key() }}">
+                                        <td>{{ flag.round_type }}</td>
+                                        <td>{{ flag.get_date_formatted() }}</td>
+                                        <td>{{ flag.user.display_name }}</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="/game/examine/{{ flag.key() }}" class="btn" href="">Inspect</a>
+                                                <button class="btn ban-round" value="{{ flag.key() }}">Ban</button>
+                                                <button class="btn unflag-round" value="{{ flag.key() }}">Dismiss</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" style="text-align: center;">
+                                        <strong>Well it looks like your job here is done!</strong>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
         </div>
 
         <div class="pull-right">
@@ -245,6 +295,34 @@
                 window.location = $(this).attr('href');
                 return false;
             });
+        });
+
+        $(".ban-round").click(function(){
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for('ban_round') }}",
+                data: JSON.stringify({
+                    round_key: $(this).val(),
+                    state: true
+                }),
+                contentType: 'application/json',
+                dataType: 'json',
+            });
+            $('#'+$(this).val()).remove();
+        });
+
+        $(".unflag-round").click(function(){
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for('flag_round') }}",
+                data: JSON.stringify({
+                    round_key: $(this).val(),
+                    state: false
+                }),
+                contentType: 'application/json',
+                dataType: 'json',
+            });
+            $('#'+$(this).val()).remove();
         });
 
     </script>
