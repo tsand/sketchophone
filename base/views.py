@@ -6,6 +6,7 @@ from flask.templating import render_template
 
 from base import cron
 
+
 class HomeView(MethodView):
     def get(self):
         return render_template('home.html')

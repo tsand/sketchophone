@@ -2,8 +2,6 @@ from google.appengine.ext import db
 from resources.flask_login import AnonymousUser
 from resources import pretty
 
-# https://developers.google.com/appengine/docs/python/datastore/typesandpropertyclasses
-
 
 class User(db.Model):
     username = db.StringProperty()
