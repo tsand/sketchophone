@@ -25,6 +25,12 @@ handlers:
   script: main.py
   login: admin
 
+skip_files:
+- ^(.*/)?.*\.py[co]
+- ^(.*/)?.*\.DS_Store
+- static/less
+- apps
+
 inbound_services:
 - warmup
 
