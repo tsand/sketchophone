@@ -1,4 +1,4 @@
-{% extends "themes/base.html" %}
+{% extends "themes/navbar.html" %}
 
 {% block style %}
 
@@ -18,21 +18,28 @@
             margin-top: -10px;
             float: left;
         }
+    
     </style>
 
 {% endblock %}
 
 {% block content %}
 
-<div class="well item">
-    {% if round_to_view.round_type == 'story' %}
-        <i class="icon-quote-left icon-2x"></i>
-            <h3>{{ round_to_view.data }}</h3>
-        <i class="icon-quote-right icon-2x"></i>
-    {% else %}
-        <canvas id="sketch"></canvas>
-    {% endif %}
-</div>
+    <div class="span8 offset2">
+        <div class="well item">
+            {% if round.round_type == 'story' %}
+                <i class="icon-quote-left icon-2x"></i>
+                <h3>{{ round.data }}</h3>
+                <i class="icon-quote-right icon-2x"></i>
+            {% else %}
+                <canvas id="sketch"></canvas>
+            {% endif %}
+        </div>
+        <div class="btn-group pull-right">
+            <button class="btn btn-large unflag-round" value="{{ round.key() }}">Dismiss</button>
+            <button class="btn btn-large btn-danger ban-round" value="{{ round.key() }}">Ban</button>
+        </div>
+    </div>
 
 {% endblock content %}
 
@@ -41,13 +48,43 @@
     <script src="{{ url_for('static', filename="js/responsive-sketchpad.js")}}"></script>
 
     <script>
-    {% if round_to_view.round_type == 'sketch' %}
-        $('#sketch').sketchpad({
-            backgroundColor: '#fff',
-            data: {{round_to_view.data|safe}},
-            locked: true
+
+        {% if round.round_type == 'sketch' %}
+            $('#sketch').sketchpad({
+                backgroundColor: '#fff',
+                data: {{round.data|safe}},
+                locked: true
+            });
+        {% endif %}
+
+        $(".ban-round").click(function(){
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for('ban_round') }}",
+                data: JSON.stringify({
+                    round_key: $(this).val(),
+                    state: true
+                }),
+                contentType: 'application/json',
+                dataType: 'json'
+            });
+            window.location = '{{ url_for('user') }}#admin'
         });
-    {% endif %}
+
+        $(".unflag-round").click(function(){
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for('flag_round') }}",
+                data: JSON.stringify({
+                    round_key: $(this).val(),
+                    state: false
+                }),
+                contentType: 'application/json',
+                dataType: 'json'
+            });
+            window.location = '{{ url_for('user') }}#admin'
+        });
+
     </script>
 
 {% endblock js_include %}
