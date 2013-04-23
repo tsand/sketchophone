@@ -221,6 +221,7 @@ class User(View):
             game.pretty_created = pretty.date(game.created)
             game.pretty_updated = pretty.date(last_updated)
 
+        flags = None
         if current_user.administrator:
             flags = sketch_actions.get_flagged_rounds()
 
