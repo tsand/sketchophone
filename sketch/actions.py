@@ -32,6 +32,10 @@ def get_game_by_key(key):
     return db.get(key)
 
 
+def get_round_by_key(key):
+    return db.get(key)
+
+
 def get_game_by_title(title):
     """
     Return a game with a matching title
@@ -126,6 +130,24 @@ def add_round_by_game_key(game_key, round_type, new_data, participant, session=N
 
     return new_round
 
+def ban_round_by_key(round_key, ban_state):
+    round_to_ban = get_round_by_key(round_key)
+    if round_to_ban is not None:
+        round_to_ban.is_banned = ban_state
+        round_to_ban.put()
+        return True
+    return False
+
+def get_flagged_rounds(num=None, offset=0):
+    return sketch_models.Round.all().filter('is_flagged =', True).filter('is_banned', False).fetch(num, offset=offset)
+
+def flag_round_by_key(round_key, flag_state):
+    round_to_flag = get_round_by_key(round_key)
+    if round_to_flag is not None:
+        round_to_flag.is_flagged = flag_state
+        round_to_flag.put()
+        return True
+    return False
 
 def guess_games_by_title(title):
     """
