@@ -1,17 +1,19 @@
 import random
-import logging
 
-from google.appengine.ext import db
-from sketch import models as sketch_models
-from auth.actions import create_registered_user
 from datetime import datetime, timedelta
+from flask import url_for
+from google.appengine.ext import db
+
+from base import actions as base_actions
+from sketch import models as sketch_models
 
 
-def create_game(first_round_text, title, perms, num_of_rounds, created_by):
+def create_game(first_round_text, title, perms, max_rounds, created_by):
     # Store game model
     new_game = sketch_models.Game(title=title,
                                   perms=perms,
-                                  number_of_rounds=num_of_rounds,
+                                  max_rounds=max_rounds,
+                                  num_rounds=0,
                                   created_by=created_by)
     new_game.put()
 
@@ -47,7 +49,7 @@ def evict_user_by_game_key(key):
 
 def evict_lazy_users():
     games = sketch_models.Game.all().filter('occupied_session !=', None).run()
-    expiry_time = datetime.now() - timedelta(hours = 3)
+    expiry_time = datetime.now() - timedelta(hours=3)
 
     to_put = []
     for game in games:
@@ -55,6 +57,7 @@ def evict_lazy_users():
             game.evict_occupancy()
             to_put.append(game)
     db.put(to_put)
+
 
 def get_latest_round(game_key):
     """
@@ -99,22 +102,37 @@ def get_random_game():
     return None
 
 
-def add_round_by_game_key(game_key, round_type, new_data, participant, session = None):
+def add_round_by_game_key(game_key, round_type, new_data, participant, session=None):
     """
     Add a round to a game
     """
     new_round = None
     game = get_game_by_key(game_key)
     if game is not None:
-        # quick hack fix because anons can't be stored in game model
-        participant_check = None if participant.is_anonymous() else participant
+
+        # Quick hack fix because anons can't be stored in game model
+        if participant.is_authenticated():
+            participant = db.get(participant.key())
+        else:
+            participant = None
+
         new_round = sketch_models.Round(data=new_data,
-                                        user=participant_check,
+                                        user=participant,
                                         round_type=round_type,
                                         parent=game)
         if new_round is not None:
             freed_user_key = game.updated_locked_users(participant, session)
+
+            if freed_user_key:
+                # Notify released user
+                base_actions.notify_user(
+                    db.get(db.Key(freed_user_key)),
+                    'Your turn to play!',
+                    'You may now return to the game %s' % game.title,
+                    url_for('game', game_key=game.key()))
+
             new_round.put()
+            game.num_rounds += 1
 
         game.evict_occupancy()
         game.put()
@@ -128,68 +146,3 @@ def guess_games_by_title(title):
     """
     games = sketch_models.Game.all().filter('title >=', title).filter('title <', title + u'\ufffd')
     return games
-
-
-# TEST FUNCTIONS
-def create_test_data(num_games=5, rounds_per_game=100):
-    """
-    You can run this from the interactive console on your local host
-    http://localhost:8001/_ah/admin/interactive
-    -----
-    from sketch import actions
-    actions.create_test_data(10, 100)
-    """
-    user = create_registered_user('TEST_LOADER', 'test')
-
-    import random
-    for n in xrange(num_games):
-        rand_string = ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for abc in range(7))
-        create_test_game(rand_string, rounds_per_game, user)
-
-
-def reset_data_store():
-    from auth import models as auth_models
-    from base import models as base_mdoels
-
-    to_delete = []
-    to_delete.extend(sketch_models.Game.all(keys_only=True).fetch(None))
-    to_delete.extend(sketch_models.Round.all(keys_only=True).fetch(None))
-
-    to_delete.extend(auth_models.User.all(keys_only=True).fetch(None))
-
-    to_delete.extend(base_mdoels.Notification.all(keys_only=True).fetch(None))
-    db.delete(to_delete)
-
-def create_test_game(game_name ,num_rounds , user = None):
-    """
-    You can run this from the interactive console on your local host
-    http://localhost:8001/_ah/admin/interactive
-    -----
-    from sketch import actions
-    actions.create_test_data2('Game Test', 50, user)
-    """
-
-    if user is None:
-        user = create_registered_user('TEST_LOADER', 'test')
-
-    game = create_game('Mumble dog face to the banana patch.  Mumble dog face to the banana patch.  Mumble dog face to the banana patch.  Mumble dog face to the banana patch. (round #0)',
-                        game_name,
-                        'public',
-                        num_rounds,
-                        user)
-
-    def generate_json():
-        path = "M0,%s,0" % (",".join(['%sL%s' %(random.randint(-1000, 1000),random.randint(-1000, 1000)) for m in xrange(100)]))
-        return '[{"fill":"none","stroke":"#000000","path":"%s","stroke-opacity":1,"stroke-width":5,"stroke-linecap":"round","stroke-linejoin":"round","transform":[],"type":"path"}]' % (path)
-
-    import time
-    for n in xrange(num_rounds):
-        if n%2 == 0:
-            add_round_by_game_key(game.key(), 'sketch', generate_json(), user)
-        else:
-            add_round_by_game_key(game.key(), 'story', 'Zim zim zalabim  (round #%s)' % (n), user)
-
-
-    print 'The Game Key ---> %s' %(game.key())
-
-

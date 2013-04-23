@@ -1,5 +1,6 @@
 from google.appengine.ext import db
 
+
 class Notification(db.Model):
 
     title = db.StringProperty()

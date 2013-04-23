@@ -1,0 +1,121 @@
+{% extends "themes/base.html" %}
+
+{% block style %}
+
+    <style type="text/css">
+        #timeline {
+            text-align: center;
+        }
+
+        .item {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .icon-caret-down, .icon-quote-left, .icon-quote-right {
+            color: #999999;
+        }
+        .icon-quote-right {
+            margin-top: -10px;
+            float: right;
+        }
+        .icon-quote-left {
+            margin-top: -10px;
+            float: left;
+        }
+    </style>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="span8 offset2">
+        <h1>{{game.title}}</h1>
+        <div class="muted">
+            <p>Created by {{game.created_by.display_name}}.</p>
+            <p>{{game.get_date_formatted()}}</p>
+            <p>{{game.num_rounds}} Rounds</p>
+        </div>
+
+        <div id="timeline">
+            <div class="item">
+                <h2 class="text-success">Start</h2>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+{% block js_include %}
+    <script src="{{ url_for('static', filename="js/mustache.js")}}"></script>
+    <script src="{{ url_for('static', filename="js/responsive-sketchpad.js")}}"></script>
+
+    <script>
+
+        var $doc = $(document);
+        var $win = $(window);
+        var timeline = $("#timeline");
+        var items_per_request = 10;
+        var number_loaded = 0;
+        var done_loading = false;
+
+        {# Use 'raw' block to escape mustache templates #}
+        {% raw %}
+        var sketch_html = '<canvas id="{{ sketch_id }}"></canvas>';
+        var story_html = '<i class="icon-quote-left icon-2x"></i><h3>{{ story }}</h3><i class="icon-quote-right icon-2x"></i>';
+        {% endraw %}
+
+        function renderTimeline(data) {
+            $.each(data.rounds, function(index, round){
+                timeline.append('<i class="icon-caret-down icon-4x"></i>');
+
+                var round_html = '<div class="well item">';
+                if (round['round_type'] == 'story') {
+                    round_html += Mustache.render(story_html, {story: round['data']});
+
+                } else {
+                    round_html += Mustache.render(sketch_html, {sketch_id: round['key']});
+                }
+                round_html += '</div>';
+                timeline.append(round_html);
+
+                if (round['round_type'] == 'sketch') {
+                    $('#' + round['key']).sketchpad({
+                        backgroundColor: '#fff',
+                        data: round['data'],
+                        locked: true
+                    });
+                }
+
+                number_loaded++;
+                if (number_loaded >= {{ game.num_rounds }}) {
+                    timeline.append('<i class="icon-caret-down icon-4x"></i>');
+                    timeline.append('<h2 class="text-error">The End</h2>')
+                }
+            });
+        }
+
+        function loadTimeline(number, offset) {
+            $.ajax({
+                url: '/game/timeline/{{ game.key() }}',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({'offset':offset, 'number':number}),
+                dataType: 'json',
+                success: renderTimeline,
+                async: false
+            });
+            return number + offset;
+        }
+
+        loadTimeline(items_per_request, 0);
+        $win.scroll(function() {
+            var bottom = $doc.height() - ($win.scrollTop() + $win.height());
+            if (bottom < 50 && !done_loading) {
+                loadTimeline(items_per_request, number_loaded);
+            }
+        });
+
+    </script>
+{% endblock %}  

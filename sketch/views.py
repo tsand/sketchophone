@@ -1,8 +1,8 @@
 import json
-import logging
 
 from base import mail
 from base import actions as base_actions
+from google.appengine.ext.db import Key
 from flask import abort, url_for, request, flash, redirect
 from flask.views import MethodView
 from flask.templating import render_template
@@ -20,21 +20,23 @@ class Game(MethodView):
             # Return random game (oldest)
             game = sketch_actions.get_random_game()
             if not game:
-                flash('No games avaliable', 'error')
+                flash('No games available', 'error')
                 return redirect('/')
 
         session = request.cookies.get('session')
-        if game.is_occupied():
-            if not game.session_is_occupant(session):
+
+        # Allow admins to override locked games
+        if not current_user.is_authenticated() or not current_user.administrator:
+            if game.is_locked_out(current_user, session):
+                flash('You have to wait before you get to participate in this game again.')
+                return redirect('/')
+
+            if game.is_occupied() and not game.session_is_occupant(session):
                 flash('Another user is currently completing a round in this game.')
                 return redirect('/')
-        else:
-            game.occupy(current_user, session)
-            game.put()
 
-        if game.is_locked_out(current_user,session):
-            flash('You have to wait before you get to participate in this game again.')
-            return redirect('/')
+        game.occupy(current_user, session)
+        game.put()
 
         # Check if private
         if game.perms == game.PRIVATE:
@@ -77,21 +79,19 @@ class Game(MethodView):
 class Timeline(MethodView):
     def get(self, game_key):
         game = sketch_actions.get_game_by_key(game_key)
-        sketch_html = ' '.join(render_template('/timeline/sketch_item.html').split())
-        story_html = ' '.join(render_template('/timeline/story_item.html').split())
 
-        return render_template('/timeline/timeline.html',game = game, story_html = story_html, sketch_html = sketch_html)
+        return render_template('timeline.html', game=game)
 
     def post(self, game_key):
         load_form = json.loads(request.data)
         number = load_form.get('number')
         offset = load_form.get('offset')
-        from google.appengine.ext.db import Key
+
         rounds = sketch_actions.get_oldest_rounds_by_game_key(Key(game_key), number, offset)
 
         round_data = [{'data':r.get_data(), 'round_type':r.round_type, 'key':str(r.key())} for r in rounds]
 
-        return json.dumps({'rounds':round_data})
+        return json.dumps({'rounds': round_data})
 
 
 class CreationWizard(MethodView):
@@ -119,7 +119,7 @@ class CreationWizard(MethodView):
                 first_round_text=str(j_form.get('start_text', '')),
                 title=title,
                 perms=str(j_form.get('perms', 'public')),
-                num_of_rounds=int(j_form.get('num_of_rounds', 3)),
+                max_rounds=int(j_form.get('num_of_rounds', 3)),
                 created_by=created_by
             )
 

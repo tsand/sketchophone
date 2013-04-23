@@ -1,4 +1,6 @@
 from google.appengine.ext import db
+from datetime import datetime
+
 from auth.models import User
 
 
@@ -18,17 +20,17 @@ class Game(db.Model):
     PRIVATE = 'private'
     perms = db.StringProperty(choices=[PUBLIC, PRIVATE])
 
-    number_of_rounds = db.IntegerProperty()
+    max_rounds = db.IntegerProperty()
+    num_rounds = db.IntegerProperty()
 
     occupant_name = db.StringProperty()
     date_occupied = db.DateTimeProperty()
     occupied_session = db.StringProperty()
 
     def occupy(self, user, session):
-        import datetime
         self.occupant_name = user.display_name
         self.occupied_session = session
-        self.date_occupied = datetime.datetime.now()
+        self.date_occupied = datetime.now()
 
     def evict_occupancy(self):
         self.occupant_name = None
@@ -36,12 +38,12 @@ class Game(db.Model):
         self.occupied_session = None
         
     def is_occupied(self):
-        return self.occupied_session is not None
+        return bool(self.occupied_session)
 
-    def session_is_occupant(self,session):
+    def session_is_occupant(self, session):
         return self.occupied_session == session
 
-    locked_length = 3
+    locked_length = 2
     locked_users = db.StringProperty(default=':'.join([''for x in xrange(locked_length)]))
 
     def is_locked_out(self, user, session):

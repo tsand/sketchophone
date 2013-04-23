@@ -7,6 +7,15 @@
             padding-right: 20px;
         }
 
+        {# Hide Created Column on Mobile #}
+        @media (max-width: 480px) {
+            .col-created {display: none;}
+        }
+
+        div.accordion-inner {
+            overflow-x: scroll;
+        }
+
     </style>
 {% endblock %}
 
@@ -103,7 +112,7 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Last Played</th>
-                                <th>Created</th>
+                                <th class="col-created">Created</th>
                                 <th>Player Participating</th>
                                 <th>Actions</th>
                             </tr>
@@ -115,7 +124,7 @@
                                     <tr>
                                         <td>{{ game.title }}</td>
                                         <td>{{ game.pretty_updated }}</td>
-                                        <td>{{ game.pretty_created }}</td>
+                                        <td class="col-created">{{ game.pretty_created }}</td>
                                         <td>{{ game.occupant_name }}</td>
                                         <td>
                                             <div class="btn-group">
