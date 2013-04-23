@@ -1,4 +1,4 @@
-import json
+import json,logging
 
 from base import mail
 from base import actions as base_actions
@@ -79,8 +79,8 @@ class Game(MethodView):
 class Timeline(MethodView):
     def get(self, game_key):
         game = sketch_actions.get_game_by_key(game_key)
-
-        return render_template('timeline.html', game=game)
+        is_admin = 'true' if current_user.administrator else 'false'
+        return render_template('timeline.html', game=game, is_admin=is_admin)
 
     def post(self, game_key):
         load_form = json.loads(request.data)
@@ -89,7 +89,11 @@ class Timeline(MethodView):
 
         rounds = sketch_actions.get_oldest_rounds_by_game_key(Key(game_key), number, offset)
 
-        round_data = [{'data':r.get_data(), 'round_type':r.round_type, 'key':str(r.key())} for r in rounds]
+        round_data = [{'data':r.get_data(), 
+                       'round_type':r.round_type, 
+                       'key':str(r.key()),
+                       'is_banned':r.is_banned,
+                       'is_flagged':r.is_flagged} for r in rounds]
 
         return json.dumps({'rounds': round_data})
 
@@ -178,4 +182,31 @@ class SearchGamesView(MethodView):
 
         return render_template('search_game.html',
                                public_games=public_games)
+
+class ExamineView(MethodView):
+    def get(self, round_key):
+        round_to_view = sketch_actions.get_round_by_key(round_key)
+        return render_template('examine.html',round_to_view = round_to_view)
+
+class FlagView(MethodView):
+    def post(self):
+        payload = json.loads(request.data)
+        round_key = payload.get('round_key')
+        state = payload.get('state', True)
+        result = sketch_actions.flag_round_by_key(round_key, state)
+
+        return json.dumps({'success': result})
+
+class BanView(MethodView):
+    def post(self):
+        if not current_user.administrator:
+            return json.dumps({'success': False})
+
+        payload = json.loads(request.data)
+        round_key = payload.get('round_key')
+        state = payload.get('state', False)
+        result = sketch_actions.ban_round_by_key(round_key, state)
+
+        return json.dumps({'success': result})
+
 
