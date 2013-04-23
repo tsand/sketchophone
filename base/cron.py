@@ -5,7 +5,7 @@ from sketch import actions as sketch_actions
 
 
 def clean_users():
-    deferred.defer(scripts.delete_expired_users())
+    deferred.defer(scripts.delete_expired_users)
 
 
 def evict_lazy_people():

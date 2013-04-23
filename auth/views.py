@@ -5,7 +5,6 @@ from flask.views import View, MethodView
 from flask.templating import render_template
 
 from resources.flask_login import login_user, current_user, logout_user, login_required
-from resources import pretty
 
 from auth import facebook
 from auth import models as auth_models
@@ -213,38 +212,31 @@ class User(View):
     @login_required
     def dispatch_request(self):
         games = current_user.get_games()
+        notifications = current_user.get_notifications()
 
         for game in games:
-            last_updated = sketch_actions.get_latest_round(game.key()).created
-
-            game.last_updated = last_updated
-            game.pretty_created = pretty.date(game.created)
-            game.pretty_updated = pretty.date(last_updated)
+            game.last_updated = sketch_actions.get_latest_round(game.key()).created
 
         flags = None
         if current_user.administrator:
             flags = sketch_actions.get_flagged_rounds()
 
-        return render_template(
-            'auth/user.html',
-            user=current_user,
-            games=sorted(games,
-                         key=lambda game: game.last_updated,
-                         reverse=True),
-            flags=flags,
-            notifications=current_user.get_notifications(pretty_dates=True)
-        )
-
+        return render_template('auth/user.html',
+                               games=games,
+                               notifications=notifications,
+                               flags=flags)
+    
 
 class HandleUserQuery(MethodView):
 
     def get(self):
-        query = request.args.get('query','')
+        query = request.args.get('query', '')
         users = auth_actions.guess_users_by_username(query)
 
-        key_dict = {user.username: str(user.key()) for user in users}
-        usernames = [user.username for user in users]
-        return json.dumps({"key_by_username": key_dict, "usernames": usernames})
+        users = [{'username': user.username, 'key': str(user.key())} for user in users]
+        return json.dumps({
+            'users': filter(lambda user: user["username"] != current_user.username, users)
+        })
 
 
 class FacebookLogin(View):
@@ -275,6 +267,7 @@ class FacebookAuthorize(View):
                 flash('Facebook user already has account')
 
             else:
+                current_user.username = me.data['username']
                 current_user.name = me.data['name']
                 current_user.facebook_id = me.data['id']
                 current_user.put()
@@ -295,9 +288,10 @@ class FacebookAuthorize(View):
                 # Create new user
                 else:
                     user = auth_models.User(name=me.data['name'],
-                        facebook_id=me.data['id'],
-                        email=me.data['email'],
-                        registered=True)
+                                            username=me.data['username'],
+                                            facebook_id=me.data['id'],
+                                            email=me.data['email'],
+                                            registered=True)
                     user.put()
 
             login_user(user, True)
