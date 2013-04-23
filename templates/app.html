@@ -24,8 +24,8 @@
             box-shadow: 2px 2px 2px #888;
         }
 
-        .btn {
-            margin: 30px auto;
+        p {
+            margin: 20px auto;
         }
     </style>
 
@@ -34,7 +34,7 @@
 {% block content %}
 
 
-    <div id="app-page-container" class="span8 offset2">
+    <div id="app-page-container" class="span8 offset2 hide">
         <h2>Get the App</h2>
         <div class="row-fluid">
             <div id="apple" class="span6 well">
@@ -77,11 +77,17 @@
 
         $(document).ready(function () {
             if(isAndroidDevice()) {
-                $('#app-page-container').html('<h1>Android</h1><a class="btn btn-large btn-primary btn-block" href="{{ url_for('static', filename="files/Sketchophone.apk") }}">Download Android App</a>');
+                $('#app-page-container').html('<h1>Android</h1>' +
+                        '<p class="lead">Click the button below to download and install the application</p>' +
+                        '<a class="btn btn-large btn-primary btn-block" href="{{ url_for('static', filename="files/Sketchophone.apk") }}">Download Android App</a>');
             } else if (isAppleDevice()) {
-                $('#app-page-container').html('<h1>Apple</h1><p class="lead">Click <a href="{{ url_for('home', show_popup='true') }}">here</a> and follow the instructions in the popup</p>');
+                $('#app-page-container').html('<h1>iOS</h1>' +
+                        '<p class="lead">Click the button below and follow the instructions in the popup to install applications</p>' +
+                        '<a class="btn btn-large btn-primary btn-block" href="{{ url_for('home', show_popup='true') }}">Help Me Install iOS App</a>');
             }
-        })
+            
+            $('#app-page-container').removeClass('hide');
+        });
 
     </script>
 
