@@ -119,6 +119,24 @@
             color: rgba(47, 168, 231, 1);
         }
 
+        {# Page Load #}
+        #page-load {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            width: 300px;
+            text-align: center;
+        }
+
+        #page-load .progress, #page-load h1 {
+            width: 100%;
+            margin: 0 -150px;
+        }
+
+        #page-load h1 {
+            margin-bottom: 20px;
+        }
+
         @media (max-width: 767px) {
             ul.toolbar {
                 -webkit-transform: scale(0.8);
@@ -206,7 +224,14 @@
 
 {% block content %}
 
-    <div class="canvas-container">
+    <div id="page-load">
+        <h1>Sketchophone</h1>
+        <div class="progress progress-striped active">
+            <div class="bar"></div>
+        </div>
+    </div>
+
+    <div id="canvas-container" class="canvas-container hide">
         <a href="{{ url_for('home') }}"><p class="brand-name lead">Sketchophone</p></a>
         <canvas id="sketch">Your browser does not support HTML5 Canvas.</canvas>
         <div class="story-container well">
@@ -278,6 +303,25 @@
     <script src="{{ url_for('static', filename="js/responsive-sketchpad.js")}}"></script>
 
     <script>
+        $(document).ready(function() {
+
+            var $bar = $('.bar');
+            var $progress = $bar.parent();
+            var progress = setInterval(function() {
+                if ($bar.width() >= $progress.width()) {
+                    clearInterval(this);
+                    $('#page-load').css('display', 'none');
+                    $('#canvas-container').removeClass('hide');
+                } else {
+                    $bar.width($progress.width());
+                }
+            }, 400);
+
+        });
+    </script>
+
+    <script>
+
         // Initialize Sketchpad
         var sketchpad = $("#sketch").sketchpad({aspectRatio: 2});
 
