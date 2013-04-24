@@ -13,17 +13,28 @@ handlers:
   static_files: \1.\2
   upload: (.*)\.(ico|png|jpg)
 
+- url: /google24b84bd282bc9c5c.html
+  static_files: static/html/google24b84bd282bc9c5c.html
+  upload: static/html/google24b84bd282bc9c5c.html
+  secure: optional
+
 - url: /static
   static_dir: static
   secure: always
+
+- url: /cron/.*
+  script: main.app
+  login: admin
 
 - url: .*
   script: main.py
   secure: always
 
-- url: /cron/.*
-  script: main.py
-  login: admin
+skip_files:
+- ^(.*/)?.*\.py[co]
+- ^(.*/)?.*\.DS_Store
+- static/less
+- apps
 
 inbound_services:
 - warmup

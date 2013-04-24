@@ -1,4 +1,4 @@
-{% extends "themes/base.html" %}
+{% extends "themes/navbar.html" %}
 
 {% block style %}
 
@@ -17,7 +17,7 @@
 
 {% block content %}
 
-        <table class="table table-bordered table-striped" id="search_table">
+        <table class="table table-bordered table-hover table-striped" id="search_table">
             <thead>
             <tr>
                 <th class="col-name">Name</th>
@@ -31,15 +31,16 @@
             {% for game in public_games %}
                 <tr>
                     <td class="col-name">{{ game.title }}</td>
-                    <td class="col-created">{{ game.get_date_formatted() }}</td>
+                    <td class="col-created">{{ game.created | pretty_date }}</td>
                     <td class="col-status">{{ game.status }}</td>
                     <td class="col-actions">
                         <div class="btn-group">
                             {% if game.is_over() %}
-                            <a href="/game/timeline/{{ game.key() }}" class="btn" role="button" data-toggle="modal">View</a>
+                            <a href="/game/timeline/{{ game.key() }}" class="btn btn-primary" role="button" data-toggle="modal">View</a>
                             {% else %}
                             <a href="/game/{{ game.key() }}" class="btn" role="button" data-toggle="modal">Join</a>
                             {% endif %}
+
                         </div>
                     </td>
                 </tr>

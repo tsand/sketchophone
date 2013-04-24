@@ -1,4 +1,4 @@
-{% extends "themes/base.html" %}
+{% extends "themes/navbar.html" %}
 
 {% block style %}
 
@@ -41,16 +41,27 @@
 {% block content %}
 
     <div class="span8 offset2">
-        <h1>{{game.title}}</h1>
-        <div class="muted">
-            <p>Created by {{game.created_by.display_name}}.</p>
-            <p>{{game.get_date_formatted()}}</p>
-            <p>{{game.num_rounds}} Rounds</p>
+        <div id="game_info">
+            <div class="span5 muted">
+                <h1>{{game.title}} <a class="btn btn-primary" href="/game/sketch/{{ game.key() }}">Play</a></h1>
+                <p>This game was created <strong>{{game.created|pretty_date}}</strong> by <strong>{{game.created_by.display_name}}</strong>.
+                    There have been <strong>{{game.num_rounds}}</strong> out of <strong>{{ game.max_rounds }}</strong> rounds played.
+                    {% if game.is_occupied() %}
+                        The user <strong>{{ game.occupant_name }}</strong> is currently creating a drawing.
+                    {% else %}
+                        No one is currently participating in the game.
+                    {% endif %}
+                    <br>
+                    The following timeline shows all of the sketches and stories and how the phrase changed over time.
+                </p>
+            </div>
         </div>
 
-        <div id="timeline">
-            <div class="item">
-                <h2 class="text-success">Start</h2>
+        <div class="row-fluid">
+            <div class="span12" id="timeline">
+                <div class="item">
+                    <h2 class="text-success">Start</h2>
+                </div>
             </div>
         </div>
     </div>
@@ -76,6 +87,7 @@
             window.alert("Here is the key of the round to star --->" + $(this).val());
             $(this).css( "color", "#E9AB17" );
         };
+
         var banRoundFunction = function(){
             $.ajax({
                 type: "POST",
@@ -85,7 +97,7 @@
                     state: true
                 }),
                 contentType: 'application/json',
-                dataType: 'json',
+                dataType: 'json'
             });
         };
 
@@ -98,7 +110,7 @@
                     state: true
                 }),
                 contentType: 'application/json',
-                dataType: 'json',
+                dataType: 'json'
             });
             $(this).addClass("btn-danger");
         };
@@ -118,8 +130,7 @@
                                 '<button class="btn icon-star star-round" value="{{round_key}}" style="text-decoration: none;"></button>'+
                                 '{{{admin_options}}}'+
                             '</div>';
-        var admin_options_html = '<button class="btn icon-remove ban-round" value="{{round_key}}" style="text-decoration: none;"></button>'
-        var banned_html = '<h3>This round has been banned...</h3>';
+        var admin_options_html = '<button class="btn icon-remove ban-round" value="{{round_key}}" style="text-decoration: none;"></button>';
         {% endraw %}
 
         function renderTimeline(data) {
@@ -127,25 +138,23 @@
                 timeline.append('<i class="icon-caret-down icon-4x"></i>');
 
                 var flag_attribute = round['is_flagged'] ? 'btn-danger':'';
-                var renderd_admin_options = is_admin ? Mustache.render(admin_options_html,
-                                                                      {round_key:round['key']}):'';
-                var round_html = '<div id="div-'+round['key']+'"" class="well item">';
+                var rendered_admin_options = is_admin ? Mustache.render(admin_options_html, {round_key:round['key']}) : '';
+                var round_html = '<div id="div-' + round['key'] + '" class="well item">';
                 var rendered_options = Mustache.render(options_html, {round_key:round['key'],
                                                                       flag:flag_attribute,
-                                                                      admin_options:renderd_admin_options});
-                if (is_anon)
-                    rendered_options = "";
+                                                                      admin_options:rendered_admin_options});
 
-                if (round['is_banned']) {
-                    round_html +=Mustache.render(banned_html,{});
 
-                } else if (round['round_type'] == 'story') {
-                    round_html += Mustache.render(story_html, {story: round['data'],
-                                                               options: rendered_options});
-
+                if (round['round_type'] == 'story') {
+                    if (round['is_banned']) {
+                        round['data'] = 'This round has been banned';
+                    }
+                    round_html += Mustache.render(story_html, {story: round['data'], options: rendered_options});
                 } else {
-                    round_html += Mustache.render(sketch_html, {sketch_id: round['key'],
-                                                               options: rendered_options});
+                    if (round['is_banned']) {
+                        round['data'] = JSON.parse('{"aspectRatio":2,"strokes":[{"stroke":[{"x":0,"y":0},{"x":1,"y":1}],"color":"black","size":0.01,"cap":"round","join":"round","miterLimit":10},{"stroke":[{"x":0,"y":1},{"x":1,"y":0}],"color":"black","size":0.01,"cap":"round","join":"round","miterLimit":10}]}');
+                    }
+                    round_html += Mustache.render(sketch_html, {sketch_id: round['key'], options: rendered_options});
                 }
                 round_html += '</div>';
                 timeline.append(round_html);
@@ -158,15 +167,23 @@
                     });
                 }
 
-                $('.flag-round').click(flagRoundFunction);
-                $('.ban-round').click(banRoundFunction);
-                $('.star-round').click(starRoundFunction);
+
+
                 number_loaded++;
                 if (number_loaded >= {{ game.num_rounds }}) {
+                    done_loading = true;
                     timeline.append('<i class="icon-caret-down icon-4x"></i>');
-                    timeline.append('<h2 class="text-error">The End</h2>')
+                    timeline.append('<h2 class="text-error">End</h2>')
                 }
             });
+            $('.flag-round:not(.processed)').click(flagRoundFunction);
+            $('.flag-round:not(.processed)').addClass('processed');
+
+            $('.ban-round:not(.processed)').click(banRoundFunction);
+            $('.ban-round:not(.processed)').addClass('processed');
+
+            $('.star-round:not(.processed)').click(starRoundFunction);
+            $('.star-round:not(.processed)').addClass('processed');
         }
 
         function loadTimeline(number, offset) {
