@@ -1,4 +1,4 @@
-{% extends "themes/base.html" %}
+{% extends "themes/navbar.html" %}
 
 {% block style %}
     <style>
@@ -7,14 +7,30 @@
             padding-right: 20px;
         }
 
+
+
         {# Hide Created Column on Mobile #}
-        @media (max-width: 480px) {
+        @media (max-width: 640px) {
             .col-created {display: none;}
+            .col-createdby {display: none;}
+        }
+        @media (max-width: 480px) {
+            .col-lastplayed{display: none;}
+            .col-rounds {display: none;}
+            .col-currentplayer {display: none;}
         }
 
-        div.accordion-inner {
-            overflow-x: scroll;
+
+        .table-container {
+            margin-top: 3px;
+            width: 100%;
         }
+
+
+        .accordion-body.in:hover {
+            overflow:visible;
+        }
+
 
     </style>
 {% endblock %}
@@ -23,12 +39,13 @@
 
     <div class="span10 offset1">
         <h2>
-            {% if user.is_facebook_user() %}
-                <img src="https://graph.facebook.com/{{ user.facebook_id }}/picture?width=100&height=100" width="100" height="100">
+            {% if current_user.is_facebook_user() %}
+                <img src="https://graph.facebook.com/{{ current_user.facebook_id }}/picture?width=100&height=100" width="100" height="100">
+                {{ current_user.display_name }} <span class="muted" style="font-size: 20px">({{ current_user.username }})</span>
             {% else %}
                 <img src="{{ url_for('static', filename="img/blank-facebook.jpg") }}" width="100" height="100">
+                {{ current_user.display_name }}
             {% endif %}
-            {{ user.display_name }}
         </h2>
 
         <hr>
@@ -43,22 +60,30 @@
                 </div>
                 <div id="info" class="accordion-body collapse">
                     <div class="accordion-inner">
-                        <table class="table table-bordered table-hover table-striped">
-                            <tbody>
-                            <tr>
-                                <td>Name</td>
-                                <td>{{ user.display_name }}</td>
-                            </tr>
-                            <tr>
-                                <td>Email</td>
-                                <td>{{ user.email }}</td>
-                            </tr>
-                            <tr>
-                                <td>Games</td>
-                                <td>{{ user.get_game_count() }}</td>
-                            </tr>
-                            </tbody>
-                        </table>
+                        <div class="table-container">
+                            <table class="table table-hover">
+                                <tbody>
+                                <tr>
+                                    <td>Email</td>
+                                    <td>{{ current_user.email }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Games</td>
+                                    <td>{{ current_user.get_game_count() }}</td>
+                                </tr>
+                                {% if current_user.administrator %}
+                                    <tr>
+                                        <td>Administrator</td>
+                                        <td>{{ current_user.administrator }}</td>
+                                    </tr>
+                                {% endif %}
+                                <tr>
+                                    <td>Member Since</td>
+                                    <td>{{ current_user.created|pretty_date }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -71,30 +96,33 @@
                 </div>
                 <div id="notifications" class="accordion-body collapse">
                     <div class="accordion-inner">
-                        <table class="table table-hover table-striped table-bordered" id="notifications-table">
-                            <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Description</th>
-                                <th>Sent</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% if notifications %}
-                                {% for notification in notifications %}
-                                    <tr href="{{ notification.link }}" {% if not notification.read %} class="info" {% endif %} style="cursor: pointer">
-                                        <td>{{ notification.title }}</td>
-                                        <td>{{ notification.description | safe}}</td>
-                                        <td>{{ notification.pretty_date }}</td>
-                                    </tr>
-                                {% endfor %}
-                            {% else %}
+                        <div class="table-container">
+                            <table class="table table-hover" id="notifications-table">
+                                <thead>
                                 <tr>
-                                    <td colspan="3" style="text-align: center;"><strong>No Notifications!</strong></td>
+                                    <th>Title</th>
+                                    <th>Description</th>
+                                    <th>Sent</th>
                                 </tr>
-                            {% endif %}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                {% if notifications %}
+                                    {% for notification in notifications|sort(attribute='sent')|reverse %}
+                                        <tr href="{{ notification.link }}" {% if not notification.read %} class="info" {% endif %} style="cursor: pointer">
+                                            <td>{{ notification.title }}</td>
+                                            <td>{{ notification.description|safe}}</td>
+                                            <td>{{ notification.sent|pretty_date }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="3" style="text-align: center;"><strong>No Notifications!</strong></td>
+                                    </tr>
+                                {% endif %}
+                                </tbody>
+                            </table>
+
+                        </div>
                     </div>
                 </div>
             </div>
@@ -107,62 +135,78 @@
                 </div>
                 <div id="games" class="accordion-body collapse">
                     <div class="accordion-inner">
-                        <table class="table table-bordered table-striped table-hover">
-                            <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Last Played</th>
-                                <th class="col-created">Created</th>
-                                <th>Player Participating</th>
-                                <th>Actions</th>
-                            </tr>
-                            </thead>
+                        <div class="table-container">
 
-                            <tbody>
-                            {% if games %}
-                                {% for game in games %}
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th class="col-name">Name</th>
+                                    <th class="col-rounds">Rounds</th>
+                                    <th class="col-lastplayed">Last Played</th>
+                                    <th class="col-created">Created</th>
+                                    <th class="col-createdby">Created By</th>
+                                    <th class="col-currentplayer">Current Player</th>
+                                    <th class="col-actions">Actions</th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                {% if games %}
+                                    {% for game in games|sort(attribute='last_updated')|reverse %}
+                                        <tr>
+                                            <td class="col-name">{{ game.title }}</td>
+                                            <td class="col-rounds">{{ game.num_rounds }} / {{ game.max_rounds }}</td>
+                                            <td class="col-lastplayed">{{ game.last_updated|pretty_date }}</td>
+                                            <td class="col-created">{{ game.created|pretty_date }}</td>
+                                            <td class="col-createdby">{{ game.created_by.display_name }}</td>
+                                            <td class="col-currentplayer">{% if game.is_occupied() %}{{ game.occupant_name }}{% endif %}</td>
+                                            <td class="col-actions">
+                                                <div class="btn-group">
+                                                    <a href="/game/{{ game.key() }}" class="btn btn-primary"><i class="icon-pencil"></i> Play</a>
+                                                    <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a href="/game/timeline/{{ game.key() }}"><i class="icon-list-alt"></i> View Timeline</a></li>
+                                                        {% if current_user.key() == game.created_by.key() or current_user.administrator %}
+                                                            <li><a href="/game/edit/{{ game.key() }}"><i class="icon-edit"></i> Edit Game</a></li>
+                                                        {% endif %}
+                                                        {% if (current_user.key() == game.created_by.key() or current_user.administrator) and game.is_occupied() %}
+                                                            <li><a href="/game/evict/{{ game.key() }}"><i class="icon-unlock"></i> Evict {{ game.occupant_name }}</a></li>
+                                                        {% endif %}
+                                                        {% if not game.is_over() %}
+                                                        <li><a id="end_game_button" value="{{game.key()}}"><i class="icon-fast-forward"></i> End Game</a></li>
+                                                        {% endif %}
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
                                     <tr>
-                                        <td>{{ game.title }}</td>
-                                        <td>{{ game.pretty_updated }}</td>
-                                        <td class="col-created">{{ game.pretty_created }}</td>
-                                        <td>{{ game.occupant_name }}</td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <a href="/game/{{ game.key() }}" class="btn"><i class="icon-pencil"></i> Play</a>
-                                                <a href="/game/timeline/{{ game.key() }}" class="btn"><i class="icon-list-alt"></i> View Timeline</a>
-                                                <a id="evict_button" value="{{game.key()}}" class="btn"><i class="icon-unlock"></i> Evict User</a>
-                                                {% if game.is_over() %}}
-                                                <a id="end_game_button" value="{{game.key()}}" class="btn"><i class="icon-fast-forward"></i> End Game</a>
-                                                {% endif %}
-                                            </div>
+                                        <td colspan="7" style="text-align: center;">
+                                            <strong><a href="{{ url_for('wizard') }}">Create</a> or <a href="{{ url_for('search') }}">Join</a> a Game!</strong>
+
                                         </td>
                                     </tr>
-                                {% endfor %}
-                            {% else %}
-                                <tr>
-                                    <td colspan="4" style="text-align: center;">
-                                        <strong><a href="{{ url_for('wizard') }}">Create</a> or <a href="{{ url_for('search') }}">Join</a> a Game!</strong>
-                                    </td>
-                                </tr>
-                            {% endif %}
-                            </tbody>
-                        </table>
+                                {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
 
-        {% if user.administrator %}
+        {% if current_user.administrator %}
             <div class="accordion-group">
                 <div class="accordion-heading">
                     <a class="accordion-toggle" data-toggle="collapse" data-parent="#user-accordion" href="#admin">
-                        <i class="icon-fighter-jet"></i><span class="divide"></span>Admin Junk
+                        <i class="icon-fighter-jet"></i><span class="divide"></span>Admin <span class="muted pull-right">Remember, with great power comes great responsibility...</span>
                     </a>
                 </div>
                 <div id="admin" class="accordion-body collapse">
                     <div class="accordion-inner">
-                        Rember with great power comes great responsibility...
-
-                        <table class="table table-bordered table-striped table-hover">
+                        <table class="table table-hover">
                             <thead>
                             <tr>
                                 <th>Type</th>
@@ -181,8 +225,6 @@
                                         <td>
                                             <div class="btn-group">
                                                 <a href="/game/examine/{{ flag.key() }}" class="btn" href="">Inspect</a>
-                                                <button class="btn ban-round" value="{{ flag.key() }}">Ban</button>
-                                                <button class="btn unflag-round" value="{{ flag.key() }}">Dismiss</button>
                                             </div>
                                         </td>
                                     </tr>
@@ -205,7 +247,7 @@
 
         <div class="pull-right">
             <br>
-            {% if user.is_base_user() %}
+            {% if current_user.is_base_user() %}
 
                 <a class="btn btn-primary" href="{{ url_for('password') }}">
                     Change Password
@@ -213,7 +255,7 @@
 
             {% endif %}
 
-            {% if user.is_facebook_user() %}
+            {% if current_user.is_facebook_user() %}
 
                 <a class="btn btn-primary" href="{{ url_for('facebook_deauth') }}">
                     <i class="icon-facebook-sign icon-large"></i> Disconnect
@@ -235,47 +277,15 @@
 
     <script type="text/javascript">
 
-        var hash = window.location.hash;
-        $('a[href^="' + hash + '"]').click();
-
-        {# Make Row clickable #}
-        $('#notifications-table tr').click(function(){
-            window.location = $(this).attr('href');
-            return false;
-        });
-
-        {# Set active tab (Ex: 'url'#games) #}
-        $(function () {
-            var activeTab = $('[href=' + location.hash + ']');
-            activeTab && activeTab.tab('show');
-        });
-
         {# Mark notifications as read #}
-        $('#notifications').on('shown', function (e) {
-            var active_tab = e.target
-            if (active_tab.id == 'notifications') {
-                $.get('/auth/notifications')
-            }
-        })
-        var showWarniing = function(message) {
-            $('#alert_placeholder').html('<div class="alert alert-success"><a class="close" data-dismiss="alert">×</a><span>'+message+'</span></div>');
-
-            $(".alert").delay(3000).fadeOut("slow", function () { $(this).remove(); });
+        function readNotifications() {
+            $.get("{{ url_for('notifications') }}")
         }
-        $('#evict_button').click(function(){
-            var game_key = $(this).attr("value");
-            $.ajax({
-                type: "POST",
-                url: "/game/sketch/"+game_key,
-                data: JSON.stringify({
-                    evict_user:true
-                }),
-                contentType: 'application/json',
-                dataType: 'json',
-            });
 
-            showWarniing('Game has been cleared!');
-        });
+        $(document).ready(function() {
+            $('#notifications').bind('shown', readNotifications());
+            $('a[href="#notifications"]').bind('click', readNotifications());
+
 
         $('#end_game_button').click(function(){
             var game_key = $(this).attr("value");
@@ -290,35 +300,18 @@
             });
 
             showWarniing('Game has ended!');
-            $(this).remove();
         });
 
-        $(".ban-round").click(function(){
-            $.ajax({
-                type: "POST",
-                url: "{{ url_for('ban_round') }}",
-                data: JSON.stringify({
-                    round_key: $(this).val(),
-                    state: true
-                }),
-                contentType: 'application/json',
-                dataType: 'json',
-            });
-            $('#'+$(this).val()).remove();
-        });
 
-        $(".unflag-round").click(function(){
-            $.ajax({
-                type: "POST",
-                url: "{{ url_for('flag_round') }}",
-                data: JSON.stringify({
-                    round_key: $(this).val(),
-                    state: false
-                }),
-                contentType: 'application/json',
-                dataType: 'json',
+            {# Auto open collapse #}
+            var hash = window.location.hash;
+            $('a[href^="' + hash + '"]').click();
+
+            {# Make Row clickable #}
+            $('#notifications-table tr').click(function(){
+                window.location = $(this).attr('href');
+                return false;
             });
-            $('#'+$(this).val()).remove();
         });
 
     </script>
