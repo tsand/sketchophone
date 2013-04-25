@@ -155,7 +155,10 @@ class CreationWizard(MethodView):
 class EditGame(MethodView):
     def get(self, game_key):
         game = sketch_actions.get_game_by_key(game_key)
-        if current_user.key() == game.created_by.key() or current_user.administrator:
+        if game.is_over():
+            flash('A game cannot be changed once it has ended')
+            return redirect(url_for('user') + '#games')
+        elif current_user.key() == game.created_by.key() or current_user.administrator:
             form = sketch_forms.EditGameForm()
             return render_template('edit_game.html', form=form, game=game)
         else:
@@ -168,7 +171,10 @@ class EditGame(MethodView):
         else:
             return abort(404)
 
-        if current_user.key() == game.created_by.key() or current_user.administrator:
+        if game.is_over():
+            flash('A game cannot be changed once it has ended')
+            return redirect(url_for('user') + '#games')
+        elif current_user.key() == game.created_by.key() or current_user.administrator:
             form = sketch_forms.EditGameForm()
 
             if form.validate_on_submit():
