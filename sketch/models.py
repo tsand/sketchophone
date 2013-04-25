@@ -8,12 +8,6 @@ class Game(db.Model):
     title = db.StringProperty()
 
     created = db.DateTimeProperty(auto_now_add=True)
-
-    def get_date_formatted(self):
-        if self.created:
-            return self.created.strftime("%m/%d/%y %I:%M %p")
-        return ''
-
     created_by = db.ReferenceProperty(User)
 
     PUBLIC = 'public'
@@ -31,17 +25,19 @@ class Game(db.Model):
         self.occupant_name = user.display_name
         self.occupied_session = session
         self.date_occupied = datetime.now()
-
-    def evict_occupancy(self):
-        self.occupant_name = None
-        self.date_occupied = None
-        self.occupied_session = None
         
     def is_occupied(self):
         return bool(self.occupied_session)
 
     def session_is_occupant(self, session):
         return self.occupied_session == session
+
+    def evict_occupancy(self):
+        if self.is_occupied():
+            self.occupant_name = None
+            self.date_occupied = None
+            self.occupied_session = None
+            self.put()
 
     locked_length = 2
     locked_users = db.StringProperty(default=':'.join([''for x in xrange(locked_length)]))

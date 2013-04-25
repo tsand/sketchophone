@@ -1,4 +1,4 @@
-{% extends "themes/base.html" %}
+{% extends "themes/navbar.html" %}
 
 {% block style %}
     <link href="{{ url_for('static', filename="css/bootstrap-tagmanager.css") }}" rel="stylesheet">
@@ -20,17 +20,18 @@
 {% block content %}
     <div class="span8 offset2" id="wizard_page">
 
-        <div class="page-header" style='border-bottom: none;' >
+        <div class="page-header" style='border-bottom: none;'>
             <h2>Create A Game</h2>
         </div>
 
         <div style="margin-bottom: 20px;">
             <button class="btn btn btn-large disabled i" id="prev"><i class="icon-arrow-left"></i> Previous</button>
-            <button class="btn btn-primary btn-large pull-right "  id="next">Next <i class="icon-arrow-right"></i></button>
+            <button class="btn btn-primary btn-large pull-right " id="next">Next <i class="icon-arrow-right"></i>
+            </button>
         </div>
 
         <form class="form-horizontal well" id="wizard_form" style="height: 305px">
-            <div id="wizard_carousel" class="carousel slide" >
+            <div id="wizard_carousel" class="carousel slide">
                 <div class="carousel-inner">
 
                     <div class="item active" id="game_settings">
@@ -41,23 +42,30 @@
                         <div>
                             <div class="control-group">
                                 <label class="control-label">Game Title</label>
+
                                 <div class="controls">
-                                    <input type="text" name="name" />
+                                    <input type="text" name="name"/>
                                 </div>
                             </div>
 
-                            <div class="control-group" >
+                            <div class="control-group">
                                 <label class="control-label">Type</label>
+
                                 <div class="controls">
                                     <div class="btn-group" data-toggle="buttons-radio">
-                                        <button type="button" name="perms" value="public" class="btn active"><i class="icon-group"></i> Public</button>
-                                        <button type="button" name="perms" value="private" class="btn"><i class="icon-lock"></i> Private</button>
+                                        <button type="button" name="perms" value="public" class="btn active"><i
+                                                class="icon-group"></i> Public
+                                        </button>
+                                        <button type="button" name="perms" value="private" class="btn"><i
+                                                class="icon-lock"></i> Private
+                                        </button>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="control-group">
                                 <label class="control-label">Number of Rounds</label>
+
                                 <div class="controls">
                                     <input class="span2" type="number" name="num_of_rounds" min="3" value="50"/>
                                 </div>
@@ -68,19 +76,32 @@
                     <div class="item" id="invite_friends">
                         <div class="item-header">
                             <h3 style="padding-bottom: 0">Invite Friends</h3>
-                            <h3 style="margin-top: 0"><small>Facebook Support Coming Soon!</small></h3>
+
+                            <h3 style="margin-top: 0">
+                                <small>Facebook Support Coming Soon!</small>
+                            </h3>
                         </div>
 
                         <div class="control-group">
                             <label class="control-label">Friends to Invite</label>
+
                             <div class="controls">
-                                <input type="text" name="tags" placeholder="Type username here" class="tagManager"/>
+                                <input id="input_invite_friends" type="text" data-provide="typeahead">
                             </div>
                         </div>
 
                         <div class="control-group">
                             <label class="control-label">Friend List</label>
-                            <div class="controls" id='tagsContainer'>
+
+                            <div class="controls">
+                                <table id="friend_table">
+                                    <thead>
+                                    <tr>
+                                        <th>Friends</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -88,11 +109,13 @@
                     <div class="item">
                         <div class="item-header">
                             <h1>Let's Get Things Started!</h1>
+
                             <h3 class="muted">Start the game with a phrase.</h3>
                         </div>
 
                         <div style="text-align: center">
-                            <input class="span8" style="margin-top: 20px;" type="text" name="start_text" placeholder="Enter your phrase here..."/>
+                            <input class="span8" style="margin-top: 20px;" type="text" name="start_text"
+                                   placeholder="Enter your phrase here..."/>
                         </div>
                     </div>
                 </div>
@@ -104,9 +127,42 @@
 
 {% block js_include %}
 
-    <script src="{{ url_for('static', filename="js/bootstrap-tagmanager.js") }}"></script>
-
     <script>
+        var friends = {};
+
+        var users = [];
+        $("#input_invite_friends").typeahead({
+            minLength: 1,
+            items: 4,
+            updater: function(username) {
+                var key = users[username];
+                friends[username] = key;
+                updateList();
+            },
+            source: function (query, process) {
+                return $.getJSON('{{ url_for('user_query') }}', {'query': query}, function (response) {
+                    users = [];
+                    var usernames = [];
+                    $.each(response['users'], function(index, user) {
+                        var username = user['username'];
+                        if (!(username in friends)) {
+                            usernames.push(user['username']);
+                            users[user['username']] = user['key'];
+                        }
+                    });
+
+                    return process(usernames);
+                });
+            }
+        });
+
+        function updateList() {
+            $('#friend_table').find('tbody').html('');
+            $.each(friends, function(user, key) {
+                $('#friend_table > tbody:last').append('<tr><td>' + user + '</td></tr>');
+            });
+        }
+
         //************
         // init code 
         //************
@@ -121,7 +177,7 @@
 
         // ennsure that when a table is clicked
         // we update the radio button inside it
-        $wizard_from.find("tr").click(function(){
+        $wizard_from.find("tr").click(function () {
             $("input", this).prop('checked', true);
         });
 
@@ -130,11 +186,10 @@
         // This function appends to jquery giving us the
         // ability to serialize froms into json!
         // http://css-tricks.com/snippets/jquery/serialize-form-to-json/
-        $.fn.serializeObject = function()
-        {
+        $.fn.serializeObject = function () {
             var o = {};
             var a = this.serializeArray();
-            $.each(a, function() {
+            $.each(a, function () {
                 if (o[this.name]) {
                     if (!o[this.name].push) {
                         o[this.name] = [o[this.name]];
@@ -147,141 +202,63 @@
             return o;
         };
 
-        //************
-
-
-
-        //************
-        // Tag Management (for adding friends)
-        //************
-        var found_usernames = [];
-        var keys_to_return = {};
-        var key_by_username = {};
-        var ajaxUserQuery = function(query, call_back){
-            if (query.length <= 3)
-            {
-                $.getJSON('{{ url_for('user_query') }}',{'query':query},function(response){
-
-                    key_by_username = response.key_by_username;
-                    found_usernames = response.usernames;
-
-                    call_back(found_usernames);
-                });
-            }
-            return found_usernames;
-        }
-
-        var validate = function(to_validate){
-            if (found_usernames.indexOf(to_validate) >= 0)
-            {
-                keys_to_return[to_validate] = key_by_username[to_validate];
-                return true;
-            }
-            return false;
-        }
-        var removed = function(to_remove){
-            delete keys_to_return[to_remove];
-        }
-
-        $(".tagManager").tagsManager({
-            typeahead: true,
-            typeaheadSource: ajaxUserQuery,
-            validator: validate,
-            tagRemovedAction: removed,
-            hiddenTagListName: 'friends',
-            tagsContainer: $("#tagsContainer")
-        });
-        //************
-
-
 
         //************
         // Carousel Management
         //************
         var step = 0;
         // disable carousel from moving automatically
-        $wizard_carousel.each(function(){
+        $wizard_carousel.each(function () {
             $(this).carousel({
                 interval: false
             });
         });
 
-        $wizard_carousel.bind('slide', function() {
-            if(step == 0)
-            {
+        $wizard_carousel.bind('slide', function () {
+            if (step == 0) {
                 $prev_button.addClass('disabled');
             }
-            else
-            {
+            else {
                 $prev_button.removeClass('disabled');
             }
 
-            if(step == 2)
-            {
+            if (step == 2) {
                 $next_button.html('Finish! <i class="icon-arrow-right">');
                 $next_button.addClass('btn-success');
             }
-            else
-            {
+            else {
                 $next_button.html('Next <i class="icon-arrow-right">');
                 $next_button.removeClass('btn-success');
             }
         });
-        //************
-
-
 
         //************
         // Buttons 
         //************
 
-        var waiting_server_reply = false;
-        $next_button.click(function() {
+        $next_button.click(function () {
 
-            if (step == 2)
-            {
-                if (!waiting_server_reply)
-                {
-                    waiting_server_reply = true;
-                    var submition = $wizard_from.serializeObject();
+            if (step == 2) {
+                var form = $wizard_from.serializeObject();
+                form['friends'] = friends;
 
-                    submition['guests'] = []
-                    $.each(keys_to_return, function(key, value) {
-                        submition['guests'].push(value);
-                    });
-
-                    $.ajax({
-                        url: '{{ url_for('wizard') }}',
-                        type: 'POST',
-                        contentType: 'application/json',
-                        data: JSON.stringify({'form':submition}),
-                        dataType: 'json'
-                    }).done(function(data){
-
-                                if (data.success)
-                                {
-                                    window.location.replace("{{url_for('home')}}");
-                                }
-                                else
-                                {
-                                    // we need to manage this error better
-                                    window.alert('We have a problem...');
-                                }
-                                waiting_server_reply = false;
-                            });
-                }
-            }
-            else
-            {
-                step ++;
+                $.ajax({
+                    url: '{{ url_for('wizard') }}',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({'form': form}),
+                    dataType: 'json',
+                    success: function() { window.location.replace("{{url_for('home')}}"); }
+                })
+            } else {
+                step++;
                 $wizard_carousel.carousel(step);
             }
         });
 
-        $prev_button.click(function() {
-            step = step > 0 ? step-1:step;
+        $prev_button.click(function () {
+            step = step > 0 ? step - 1 : step;
             $wizard_carousel.carousel(step);
         });
-        //************
     </script>
 {% endblock %}  
