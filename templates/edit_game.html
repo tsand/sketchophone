@@ -1,0 +1,62 @@
+{% extends "themes/navbar.html" %}
+
+
+{% block content %}
+
+    <div class="span8 offset2">
+        <h2>Edit Game</h2>
+        <hr>
+        <form class="form-horizontal" action="" method="post">
+            {{ form.csrf_token }}
+
+            <div class="control-group">
+                {{ form.name.label(class="control-label") }}
+                <div class="controls">
+                    {{ form.name(value=game.title) }}
+                </div>
+            </div>
+
+            <div class="control-group">
+                {{ form.rounds.label(class="control-label") }}
+                <div class="controls">
+                    {{ form.rounds(type='number', class='input-mini', value=game.max_rounds, min=3) }}
+                </div>
+            </div>
+
+            <div class="control-group">
+                {{ form.type.label(class="control-label") }}
+                <div class="controls">
+                    {{ form.type(value=game.perms, id='type_value') }}
+                    <div id="radio-type" class="btn-group" data-toggle="buttons-radio">
+                        <button type="button" value="public" class="btn">Public</button>
+                        <button type="button" value="private" class="btn">Private</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="controls">
+                    {{ form.submit(class="btn btn-primary btn-large") }}
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+{% endblock content %}
+
+{% block js_include %}
+
+    <script>
+
+        $(document).ready(function() {
+            $('#radio-type').find('button[value="{{ game.perms }}"]').click();
+        });
+
+        $('#radio-type > button').click(function() {
+            $('#type_value').val(this.value)
+        });
+
+    </script>
+
+{% endblock %}

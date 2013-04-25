@@ -1,6 +1,6 @@
 import json
 
-from flask import abort
+from flask import abort, request
 from flask.views import MethodView, View
 from flask.templating import render_template
 
@@ -9,7 +9,8 @@ from base import cron
 
 class HomeView(MethodView):
     def get(self):
-        return render_template('home.html')
+        reset_app2home = bool(request.args.get('show_popup', ''))
+        return render_template('home.html', reset_app2home=reset_app2home)
 
 
 class AboutView(View):
@@ -20,6 +21,11 @@ class AboutView(View):
 class InstructionsView(View):
     def dispatch_request(self):
         return render_template('instructions.html')
+
+
+class AppsView(View):
+    def dispatch_request(self):
+        return render_template('app.html')
 
 
 class Cron(View):
