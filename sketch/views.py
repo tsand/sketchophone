@@ -245,8 +245,11 @@ class BanView(MethodView):
 class Evict(MethodView):
     def get(self, game_key):
         game = sketch_actions.get_game_by_key(game_key)
+        session = request.cookies.get('session')
 
-        if current_user.key() == game.created_by.key() or current_user.administrator:
+        if game.session_is_occupant(session):
+            game.evict_occupancy()
+        elif current_user.key() == game.created_by.key() or current_user.administrator:
             if game.is_occupied():
                 game.evict_occupancy()
                 flash('User Evicted', 'info')
