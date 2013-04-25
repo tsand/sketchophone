@@ -144,7 +144,7 @@
                                                                       flag:flag_attribute,
                                                                       admin_options:rendered_admin_options});
 
-
+                rendered_options = is_anon ? '' : rendered_options;
                 if (round['round_type'] == 'story') {
                     if (round['is_banned']) {
                         round['data'] = 'This round has been banned';
