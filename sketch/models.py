@@ -16,6 +16,8 @@ class Game(db.Model):
 
     max_rounds = db.IntegerProperty()
     num_rounds = db.IntegerProperty()
+    def is_over(self):
+        return self.num_rounds >= self.max_rounds
 
     occupant_name = db.StringProperty()
     date_occupied = db.DateTimeProperty()

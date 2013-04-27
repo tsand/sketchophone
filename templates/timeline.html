@@ -80,6 +80,7 @@
         var items_per_request = 10;
         var number_loaded = 0;
         var done_loading = false;
+        var is_anon = {{is_anon|safe}};
         var is_admin = {{is_admin|safe}};
 
         var starRoundFunction = function(){
@@ -143,6 +144,7 @@
                                                                       flag:flag_attribute,
                                                                       admin_options:rendered_admin_options});
 
+                rendered_options = is_anon ? '' : rendered_options;
                 if (round['round_type'] == 'story') {
                     if (round['is_banned']) {
                         round['data'] = 'This round has been banned';
@@ -165,9 +167,7 @@
                     });
                 }
 
-                $('.flag-round').click(flagRoundFunction);
-                $('.ban-round').click(banRoundFunction);
-                $('.star-round').click(starRoundFunction);
+
 
                 number_loaded++;
                 if (number_loaded >= {{ game.num_rounds }}) {
@@ -176,6 +176,14 @@
                     timeline.append('<h2 class="text-error">End</h2>')
                 }
             });
+            $('.flag-round:not(.processed)').click(flagRoundFunction);
+            $('.flag-round:not(.processed)').addClass('processed');
+
+            $('.ban-round:not(.processed)').click(banRoundFunction);
+            $('.ban-round:not(.processed)').addClass('processed');
+
+            $('.star-round:not(.processed)').click(starRoundFunction);
+            $('.star-round:not(.processed)').addClass('processed');
         }
 
         function loadTimeline(number, offset) {
