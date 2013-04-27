@@ -27,6 +27,14 @@
 
     <script>
 
+        window.onbeforeunload = function(){
+            $.ajax({
+                type: "GET",
+                url: "/game/evict/{{ game.key() }}",
+                async: false
+            });
+        };
+
         // Initialize viewer
         var sketchpad = $('#viewer').sketchpad({
             backgroundColor: '#fff',
