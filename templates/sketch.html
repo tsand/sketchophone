@@ -325,6 +325,14 @@
         // Initialize Sketchpad
         var sketchpad = $("#sketch").sketchpad({aspectRatio: 2});
 
+        window.onbeforeunload = function(){
+            $.ajax({
+                type: "GET",
+                url: "/game/evict/{{ game.key() }}",
+                async: false
+            });
+        };
+
         function closeAll() {
             $('.tool').each(function() {
                 var subMenu = $($(this).find('.submenu'));
