@@ -247,6 +247,9 @@ class Evict(MethodView):
         game = sketch_actions.get_game_by_key(game_key)
         session = request.cookies.get('session')
 
+        if not game:
+            return redirect(url_for('home'))
+
         if game.session_is_occupant(session):
             game.evict_occupancy()
         elif current_user.key() == game.created_by.key() or current_user.administrator:
