@@ -21,7 +21,7 @@ class Game(db.Model):
 
     occupant_name = db.StringProperty()
     date_occupied = db.DateTimeProperty()
-    occupied_session = db.StringProperty()
+    occupied_session = db.TextProperty()
 
     def occupy(self, user, session):
         self.occupant_name = user.display_name

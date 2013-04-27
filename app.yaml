@@ -40,4 +40,5 @@ inbound_services:
 - warmup
 
 builtins:
+- remote_api: on
 - deferred: on
