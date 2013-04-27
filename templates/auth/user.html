@@ -168,8 +168,9 @@
                                                     </button>
                                                     <ul class="dropdown-menu">
                                                         <li><a href="/game/timeline/{{ game.key() }}"><i class="icon-list-alt"></i> View Timeline</a></li>
-                                                        {% if current_user.key() == game.created_by.key() or current_user.administrator %}
+                                                        {% if (current_user.key() == game.created_by.key() or current_user.administrator) and not game.is_over() %}
                                                             <li><a href="/game/edit/{{ game.key() }}"><i class="icon-edit"></i> Edit Game</a></li>
+                                                            <li><a id="end_game_button" value="{{game.key()}}"><i class="icon-fast-forward"></i> End Game</a></li>
                                                         {% endif %}
                                                         {% if (current_user.key() == game.created_by.key() or current_user.administrator) and game.is_occupied() %}
                                                             <li><a href="/game/evict/{{ game.key() }}"><i class="icon-unlock"></i> Evict {{ game.occupant_name }}</a></li>
@@ -183,6 +184,7 @@
                                     <tr>
                                         <td colspan="7" style="text-align: center;">
                                             <strong><a href="{{ url_for('wizard') }}">Create</a> or <a href="{{ url_for('search') }}">Join</a> a Game!</strong>
+
                                         </td>
                                     </tr>
                                 {% endif %}
@@ -281,6 +283,24 @@
         $(document).ready(function() {
             $('#notifications').bind('shown', readNotifications());
             $('a[href="#notifications"]').bind('click', readNotifications());
+
+
+        $('#end_game_button').click(function(){
+            var game_key = $(this).attr("value");
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for('end_game') }}",
+                data: JSON.stringify({
+                    game_key: game_key
+                }),
+                contentType: 'application/json',
+                dataType: 'json'
+            }).done(function() {
+              location.reload();
+            });
+            showWarniing('Game has ended!');
+        });
+
 
             {# Auto open collapse #}
             var hash = window.location.hash;
