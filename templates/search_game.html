@@ -35,7 +35,12 @@
                     <td class="col-status">{{ game.status }}</td>
                     <td class="col-actions">
                         <div class="btn-group">
-                            <a href="/game/{{ game.key() }}" class="btn btn-primary" role="button" data-toggle="modal">Join</a>
+                            {% if game.is_over() %}
+                            <a href="/game/timeline/{{ game.key() }}" class="btn btn-primary" role="button" data-toggle="modal">View</a>
+                            {% else %}
+                            <a href="/game/{{ game.key() }}" class="btn" role="button" data-toggle="modal">Join</a>
+                            {% endif %}
+
                         </div>
                     </td>
                 </tr>
