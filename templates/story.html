@@ -44,6 +44,7 @@
 
         // Submit Story
         function submitStory() {
+            $("#save-submit").click(false);
             $.ajax({
                 type: "POST",
                 url: "/game/sketch/{{ game.key() }}",

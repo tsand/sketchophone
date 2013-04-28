@@ -403,6 +403,7 @@
         });
 
         $("#save-submit").click(function() {
+            $("#save-submit").click(false);
             $.ajax({
                        type: "POST",
                        url: "/game/sketch/{{ game.key() }}",
