@@ -402,18 +402,23 @@
             $('#save-modal').modal('show');
         });
 
+        var submitCheck = true;
         $("#save-submit").click(function() {
-            $("#save-submit").click(false);
-            $.ajax({
-                       type: "POST",
-                       url: "/game/sketch/{{ game.key() }}",
-                       data: JSON.stringify({round_type: 'sketch', data: sketchpad.json()}),
-                       contentType: 'application/json',
-                       dataType: 'json',
-                       complete: function() {
-                           window.location = "{{ url_for('success') }}"
-                       }
-                   });
+            if (submitCheck)
+            {
+                submitCheck = false;
+                $.ajax({
+                           type: "POST",
+                           url: "/game/sketch/{{ game.key() }}",
+                           data: JSON.stringify({round_type: 'sketch', data: sketchpad.json()}),
+                           contentType: 'application/json',
+                           dataType: 'json',
+                           complete: function() {
+                               window.location = "{{ url_for('success') }}"
+                           }
+                       });
+            }
+
         });
 
         {# Change color #}

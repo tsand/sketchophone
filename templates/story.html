@@ -42,22 +42,27 @@
             locked: true
         });
 
+        var submitCheck = true;
         // Submit Story
         function submitStory() {
-            $("#save-submit").click(false);
-            $.ajax({
-                type: "POST",
-                url: "/game/sketch/{{ game.key() }}",
-                data: JSON.stringify({
-                    round_type: 'story',
-                    data: $('#story').val()
-                }),
-                contentType: 'application/json',
-                dataType: 'json',
-                complete: function() {
-                    window.location = "{{ url_for('success') }}"
-                }
-            })
+            if (submitCheck)
+            {
+                submitCheck = false;
+                $.ajax({
+                    type: "POST",
+                    url: "/game/sketch/{{ game.key() }}",
+                    data: JSON.stringify({
+                        round_type: 'story',
+                        data: $('#story').val()
+                    }),
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    complete: function() {
+                        window.location = "{{ url_for('success') }}"
+                    }
+                });
+            }
+
         }
 
     </script>
