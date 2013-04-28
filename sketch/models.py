@@ -42,7 +42,7 @@ class Game(db.Model):
             self.put()
 
     locked_length = 2
-    locked_users = db.StringProperty(default=':'.join([''for x in xrange(locked_length)]))
+    locked_users = db.TextProperty(default=':'.join([''for x in xrange(locked_length)]))
 
     def is_locked_out(self, user, session):
         convicts = self.get_locked_users()
@@ -59,7 +59,7 @@ class Game(db.Model):
 
     def updated_locked_users(self, user, session):
         identifier = ''
-        if user.is_anonymous():
+        if not user or user.is_anonymous():
             identifier = session
         else:
             identifier = str(user.key()) 

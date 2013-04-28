@@ -111,3 +111,8 @@ class Anonymous(AnonymousUser):
     def administrator(self):
         return False
 
+    def attach_game(self, game_key):
+        return False
+
+    def key(self):
+        return ''
