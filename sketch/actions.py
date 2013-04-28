@@ -126,11 +126,14 @@ def add_round_by_game_key(game_key, round_type, new_data, participant, session=N
 
             if freed_user_key:
                 # Notify released user
-                base_actions.notify_user(
-                    db.get(db.Key(freed_user_key)),
-                    'Your turn to play!',
-                    'You may now return to the game %s' % game.title,
-                    url_for('game', game_key=game.key()))
+                try:
+                    base_actions.notify_user(
+                        db.get(db.Key(freed_user_key)),
+                        'Your turn to play!',
+                        'You may now return to the game %s' % game.title,
+                        url_for('game', game_key=game.key()))
+                except:
+                    pass
 
             new_round.put()
             game.num_rounds += 1
