@@ -9,6 +9,22 @@ libraries:
   version: 2.6
 
 handlers:
+- url: /favicon\.ico
+  static_files: static/img/ico/favicon.ico
+  upload: static/img/ico/favicon\.ico
+
+- url: /robots\.txt
+  static_files: static/files/robots.txt
+  upload: static/files/robots\.txt
+
+- url: /humans\.txt
+  static_files: static/files/humans.txt
+  upload: static/files/humans\.txt
+
+- url: /apple-touch-icon(.*)\.png
+  static_files: static/img/ico/apple/144.png
+  upload: static/img/ico/apple/144\.png
+
 - url: /(.*)\.(ico|png|jpg)
   static_files: \1.\2
   upload: (.*)\.(ico|png|jpg)
