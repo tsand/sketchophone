@@ -1,11 +1,16 @@
 from google.appengine.ext import db
 from datetime import datetime
-
+from google.appengine.api import memcache
 from auth.models import User
 
 
 class Game(db.Model):
     title = db.StringProperty()
+
+    def put(self):
+        db.put(self)
+        memcache.set(str(self.key()), self)
+
 
     created = db.DateTimeProperty(auto_now_add=True)
     created_by = db.ReferenceProperty(User)
@@ -32,7 +37,9 @@ class Game(db.Model):
         return bool(self.occupied_session)
 
     def session_is_occupant(self, session):
-        return self.occupied_session == session
+        if session:
+            return self.occupied_session == session
+        return False
 
     def evict_occupancy(self):
         if self.is_occupied():
@@ -77,6 +84,10 @@ class Round(db.Model):
         if self.created:
             return self.created.strftime("%m/%d/%y %I:%M %p")
         return ''
+
+    def put(self):
+        db.put(self)
+        memcache.set(str(self.key()), self)
 
     user = db.ReferenceProperty(User)
 
