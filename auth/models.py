@@ -1,6 +1,7 @@
 from google.appengine.ext import db
 from resources.flask_login import AnonymousUser
 from google.appengine.api import memcache
+from base import actions as base_actions
 
 class User(db.Model):
     username = db.StringProperty()
@@ -86,11 +87,7 @@ class User(db.Model):
 
     # Notification
     def get_notifications(self):
-        notifications = [db.get(note) for note in self.notifications]
-        notifications = sorted(notifications,
-                               key=lambda notification: notification.sent,
-                               reverse=True)
-        return notifications
+        return base_actions.get_unread_notifications(self)
 
     @property
     def notification_count(self):
