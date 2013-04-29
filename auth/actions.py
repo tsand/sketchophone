@@ -4,11 +4,18 @@
 from auth import models as auth_models
 from auth import utils as auth_utils
 from google.appengine.ext import db
-
+from google.appengine.api import memcache
 
 # User Retrieval
 def get_user_by_key(key):
-    return db.get(key)
+    user = memcache.get(str(key))
+    if user:
+        return user
+
+    user = db.get(key)
+    if user:
+        memcache.set(str(key), user)
+    return user
 
 
 def get_user_by_flask_user(user):
@@ -23,7 +30,14 @@ def get_user_by_email(email):
 
 
 def get_user_by_id(id):
-    user = auth_models.User.all().filter('id =', id).get()
+    user = memcache.get(str(id))
+    if user:
+        return user
+
+    user = auth_models.User.get_by_id(int(id))
+    if user:
+        memcache.set(str(id), user)
+
     return user
 
 
