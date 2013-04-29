@@ -3,7 +3,7 @@ import random
 from datetime import datetime, timedelta
 from flask import url_for
 from google.appengine.ext import db
-
+from google.appengine.api import memcache
 from base import actions as base_actions
 from sketch import models as sketch_models
 
@@ -29,7 +29,14 @@ def get_game_by_key(key):
     """
     Given a game_key, return a game
     """
-    return db.get(key)
+    game = memcache.get(str(key))
+    if game:
+        return game
+
+    game = db.get(key)
+    if game:
+        memcache.set(str(key), game)
+    return game
 
 
 def end_game_by_key(game_key, user):
@@ -43,7 +50,14 @@ def end_game_by_key(game_key, user):
 
 
 def get_round_by_key(key):
-    return db.get(key)
+    round_to_return = memcache.get(str(key))
+    if round_to_return:
+        return round_to_return
+
+    round_to_return = db.get(key)
+    if round_to_return:
+        memcache.set(str(key), round_to_return)
+    return round_to_return
 
 
 def get_game_by_title(title):
@@ -77,22 +91,23 @@ def get_latest_round(game_key):
     """
     Given a game key, return the last round played in the game.
     """
-    latest_round = sketch_models.Round.all().ancestor(game_key).order("-created").get()
-    return latest_round
+    latest_round_key = sketch_models.Round.all(keys_only=True).ancestor(game_key).order("-created").get()
+    return get_round_by_key(latest_round_key)
 
 
 def get_oldest_rounds_by_game_key(game_key, num=None, offset=0):
     """
     Given a game key, get all rounds in the game
     """
-    return sketch_models.Round.all().ancestor(game_key).order("created").fetch(num, offset=offset)
-
+    round_keys = sketch_models.Round.all(keys_only=True).ancestor(game_key).order("created").fetch(num, offset=offset)
+    return [get_round_by_key(round_key) for round_key in round_keys]
 
 def get_latest_rounds_by_game_key(game_key, num=None, offset=0):
     """
     Given a game key, get all rounds in the game
     """
-    return sketch_models.Round.all().ancestor(game_key).order("-created").fetch(num, offset=offset)
+    round_keys = sketch_models.Round.all(keys_only=True).ancestor(game_key).order("-created").fetch(num, offset=offset)
+    return [get_round_by_key(round_key) for round_key in round_keys]
 
 
 def get_latest_public_games(num=None, offset=0):
@@ -100,7 +115,10 @@ def get_latest_public_games(num=None, offset=0):
     Return the public games.
     If not num, return all games
     """
-    return sketch_models.Game.all().filter('perms =', 'public').order("-created").fetch(num, offset=offset)
+
+    game_keys = sketch_models.Game.all(keys_only=True).filter('perms =', 'public').order("-created").fetch(num, offset=offset)
+    return [get_game_by_key(game_key) for game_key in game_keys]
+
 
 
 def add_round_by_game_key(game_key, round_type, new_data, participant, session=None):
@@ -142,7 +160,7 @@ def add_round_by_game_key(game_key, round_type, new_data, participant, session=N
 
 def ban_round_by_key(round_key, ban_state):
     round_to_ban = get_round_by_key(round_key)
-    if round_to_ban is not None:
+    if round_to_ban:
         round_to_ban.is_banned = ban_state
         round_to_ban.put()
         return True
@@ -150,8 +168,8 @@ def ban_round_by_key(round_key, ban_state):
 
 
 def get_flagged_rounds(num=None, offset=0):
-    return sketch_models.Round.all().filter('is_flagged =', True).filter('is_banned', False).fetch(num, offset=offset)
-
+    round_keys = sketch_models.Round.all(keys_only=True).filter('is_flagged =', True).filter('is_banned', False).fetch(num, offset=offset)
+    return [get_round_by_key(round_key) for round_key in round_keys]
 
 def flag_round_by_key(round_key, flag_state):
     round_to_flag = get_round_by_key(round_key)
