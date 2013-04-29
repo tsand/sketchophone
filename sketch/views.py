@@ -213,11 +213,11 @@ class SearchGamesView(MethodView):
             if game.is_over():
                 game.status = 'Game is Over'
             elif game.is_locked_out(current_user, session):
-                game.status = 'Temporarily Locked Out'
+                game.status = 'Waiting for other users to play'
             elif game.session_is_occupant(session):
                 game.status = 'Currently Participating'
             elif game.is_occupied():
-                game.status = 'Waiting on User'
+                game.status = 'Another user is playing'
 
         return render_template('search_game.html',
                                public_games=public_games)

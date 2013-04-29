@@ -31,7 +31,7 @@
             {% for game in public_games %}
                 <tr>
                     <td class="col-name">{{ game.title }}</td>
-                    <td class="col-created">{{ game.created | pretty_date }}</td>
+                    <td class="col-created" value="{{ game.created }}">{{ game.created | pretty_date }}</td>
                     <td class="col-status">{{ game.status }}</td>
                     <td class="col-actions">
                         <div class="btn-group">
@@ -40,7 +40,6 @@
                             {% else %}
                             <a href="/game/{{ game.key() }}" class="btn" role="button" data-toggle="modal">Join</a>
                             {% endif %}
-
                         </div>
                     </td>
                 </tr>
@@ -70,7 +69,22 @@
                 "iTotalPages":    oSettings._iDisplayLength === -1 ?
                         0 : Math.ceil( oSettings.fnRecordsDisplay() / oSettings._iDisplayLength )
             };
-        }
+        };
+
+        jQuery.extend( jQuery.fn.dataTableExt.oSort, {
+            "title-pretty-date-pre": function ( a ) {
+                var cell = $('.col-created:contains("' + a + '")');
+                return cell.attr('value')
+            },
+
+            "title-pretty-date-desc": function ( a, b ) {
+                return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+            },
+
+            "title-pretty-date-asc": function ( a, b ) {
+                return ((a < b) ? 1 : ((a > b) ? -1 : 0));
+            }
+        } );
 
         /* Bootstrap style pagination control */
         $.extend( $.fn.dataTableExt.oPagination, {
@@ -171,7 +185,13 @@
                         ">",
                 "bInfo": false,
                 "bAutoWidth": true,
-                "sPaginationType": "bootstrap"
+                "sPaginationType": "bootstrap",
+                "aoColumns":[
+                    {"bSortable": true},
+                    {"sType": "title-pretty-date"},
+                    {"bSortable": true},
+                    {"bSortable": false}
+                ]
             });
 
             // Sort immediately with column 1
