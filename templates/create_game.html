@@ -52,11 +52,12 @@
                                 <label class="control-label">Type</label>
 
                                 <div class="controls">
-                                    <div class="btn-group" data-toggle="buttons-radio">
-                                        <button type="button" name="perms" value="public" class="btn active"><i
+                                    <input id="perms_value" name="perms" type="hidden" value="public">
+                                    <div class="btn-group" id="radio-type" data-toggle="buttons-radio">
+                                        <button type="button" value="public" class="btn active"><i
                                                 class="icon-group"></i> Public
                                         </button>
-                                        <button type="button" name="perms" value="private" class="btn"><i
+                                        <button type="button" value="private" class="btn"><i
                                                 class="icon-lock"></i> Private
                                         </button>
                                     </div>
@@ -259,6 +260,11 @@
         $prev_button.click(function () {
             step = step > 0 ? step - 1 : step;
             $wizard_carousel.carousel(step);
+        });
+
+        {# Permission Radio Button #}
+        $('#radio-type > button').click(function() {
+            $('#perms_value').val(this.value)
         });
     </script>
 {% endblock %}  
