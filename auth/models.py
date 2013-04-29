@@ -1,6 +1,7 @@
 from google.appengine.ext import db
 from resources.flask_login import AnonymousUser
-
+from google.appengine.api import memcache
+from base import actions as base_actions
 
 class User(db.Model):
     username = db.StringProperty()
@@ -24,6 +25,10 @@ class User(db.Model):
     notifications = db.ListProperty(db.Key)
     invites = db.StringListProperty()
 
+    def put(self):
+        db.put(self)
+        memcache.set(str(self.key()), self)
+        memcache.set(str(self.key().id()), self)
 
     @property
     def display_name(self):
@@ -69,18 +74,20 @@ class User(db.Model):
             self.put()
 
     def get_games(self):
-        return [game for game in db.get(self.games) if game is not None]
+        from sketch.actions import get_game_by_key
+        games = []
+        for game_key in self.games:
+            game = get_game_by_key(game_key)
+            if game:
+                games.append(game)
+        return games
 
     def get_game_count(self):
         return len(self.games)
 
     # Notification
     def get_notifications(self):
-        notifications = [db.get(note) for note in self.notifications]
-        notifications = sorted(notifications,
-                               key=lambda notification: notification.sent,
-                               reverse=True)
-        return notifications
+        return base_actions.get_notifications_by_user(self)
 
     @property
     def notification_count(self):

@@ -1,5 +1,6 @@
 from base import models as base_models
-
+from google.appengine.api import memcache
+from google.appengine.ext import db
 
 def notify_user(user, title, description, link):
     # Build notification
@@ -11,3 +12,25 @@ def notify_user(user, title, description, link):
     # Attach to user
     user.notifications.append(notification.key())
     user.put()
+
+
+def get_notification_by_key(key):
+    notification = memcache.get(str(key))
+    if notification:
+        return notification
+
+    notification = db.get(key)
+    if notification:
+        memcache.set(str(key), notification)
+    return notification
+
+
+def get_notifications_by_user(user):
+
+    notifications = [get_notification_by_key(note_key) for note_key in user.notifications]
+    notifications = sorted(notifications,
+                       key=lambda notification: notification.sent,
+                       reverse=True)
+
+    return notifications
+
