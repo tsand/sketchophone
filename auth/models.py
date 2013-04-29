@@ -87,7 +87,7 @@ class User(db.Model):
 
     # Notification
     def get_notifications(self):
-        return base_actions.get_unread_notifications(self)
+        return base_actions.get_notifications_by_user(self)
 
     @property
     def notification_count(self):
