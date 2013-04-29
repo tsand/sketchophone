@@ -25,7 +25,7 @@ def get_notification_by_key(key):
     return notification
 
 
-def get_unread_notifications(user):
+def get_notifications_by_user(user):
 
     notifications = [get_notification_by_key(note_key) for note_key in user.notifications]
     notifications = sorted(notifications,
