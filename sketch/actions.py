@@ -6,7 +6,7 @@ from google.appengine.ext import db
 from google.appengine.api import memcache
 from base import actions as base_actions
 from sketch import models as sketch_models
-
+import logging
 
 def create_game(first_round_text, title, perms, max_rounds, created_by):
     # Store game model
@@ -144,11 +144,21 @@ def add_round_by_game_key(game_key, round_type, new_data, participant, session=N
 
             if freed_user_key:
                 # Notify released user
-                base_actions.notify_user(
-                    db.get(db.Key(freed_user_key)),
-                    'Your turn to play!',
-                    'You may now return to the game %s' % game.title,
-                    url_for('game', game_key=game.key()))
+                try:
+                    freed_key = db.Key(freed_user_key)
+
+                # if key is not valid
+                # occurs when session id exists in the locked user list
+                except db.BadKeyError:
+                    logging.warning('Was unable to find user to notify of freedom...')
+
+                # if key is valid
+                else:
+                    base_actions.notify_user(
+                        db.get(freed_key),
+                        'Your turn to play!',
+                        'You may now return to the game %s' % game.title,
+                        url_for('game', game_key=game.key()))
 
             new_round.put()
             game.num_rounds += 1
