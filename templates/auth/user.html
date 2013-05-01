@@ -342,17 +342,16 @@
         var sketch_data = [];
 
         function render_favorites(data){
-            if(!done_loading){
+            if(data.offset != -1){
                 {# Use 'raw' block to escape mustache templates #}
                 {% raw %}
                 var sketch_html = '<canvas id="{{ sketch_id }}">'+'</canvas>';
                 {% endraw %}
     
                 sketch_data = data.favs;
-                
                 var favorite = $("#fav_id");
     
-                if(data.offset == 0) {
+                if(first) {
                     var carousel_html = '<div class="item active">';
                 } else {
                     var carousel_html = '<div class="item">';
@@ -371,11 +370,15 @@
                 favorite.append(carousel_html);  
                 
                 if(data.offset == -1) {
+                    
                     done_loading = true;
                     }
+                if(first){
+                    render_sketches(sketch_data);
+                    first = false;
+                }
             }
             else {
-                
                 all_rendered = true;
             }
         };
@@ -392,7 +395,7 @@
                 };
 
         function render_sketches(data) {
-            $.each(sketch_data, function(index, round){
+            $.each(data, function(index, round){
                 $('#' + round['key']).sketchpad({
                                         backgroundColor: '#fff',
                                         data: round['data'],
@@ -405,14 +408,9 @@
         var first = true;
         $('#favorites').on('show', function () {
             if(first){
-                first = false;
                 load_favorites(items_per_request, num_loaded);
-                render_sketches(sketch_data);
             }
         })
-        
-        
-        
 
         $('#fav_carousel').on('slid', function(){
             if(!all_rendered){

@@ -84,7 +84,6 @@
         var is_admin = {{is_admin|safe}};
 
         function starRoundFunction() {
-            window.alert($(this).val())
             $.ajax({
                 type: "POST",
                 url: "{{ url_for('fav_view') }}",
