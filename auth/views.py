@@ -336,7 +336,7 @@ class Favorites(MethodView):
                            'round_type':r.round_type, 
                            'key':str(r.key()),
                            'is_banned':r.is_banned,
-                           'is_flagged':r.is_flagged} for r in rounds]
+                           'is_flagged':r.is_flagged} for r in rounds if r.round_type == 'sketch']
             return json.dumps({'favs': round_data, 'offset': offset, 'number': number})
         
         return json.dumps({'offset': offset, 'number': number})
