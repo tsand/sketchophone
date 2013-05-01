@@ -25,6 +25,8 @@ class User(db.Model):
     notifications = db.ListProperty(db.Key)
     invites = db.StringListProperty()
 
+    favorites = db.ListProperty(db.Key)
+
     def put(self):
         db.put(self)
         memcache.set(str(self.key()), self)
@@ -106,6 +108,17 @@ class User(db.Model):
             notification.read = True
             notification.put()
 
+    # Favorites
+    def get_favorites(self):
+        return [fav for fav in self.favorites]
+
+    def attach_favorite(self, round_key):
+        # self.favorites = []
+        self.favorites.append(round_key)
+        self.put()
+
+    def count_favorites(self):
+        return len(self.favorites)
 
 class Anonymous(AnonymousUser):
     username = "Anonymous"

@@ -23,17 +23,17 @@ class Game(MethodView):
         session = request.cookies.get('session')
 
         # Allow admins to override locked games
-        if not current_user.is_authenticated() or not current_user.administrator:
-            if game.is_locked_out(current_user, session):
-                flash('You have to wait before you get to participate in this game again.')
-                return redirect('/')
+        # if not current_user.is_authenticated() or not current_user.administrator:
+        #     if game.is_locked_out(current_user, session):
+        #         flash('You have to wait before you get to participate in this game again.')
+        #         return redirect('/')
 
-            if game.is_occupied() and not game.session_is_occupant(session):
-                flash('Another user is currently completing a round in this game.')
-                return redirect('/')
+        #     if game.is_occupied() and not game.session_is_occupant(session):
+        #         flash('Another user is currently completing a round in this game.')
+        #         return redirect('/')
 
-        game.occupy(current_user, session)
-        game.put()
+        # game.occupy(current_user, session)
+        # game.put()
 
         # Check if private
         if game.perms == game.PRIVATE:
@@ -282,3 +282,12 @@ class Evict(MethodView):
 
         return redirect(url_for('user') + '#games')
 
+class FavoritesView(MethodView):
+    def post(self):
+        payload = json.loads(request.data)
+        round_key = payload.get('round_key')
+        rounds = sketch_actions.get_round_by_key(round_key).key()
+
+        if (rounds not in current_user.get_favorites()):
+            current_user.attach_favorite(rounds)        
+        return 
