@@ -83,8 +83,17 @@
         var is_anon = {{is_anon|safe}};
         var is_admin = {{is_admin|safe}};
 
-        var starRoundFunction = function(){
-            window.alert("Here is the key of the round to star --->" + $(this).val());
+        function starRoundFunction() {
+            window.alert($(this).val())
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for('fav_view') }}",
+                data: JSON.stringify({
+                    round_key: $(this).val()
+                }),
+                contentType: 'application/json',
+                dataType: 'json',
+            });
             $(this).css( "color", "#E9AB17" );
         };
 

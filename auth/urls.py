@@ -16,3 +16,6 @@ def apply_urls(app):
 
     # Notifications
     app.add_url_rule('/auth/notifications', view_func=auth_views.Notifications.as_view('notifications'))
+
+    # Favorites
+    app.add_url_rule('/auth/favorites', view_func=auth_views.Favorites.as_view('favorites'))

@@ -318,3 +318,25 @@ class Notifications(View):
         current_user.read_notifications()  # Mark as read
         return json.dumps(notes)
 
+class Favorites(MethodView):
+
+    def post(self):
+        payload = json.loads(request.data)
+        number = payload.get('number')
+        offset = payload.get('offset')
+        round_keys = current_user.favorites
+        if(offset + number > len(round_keys)):
+            number = len(round_keys) - offset;
+        if(offset >= len(round_keys)):
+            offset = -1
+        else:
+            keys = [round_keys[x] for x in range(offset, offset + number)]
+            rounds = [sketch_actions.get_round_by_key(key) for key in keys]
+            round_data = [{'data':r.get_data(), 
+                           'round_type':r.round_type, 
+                           'key':str(r.key()),
+                           'is_banned':r.is_banned,
+                           'is_flagged':r.is_flagged} for r in rounds]
+            return json.dumps({'favs': round_data, 'offset': offset, 'number': number})
+        
+        return json.dumps({'offset': offset, 'number': number})

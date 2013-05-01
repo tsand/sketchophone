@@ -240,8 +240,29 @@
                 </div>
             </div>
         {% endif %}
-
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#user-accordion" href="#favorites">
+                        <i class="icon-star"></i><span class="divide"></span> Favorites
+                    </a>
+                </div>
+                <div id="favorites" class="fav_accordion-body collapse">
+                    <div class="accordion-inner">
+                        <div class="row-fluid">
+                            <div class="span12 well">
+                                <div id="fav_carousel" class ="carousel slide">
+                                    <div class ="carousel-inner span10 offset1" id="fav_id">
+                                    </div>
+                                </div>
+                                <a class="carousel-control left" href="#fav_carousel" data-slide="prev">&lsaquo;</a>
+                                <a class="carousel-control right" href="#fav_carousel" data-slide="next">&rsaquo;</a>
+                            </div>
+                        </div>
+                    </div><p class="muted"style="text-align: center">To fill your favorites, view timelines and click the star in the corner of a sketch</p>
+                </div>
+            </div>
         </div>
+        
 
         <div class="pull-right">
             <br>
@@ -272,7 +293,8 @@
 {% endblock content %}
 
 {% block js_include %}
-
+    <script src="{{ url_for('static', filename="js/mustache.js")}}"></script>
+    <script src="{{ url_for('static', filename="js/responsive-sketchpad.js")}}"></script>
     <script type="text/javascript">
 
         {# Mark notifications as read #}
@@ -313,6 +335,92 @@
             });
         });
 
+        var items_per_request = 4;
+        var num_loaded = 0;
+        var done_loading = false;
+        var all_rendered = false;
+        var sketch_data = [];
+
+        function render_favorites(data){
+            if(!done_loading){
+                {# Use 'raw' block to escape mustache templates #}
+                {% raw %}
+                var sketch_html = '<canvas id="{{ sketch_id }}">'+'</canvas>';
+                {% endraw %}
+    
+                sketch_data = data.favs;
+                
+                var favorite = $("#fav_id");
+    
+                if(data.offset == 0) {
+                    var carousel_html = '<div class="item active">';
+                } else {
+                    var carousel_html = '<div class="item">';
+                }
+                var item_html = "";
+    
+                $.each(sketch_data, function(index, round){
+                    if(round['round_type'] == 'sketch'){
+                        var round_html = '<div id="div-'+round['key']+'" class="span3">'
+                        round_html += Mustache.render(sketch_html,{sketch_id: round['key']});
+                        round_html += "</div>";
+                        item_html += round_html;                   
+                    }
+                });
+                carousel_html += item_html + '</div>';
+                favorite.append(carousel_html);  
+                
+                if(data.offset == -1) {
+                    done_loading = true;
+                    }
+            }
+            else {
+                
+                all_rendered = true;
+            }
+        };
+
+        function load_favorites(number, offset){
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ url_for('favorites') }}",
+                        contentType: 'application/json',
+                        data: JSON.stringify({'offset': offset, 'number': number}),
+                        dataType: 'json',
+                        success: render_favorites
+                    });
+                };
+
+        function render_sketches(data) {
+            $.each(sketch_data, function(index, round){
+                $('#' + round['key']).sketchpad({
+                                        backgroundColor: '#fff',
+                                        data: round['data'],
+                                        locked: true
+                                    });
+            });
+            num_loaded += items_per_request;
+            load_favorites(items_per_request, num_loaded);            
+        };
+        var first = true;
+        $('#favorites').on('show', function () {
+            if(first){
+                first = false;
+                load_favorites(items_per_request, num_loaded);
+                window.alert("to fill your favorites, view timelines and click the star your favorite rounds" + sketch_data);
+                render_sketches(sketch_data);
+            }
+        })
+        
+        
+        
+
+        $('#fav_carousel').on('slid', function(){
+            if(!all_rendered){
+                render_sketches(sketch_data);
+            }
+        });
+    </script>
     </script>
 
 {% endblock %}

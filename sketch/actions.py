@@ -50,13 +50,8 @@ def end_game_by_key(game_key, user):
 
 
 def get_round_by_key(key):
-    round_to_return = memcache.get(str(key))
-    if round_to_return:
-        return round_to_return
-
     round_to_return = db.get(key)
-    if round_to_return:
-        memcache.set(str(key), round_to_return)
+    round_to_return.put()
     return round_to_return
 
 
