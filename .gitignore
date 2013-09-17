@@ -46,3 +46,5 @@ nosetests.xml
 
 # Codekit
 codekit-config.json
+
+settings.py
