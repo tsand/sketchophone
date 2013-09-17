@@ -7,13 +7,14 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from flask import Flask
 
 import auth
+import settings
 from base import filters
 from auth import urls as auth_urls
 from base import urls as base_urls
 from sketch import urls as sketch_urls
 
 app = Flask(__name__)
-app.secret_key = 'i-hope-no-one-can-guess-our-secret-dev-key'
+app.secret_key = settings.SECRET_KEY
 
 # Apply Urls
 auth_urls.apply_urls(app)
